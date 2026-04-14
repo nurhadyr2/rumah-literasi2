@@ -19,7 +19,6 @@ import {
 export const ROLES = {
 	GUEST: 'Guest',
 	ADMIN: 'Admin',
-	LIBRARIAN: 'Librarian',
 	SUPERADMIN: 'Superadmin',
 };
 
@@ -51,7 +50,7 @@ export const SIDEBAR_MENUS = [
 				href: '/dashboard/book-donations',
 				label: 'Book Donation',
 				icon: Gift,
-				roles: [ROLES.GUEST, ROLES.LIBRARIAN, ROLES.SUPERADMIN],
+				roles: [ROLES.GUEST, ROLES.ADMIN,, ROLES.SUPERADMIN],
 			},
 			{
 				href: '/dashboard/financial-donations',

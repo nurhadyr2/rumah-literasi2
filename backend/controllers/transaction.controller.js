@@ -11,7 +11,7 @@ const TransactionController = {
 	async index(req, res, next) {
 		try {
 			const transactions = await Transaction.scope({
-				method: ['authorize', req.user, [ROLES.LIBRARIAN]],
+				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findAll({
 				include: ['user', 'transaction_items'],
 			});
@@ -109,7 +109,7 @@ const TransactionController = {
 			if (!uuid) throw new ApiError(400, 'UUID is required');
 
 			const transaction = await Transaction.scope({
-				method: ['authorize', req.user, [ROLES.LIBRARIAN]],
+				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findOne({
 				where: { uuid },
 				include: [
@@ -137,7 +137,7 @@ const TransactionController = {
 			if (!uuid) throw new ApiError(400, 'UUID is required');
 
 			const transaction = await Transaction.scope({
-				method: ['authorize', req.user, [ROLES.LIBRARIAN]],
+				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findOne({
 				where: {
 					uuid,

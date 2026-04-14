@@ -43,16 +43,6 @@ module.exports = {
 					},
 					{
 						uuid: uuidv4(),
-						name: 'Librarian',
-						email: 'librarian@example.com',
-						password: hashed,
-						role: ROLES.LIBRARIAN,
-						is_verified: true,
-						created_at: new Date(),
-						updated_at: new Date(),
-					},
-					{
-						uuid: uuidv4(),
 						name: 'Guest',
 						email: 'guest@example.com',
 						password: hashed,

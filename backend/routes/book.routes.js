@@ -11,11 +11,11 @@ const { authorize } = require('../middleware/authorize');
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const upload = IS_PRODUCTION ? vercel : local;
 
-const librarian = authorize([ROLES.LIBRARIAN]);
+const admin = authorize([ROLES.ADMIN]);
 router.get('/', BookController.index);
-router.post('/', librarian, upload.single('cover[]'), BookController.store);
-router.get('/:id', librarian, BookController.show);
-router.put('/:id', librarian, upload.single('cover[]'), BookController.update);
-router.delete('/:id', librarian, BookController.destroy);
+router.post('/', admin, upload.single('cover[]'), BookController.store);
+router.get('/:id', admin, BookController.show);
+router.put('/:id', admin, upload.single('cover[]'), BookController.update);
+router.delete('/:id', admin, BookController.destroy);
 
 module.exports = router;

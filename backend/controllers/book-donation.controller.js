@@ -20,7 +20,7 @@ const BookDonationController = {
 			const { search, page, limit, status } = req.query;
 
 			const donations = BookDonation.scope({
-				method: ['authorize', req.user, ROLES.LIBRARIAN],
+				method: ['authorize', req.user, ROLES.ADMIN],
 			});
 
 			const filters = {};
@@ -159,7 +159,7 @@ const BookDonationController = {
 			if (!id) throw new ApiError(400, 'ID is required');
 
 			const donation = await BookDonation.scope({
-				method: ['authorize', req.user, [ROLES.LIBRARIAN]],
+				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findOne({
 				where: { id },
 				include: ['user', 'address', 'book_donation_items'],
@@ -180,7 +180,7 @@ const BookDonationController = {
 			if (!id) throw new ApiError(400, 'ID is required');
 
 			const donation = await BookDonation.scope({
-				method: ['authorize', req.user, [ROLES.LIBRARIAN]],
+				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findOne({
 				where: { id },
 			});
@@ -203,7 +203,7 @@ const BookDonationController = {
 			if (!id) throw new ApiError(400, 'ID is required');
 
 			const donation = await BookDonation.scope({
-				method: ['authorize', req.user, [ROLES.LIBRARIAN]],
+				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findOne({
 				where: { id },
 			});
@@ -232,7 +232,7 @@ const BookDonationController = {
 			if (!id) throw new ApiError(400, 'ID is required');
 
 			const donation = await BookDonation.scope({
-				method: ['authorize', req.user, [ROLES.LIBRARIAN]],
+				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findOne({
 				where: { id },
 			});

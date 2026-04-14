@@ -159,7 +159,7 @@ const Router = () => {
 					<Route
 						path='book-donations'
 						element={
-							<AuthorizeLayout allowed={[ROLES.GUEST, ROLES.LIBRARIAN]} />
+							<AuthorizeLayout allowed={[ROLES.GUEST, ROLES.ADMIN]} />
 						}>
 						<Route index element={<ListBookDonations />} />
 						<Route path='create' element={<AddBookDonation />} />
@@ -173,7 +173,7 @@ const Router = () => {
 
 					<Route
 						path='book-donations'
-						element={<AuthorizeLayout allowed={[ROLES.LIBRARIAN]} />}>
+						element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
 						<Route path=':id/edit' element={<EditBookDonation />} />
 					</Route>
 

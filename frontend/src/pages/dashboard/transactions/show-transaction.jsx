@@ -75,7 +75,7 @@ const ShowTransaction = () => {
 
 	const allowed = React.useMemo(() => {
 		if (loading) return false;
-		return [ROLES.LIBRARIAN, ROLES.SUPERADMIN].includes(user.role);
+		return [ROLES.ADMIN, ROLES.SUPERADMIN].includes(user.role);
 	}, [user, loading]);
 
 	const handleApproval = (status, variant = 'primary') => {

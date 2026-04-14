@@ -1,7 +1,6 @@
 const ROLES = {
 	GUEST: 'Guest',
 	ADMIN: 'Admin',
-	LIBRARIAN: 'Librarian',
 	SUPERADMIN: 'Superadmin',
 };
 

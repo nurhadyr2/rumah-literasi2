@@ -63,7 +63,7 @@ module.exports = (sequelize, DataTypes) => {
 			role: {
 				allowNull: false,
 				type: DataTypes.ENUM,
-				values: [ROLES.GUEST, ROLES.LIBRARIAN, ROLES.ADMIN, ROLES.SUPERADMIN],
+				values: [ROLES.GUEST, ROLES.ADMIN, ROLES.SUPERADMIN],
 				defaultValue: ROLES.GUEST,
 				validate: {
 					notEmpty: true,
