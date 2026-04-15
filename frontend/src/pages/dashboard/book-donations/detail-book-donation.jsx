@@ -37,7 +37,7 @@ const DetailBookDonation = () => {
 				initial={detail}
 				action={onSubmit}
 				previous={onPrevious}
-				label='Continue to Courier Selection'
+				label='Lanjutkan untuk memilih kurir'
 			/>
 		</div>
 	);
