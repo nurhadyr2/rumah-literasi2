@@ -41,8 +41,7 @@ const ShowDonation = () => {
 			<Heading>
 				<HeadingTitle>Detail Donasi Finansial</HeadingTitle>
 				<HeadingDescription>
-					Detail informasi donasi finansial untuk mendukung kegiatan literasi
-					baca-tulis di Mraen Mimpi
+					Lihat detail informasi donasi finansial untuk mendukung kegiatan literasi baca-tulis di Taman Mraen Mimpi.
 				</HeadingDescription>
 			</Heading>
 
@@ -52,13 +51,13 @@ const ShowDonation = () => {
 			{result && (
 				<div className='grid gap-6 lg:grid-cols-2'>
 					<div className='col-span-full'>
-						<Label htmlFor='amount'>Amount</Label>
+						<Label htmlFor='amount'>Jumlah</Label>
 						<Input disabled type='number' defaultValue={result.data.amount} />
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='notes'>Notes</Label>
-						<Textarea disabled type='text' defaultValue={result.data.notes} />
+						<Label htmlFor='notes'>Catatan</Label>
+						<Textarea disabled defaultValue={result.data.notes} />
 					</div>
 
 					<div>
@@ -67,10 +66,9 @@ const ShowDonation = () => {
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='acceptance-notes'>Acceptance Notes</Label>
+						<Label htmlFor='acceptance-notes'>Catatan Penerimaan</Label>
 						<Textarea
 							disabled
-							type='text'
 							defaultValue={result.data.acceptance_notes}
 						/>
 					</div>
@@ -80,7 +78,7 @@ const ShowDonation = () => {
 							<Link to='/dashboard/financial-donations'>
 								<Button variant='outline'>
 									<ArrowLeft className='size-4 sm:mr-2' />
-									<span className='hidden sm:inline'>Back</span>
+									<span className='hidden sm:inline'>Kembali</span>
 								</Button>
 							</Link>
 
@@ -89,7 +87,7 @@ const ShowDonation = () => {
 									to={result.data.payment_url}
 									target='_blank'
 									rel='noreferrer'>
-									<Button variant='primary'>Complete Payment</Button>
+									<Button variant='primary'>Selesaikan Pembayaran</Button>
 								</Link>
 							)}
 
@@ -98,7 +96,7 @@ const ShowDonation = () => {
 									to={
 										'/dashboard/financial-donations/' + result.data.id + '/edit'
 									}>
-									<Button>Edit Donation</Button>
+									<Button>Edit Donasi</Button>
 								</Link>
 							)}
 						</div>

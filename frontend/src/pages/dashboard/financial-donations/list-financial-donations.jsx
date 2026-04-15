@@ -61,19 +61,19 @@ const ListDonations = () => {
 
 	const handleDelete = async (id) => {
 		confirm({
-			title: 'Confirm Action',
+			title: 'Konfirmasi Tindakan',
 			variant: 'destructive',
-			description: 'Are you sure you want to delete this record?',
+			description: 'Apakah Anda yakin ingin menghapus data ini?',
 		})
 			.then(async () => {
 				try {
 					await axios.delete('/financial-donations/' + id);
 					mutate();
-					toast('Financial donation deleted', {
-						description: 'Successfully deleted donation',
+					toast('Donasi finansial dihapus', {
+						description: 'Donasi berhasil dihapus',
 					});
 				} catch (error) {
-					toast.error('Failed to delete donation', {
+					toast.error('Gagal menghapus donasi', {
 						description: error.response?.data?.message || error.message,
 					});
 					console.error(error);
@@ -87,9 +87,9 @@ const ListDonations = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle> Daftar Donasi Finansial</HeadingTitle>
+				<HeadingTitle>Daftar Donasi Finansial</HeadingTitle>
 				<HeadingDescription>
-					Kelola semua Donasi Finansial dengan fitur penomoran halaman dan pencarian.
+					Kelola semua donasi finansial dengan fitur pencarian dan pagination.
 				</HeadingDescription>
 			</Heading>
 
@@ -98,14 +98,14 @@ const ListDonations = () => {
 					<Input
 						value={search}
 						type='search'
-						placeholder='Search by member name, address...'
+						placeholder='Cari berdasarkan nama member, alamat...'
 						onChange={(e) => setSearch(e.target.value)}
 					/>
 					<Select
 						value={status}
 						className='max-w-40'
 						onChange={(e) => setStatus(e.target.value)}>
-						<option value=''>Select a status</option>
+						<option value=''>Pilih status</option>
 						{Object.values(PAYMENT_STATUS).map((status) => (
 							<option key={status} value={status}>
 								{status}
@@ -128,23 +128,28 @@ const ListDonations = () => {
 					<TableHeader>
 						<TableRow>
 							<TableHead>Member</TableHead>
-							<TableHead>Amount</TableHead>
+							<TableHead>Jumlah</TableHead>
 							<TableHead>Status</TableHead>
-							<TableHead>Created At</TableHead>
-							<TableHead>Action</TableHead>
+							<TableHead>Tanggal Dibuat</TableHead>
+							<TableHead>Aksi</TableHead>
 						</TableRow>
 					</TableHeader>
+
 					<TableBody>
 						{result.map((donation) => (
 							<TableRow key={donation.id}>
 								<TableCell>
 									<AvatarGroup user={donation.user} />
 								</TableCell>
+
 								<TableCell>{currency(donation.amount)}</TableCell>
+
 								<TableCell>
 									<Badge>{donation.status}</Badge>
 								</TableCell>
+
 								<TableCell>{formatDate(donation.createdAt)}</TableCell>
+
 								<TableCell>
 									<div className='flex items-center gap-2'>
 										{donation.status === PAYMENT_STATUS.PENDING && (
@@ -153,19 +158,21 @@ const ListDonations = () => {
 												target='_blank'
 												rel='noreferrer'>
 												<button className='bg-transparent hover:text-blue-500'>
-													Complete Payment
+													Selesaikan Pembayaran
 												</button>
 											</a>
 										)}
+
 										<Link to={'/dashboard/financial-donations/' + donation.id}>
 											<button className='bg-transparent hover:text-amber-500'>
 												Detail
 											</button>
 										</Link>
+
 										<button
 											onClick={() => handleDelete(donation.id)}
 											className='bg-transparent hover:text-red-500'>
-											Delete
+											Hapus
 										</button>
 									</div>
 								</TableCell>

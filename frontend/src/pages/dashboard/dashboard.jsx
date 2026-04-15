@@ -11,17 +11,17 @@ const Dashboard = () => {
 	const menus = [
 		{
 			href: '/dashboard/financial-donations',
-			title: 'Financial Donations',
+			title: 'Donasi Finansial',
 			icon: HeartHandshake,
 			description:
-				'Track and manage financial donation, processed via our payment gateway.',
+				'Lacak dan kelola donasi finansial yang diproses melalui payment gateway.',
 		},
 		{
 			href: '/dashboard/book-donations',
-			title: 'Book Donations',
+			title: 'Donasi Buku',
 			icon: Gift,
 			description:
-				'Oversee book donations, verify records, and manage distributions.',
+				'Pantau donasi buku, verifikasi data, dan kelola distribusinya.',
 		},
 	];
 
@@ -30,7 +30,8 @@ const Dashboard = () => {
 			<Heading>
 				<HeadingTitle>Dashboard</HeadingTitle>
 				<HeadingDescription>
-					Welcome to the dashboard! Here you can manage your donations and track their impact on our literacy programs at Taman Mraen Mimpi.
+					Selamat datang di dashboard. Di sini Anda dapat mengelola donasi dan
+					memantau dampaknya terhadap program literasi di Taman Mraen Mimpi.
 				</HeadingDescription>
 			</Heading>
 

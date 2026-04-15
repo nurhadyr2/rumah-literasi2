@@ -32,7 +32,7 @@ export const STEPS = {
 export const SIDEBAR_MENUS = [
 	{
 		id: 'general',
-		label: 'General',
+		label: 'Umum',
 		submenus: [
 			{
 				href: '/dashboard',
@@ -42,19 +42,19 @@ export const SIDEBAR_MENUS = [
 			},
 			{
 				href: '/dashboard/events',
-				label: 'Manage Events',
+				label: 'Kelola Event',
 				icon: Calendar,
 				roles: [ROLES.ADMIN, ROLES.SUPERADMIN],
 			},
 			{
 				href: '/dashboard/book-donations',
-				label: 'Book Donation',
+				label: 'Donasi Buku',
 				icon: Gift,
-				roles: [ROLES.GUEST, ROLES.ADMIN,, ROLES.SUPERADMIN],
+				roles: [ROLES.GUEST, ROLES.ADMIN, ROLES.SUPERADMIN],
 			},
 			{
 				href: '/dashboard/financial-donations',
-				label: 'Financial Donations',
+				label: 'Donasi Finansial',
 				icon: HeartHandshake,
 				roles: [ROLES.GUEST, ROLES.ADMIN, ROLES.SUPERADMIN],
 			},
@@ -62,17 +62,17 @@ export const SIDEBAR_MENUS = [
 	},
 	{
 		id: 'configuration',
-		label: 'Configuration',
+		label: 'Konfigurasi',
 		submenus: [
 			{
 				href: '/dashboard/members',
-				label: 'Members',
+				label: 'Anggota',
 				icon: UsersRound,
 				roles: [ROLES.SUPERADMIN],
 			},
 			{
 				href: '/dashboard/addresses',
-				label: 'Addresses',
+				label: 'Alamat',
 				icon: MapPin,
 				roles: [ROLES.GUEST, ROLES.SUPERADMIN],
 			},
@@ -84,7 +84,7 @@ export const SIDEBAR_MENUS = [
 			},
 			{
 				href: '/dashboard/logs',
-				label: 'Logs',
+				label: 'Log Sistem',
 				icon: Bolt,
 				roles: [ROLES.ADMIN, ROLES.SUPERADMIN],
 			},
@@ -95,16 +95,15 @@ export const SIDEBAR_MENUS = [
 export const WIDGET_NAV = [
 	{
 		href: '/',
-		label: 'Home',
+		label: 'Beranda',
 	},
-
 	{
 		href: '/about',
-		label: 'About Us',
+		label: 'Tentang Kami',
 	},
 	{
 		href: '/contact',
-		label: 'Contact and Support',
+		label: 'Kontak & Bantuan',
 	},
 ];
 
@@ -145,11 +144,11 @@ export const WIDGET_SOCIAL = [
 ];
 
 export const ERROR_MESSAGES = {
-	401: 'You are not authenticated, please login to access this resource',
-	403: 'You are not authorized to access this resource',
-	404: 'Resource not found, please try again later',
-	429: 'You have exceeded the rate limit, try again later',
-	500: 'Internal server error, try again later',
+	401: 'Anda belum login, silakan login terlebih dahulu',
+	403: 'Anda tidak memiliki izin untuk mengakses sumber ini',
+	404: 'Data tidak ditemukan',
+	429: 'Terlalu banyak permintaan, coba lagi nanti',
+	500: 'Terjadi kesalahan server, coba lagi nanti',
 };
 
 export const PAYMENT_STATUS = {
