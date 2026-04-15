@@ -181,7 +181,7 @@ const Router = () => {
 
 					<Route
 						path='addresses'
-						element={<AuthorizeLayout allowed={[ROLES.GUEST]} />}>
+						element={<AuthorizeLayout allowed={[ROLES.GUEST,ROLES.ADMIN]} />}>
 						<Route index element={<ListAddresses />} />
 						<Route path='create' element={<AddAddress />} />
 						<Route path=':id/edit' element={<EditAddress />} />
