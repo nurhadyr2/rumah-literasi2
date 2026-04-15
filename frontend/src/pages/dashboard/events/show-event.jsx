@@ -22,9 +22,9 @@ const ShowEvent = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Event Details</HeadingTitle>
+				<HeadingTitle>Detail Event</HeadingTitle>
 				<HeadingDescription>
-					View detailed information about the event.
+					Lihat informasi lengkap mengenai event ini.
 				</HeadingDescription>
 			</Heading>
 
@@ -34,37 +34,33 @@ const ShowEvent = () => {
 			{result && (
 				<div className='grid gap-6 lg:grid-cols-2'>
 					<div className='col-span-full'>
-						<Label htmlFor='title'>Title</Label>
+						<Label htmlFor='title'>Judul</Label>
 						<Input disabled type='text' defaultValue={result.data.title} />
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='description'>Description</Label>
+						<Label htmlFor='description'>Deskripsi</Label>
 						<Textarea disabled defaultValue={result.data.description} />
 					</div>
 
 					<div>
-						<Label htmlFor='date'>Date</Label>
+						<Label htmlFor='date'>Tanggal</Label>
 						<Input disabled type='text' defaultValue={result.data.date} />
 					</div>
 
 					<div>
-						<Label htmlFor='time'>Time</Label>
+						<Label htmlFor='time'>Waktu</Label>
 						<Input disabled type='text' defaultValue={result.data.time} />
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='location'>Location</Label>
-						<Textarea
-							disabled
-							type='text'
-							defaultValue={result.data.location}
-						/>
+						<Label htmlFor='location'>Lokasi</Label>
+						<Textarea disabled defaultValue={result.data.location} />
 					</div>
 
 					{result.data.media && (
 						<div className='col-span-full'>
-							<Label htmlFor='image'>Event Image</Label>
+							<Label htmlFor='image'>Gambar Event</Label>
 							<div className='mt-2'>
 								<img
 									src={result.data.media}
@@ -77,7 +73,7 @@ const ShowEvent = () => {
 
 					{result.data.user && (
 						<div className='col-span-full'>
-							<Label htmlFor='createdBy'>Created By</Label>
+							<Label htmlFor='createdBy'>Dibuat Oleh</Label>
 							<Input
 								disabled
 								type='text'
@@ -89,7 +85,7 @@ const ShowEvent = () => {
 					<div className='col-span-full'>
 						<div className='flex items-center gap-2'>
 							<Link to='/dashboard/events'>
-								<Button variant='outline'>Back</Button>
+								<Button variant='outline'>Kembali</Button>
 							</Link>
 							<Link to={'/dashboard/events/' + result.data.id + '/edit'}>
 								<Button>Edit Event</Button>

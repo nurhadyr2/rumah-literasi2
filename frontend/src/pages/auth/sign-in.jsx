@@ -45,18 +45,18 @@ const SignIn = () => {
 
 	const onSubmit = handleSubmit(async (data) => {
 		try {
-			toast('Logging in...', {
-				description: 'We are verifying your credentials',
+			toast('Sedang login...', {
+				description: 'Kami sedang memverifikasi kredensial Anda',
 			});
 
 			await signin(data);
 
-			toast('Login successful', {
-				description: 'Please verify your account',
+			toast('Login berhasil', {
+				description: 'Silakan lakukan verifikasi akun',
 			});
 			navigate('/dashboard');
 		} catch (error) {
-			toast.error('Failed to login', {
+			toast.error('Gagal login', {
 				description: error.response?.data?.message || error.message,
 			});
 			console.error(error);
@@ -65,14 +65,14 @@ const SignIn = () => {
 
 	return (
 		<div>
-			<h1 className='mb-8 text-4xl font-bold text-primary-500'>Login</h1>
+			<h1 className='mb-8 text-4xl font-bold text-primary-500'>Masuk</h1>
 
 			<form className='grid gap-6' onSubmit={onSubmit}>
 				<div>
 					<Label htmlFor='email'>Email</Label>
 					<Input
 						type='email'
-						placeholder='Enter your email'
+						placeholder='Masukkan email Anda'
 						{...register('email')}
 					/>
 					{errors.email && (
@@ -84,7 +84,7 @@ const SignIn = () => {
 					<Label htmlFor='password'>Password</Label>
 					<Input
 						type='password'
-						placeholder='Enter your password'
+						placeholder='Masukkan password Anda'
 						{...register('password')}
 					/>
 					{errors.password && (
@@ -95,24 +95,24 @@ const SignIn = () => {
 				<div className='flex items-center justify-between'>
 					<CheckboxGroup>
 						<Checkbox id='remember-me' name='remember-me' type='checkbox' />
-						<CheckboxLabel htmlFor='remember-me'>Remember me</CheckboxLabel>
+						<CheckboxLabel htmlFor='remember-me'>Ingat saya</CheckboxLabel>
 					</CheckboxGroup>
 
 					<Link
 						to='/auth/forgot-password'
 						className='text-sm font-medium text-primary-600 hover:text-primary-500'>
-						Forgot your password?
+						Lupa password?
 					</Link>
 				</div>
 
-				<Button className='w-full'>Login</Button>
+				<Button className='w-full'>Masuk</Button>
 
 				<div className='text-sm text-center text-zinc-500 '>
-					Don't have an account?{' '}
+					Belum punya akun?{' '}
 					<Link
 						to='/auth/signup'
 						className='font-medium text-primary-600 hover:text-primary-500'>
-						Sign up
+						Daftar
 					</Link>
 				</div>
 			</form>

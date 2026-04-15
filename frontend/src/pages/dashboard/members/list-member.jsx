@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/table';
 
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarGroup } from '@/components/ui/avatar';
+import { AvatarGroup } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Loading } from '@/components/loading';
 import { Empty } from '@/components/empty';
@@ -59,19 +59,19 @@ const ListMembers = () => {
 
 	const handleDelete = async (uuid) => {
 		confirm({
-			title: 'Confirm Action',
+			title: 'Konfirmasi Tindakan',
 			variant: 'destructive',
-			description: 'Are you sure you want to delete this record?',
+			description: 'Apakah Anda yakin ingin menghapus data ini?',
 		})
 			.then(async () => {
 				try {
 					await axios.delete('/members/' + uuid);
 					mutate();
-					toast('Member deleted', {
-						description: 'Successfully deleted member',
+					toast('Member dihapus', {
+						description: 'Member berhasil dihapus',
 					});
 				} catch (error) {
-					toast.error('Failed to delete member', {
+					toast.error('Gagal menghapus member', {
 						description: error.response?.data?.message || error.message,
 					});
 					console.error(error);
@@ -85,9 +85,9 @@ const ListMembers = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Member List</HeadingTitle>
+				<HeadingTitle>Daftar Member</HeadingTitle>
 				<HeadingDescription>
-					Manage all members with pagination and search functionality.
+					Mengelola semua member dengan fitur pencarian dan pagination.
 				</HeadingDescription>
 			</Heading>
 
@@ -96,25 +96,27 @@ const ListMembers = () => {
 					<Input
 						value={search}
 						type='search'
-						placeholder='Search by member name, address...'
+						placeholder='Cari berdasarkan nama member...'
 						onChange={(e) => setSearch(e.target.value)}
 					/>
+
 					<Select
-						value={status}
+						value={role}
 						className='max-w-40'
 						onChange={(e) => setRole(e.target.value)}>
-						<option value=''>Select a status</option>
-						{Object.values(ROLES).map((status) => (
-							<option key={status} value={status}>
-								{status}
+						<option value=''>Semua Role</option>
+						{Object.values(ROLES).map((role) => (
+							<option key={role} value={role}>
+								{role}
 							</option>
 						))}
 					</Select>
 				</div>
+
 				<Link
 					to='/dashboard/members/create'
 					className='flex-none w-full sm:w-auto'>
-					<Button className='w-full sm:w-auto'>Create Member</Button>
+					<Button className='w-full sm:w-auto'>Tambah Member</Button>
 				</Link>
 			</div>
 
@@ -122,22 +124,28 @@ const ListMembers = () => {
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead>Name</TableHead>
+							<TableHead>Nama</TableHead>
 							<TableHead>Role</TableHead>
-							<TableHead>Verified</TableHead>
-							<TableHead>Action</TableHead>
+							<TableHead>Verifikasi</TableHead>
+							<TableHead>Aksi</TableHead>
 						</TableRow>
 					</TableHeader>
+
 					<TableBody>
 						{result.map((member) => (
 							<TableRow key={member.uuid}>
 								<TableCell>
 									<AvatarGroup user={member} />
 								</TableCell>
+
 								<TableCell>{member.role}</TableCell>
+
 								<TableCell>
-									<Badge>{member.is_verified ? 'Yes' : 'No'}</Badge>
+									<Badge>
+										{member.is_verified ? 'Terverifikasi' : 'Belum'}
+									</Badge>
 								</TableCell>
+
 								<TableCell>
 									<div className='flex items-center gap-2'>
 										<Link to={'/dashboard/members/' + member.uuid + '/edit'}>
@@ -145,10 +153,11 @@ const ListMembers = () => {
 												Edit
 											</button>
 										</Link>
+
 										<button
 											onClick={() => handleDelete(member.uuid)}
 											className='bg-transparent hover:text-red-500'>
-											Delete
+											Hapus
 										</button>
 									</div>
 								</TableCell>

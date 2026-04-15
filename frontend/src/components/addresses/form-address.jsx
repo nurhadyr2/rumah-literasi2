@@ -26,8 +26,8 @@ const AddressSchema = z.object({
 	longitude: z.coerce.number(),
 	zipcode: z
 		.string()
-		.min(5, 'Zipcode must be 5 digits')
-		.max(5, 'Zipcode must be 5 digits'),
+		.min(5, 'Kode pos harus 5 digit')
+		.max(5, 'Kode pos harus 5 digit'),
 	note: z.string().optional(),
 });
 
@@ -74,8 +74,8 @@ const AddressForm = ({ initial, action, label }) => {
 
 	const handleUseMyLocation = async () => {
 		confirm({
-			title: 'Use my location',
-			description: 'Are you sure you want to use your location?',
+			title: 'Gunakan lokasi saya',
+			description: 'Apakah Anda yakin ingin menggunakan lokasi Anda?',
 		})
 			.then(async () => {
 				if ('geolocation' in navigator) {
@@ -86,9 +86,9 @@ const AddressForm = ({ initial, action, label }) => {
 							setValue('longitude', longitude);
 						},
 						(error) => {
-							console.error('Error getting location:', error);
+							console.error('Error mendapatkan lokasi:', error);
 							alert(
-								'Unable to retrieve your location. Please check your browser permissions.'
+								'Tidak dapat mengambil lokasi Anda. Silakan periksa izin browser.'
 							);
 						},
 						{ enableHighAccuracy: true }
@@ -103,52 +103,54 @@ const AddressForm = ({ initial, action, label }) => {
 	return (
 		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
 			<div>
-				<Label htmlFor='contact_name'>Contact Name</Label>
+				<Label htmlFor='contact_name'>Nama Kontak</Label>
 				<Input
-					placeholder='Enter your contact name'
+					placeholder='Masukkan nama kontak'
 					{...register('contact_name')}
 				/>
-				<Hint>Name of the person who will be contacted at this address.</Hint>
+				<Hint>Nama orang yang dapat dihubungi pada alamat ini.</Hint>
 				{errors.contact_name && (
 					<span className='text-red-500'>{errors.contact_name.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='contact_phone'>Contact Phone</Label>
+				<Label htmlFor='contact_phone'>No. Telepon Kontak</Label>
 				<Input
-					placeholder='Enter your contact phone'
+					placeholder='Masukkan nomor telepon'
 					{...register('contact_phone')}
 				/>
-				<Hint>Phone number of the contact person at this address.</Hint>
+				<Hint>Nomor telepon orang yang dapat dihubungi.</Hint>
 				{errors.contact_phone && (
 					<span className='text-red-500'>{errors.contact_phone.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='name'>Address Name</Label>
-				<Input placeholder='Enter your address name' {...register('name')} />
-				<Hint>Descriptive name for this location (e.g., Home, Office, etc.).</Hint>
+				<Label htmlFor='name'>Nama Alamat</Label>
+				<Input placeholder='Masukkan nama alamat' {...register('name')} />
+				<Hint>Nama deskriptif untuk lokasi ini (misal: Rumah, Kantor).</Hint>
 				{errors.name && (
 					<span className='text-red-500'>{errors.name.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='street_address'>Street Address</Label>
+				<Label htmlFor='street_address'>Alamat Jalan</Label>
 				<Textarea
-					placeholder='Enter your street address'
+					placeholder='Masukkan alamat lengkap'
 					{...register('street_address')}
 				/>
-				<Hint>Complete street address including building number, street name, and any apartment/unit numbers.</Hint>
+				<Hint>
+					Alamat lengkap termasuk nomor bangunan, nama jalan, dan detail lainnya.
+				</Hint>
 				{errors.street_address && (
 					<span className='text-red-500'>{errors.street_address.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='province_id'>Province</Label>
+				<Label htmlFor='province_id'>Provinsi</Label>
 				<Controller
 					name='province_id'
 					control={control}
@@ -160,7 +162,7 @@ const AddressForm = ({ initial, action, label }) => {
 								handleProvinceChange(event.target.value);
 							}}
 							disabled={loading.provinces}>
-							<option value=''>Select a province</option>
+							<option value=''>Pilih provinsi</option>
 							{provinces.map((province) => (
 								<option key={province.id} value={province.id}>
 									{province.name}
@@ -169,14 +171,14 @@ const AddressForm = ({ initial, action, label }) => {
 						</Select>
 					)}
 				/>
-				<Hint>Select the province where this address is located.</Hint>
+				<Hint>Pilih provinsi tempat alamat ini berada.</Hint>
 				{errors.province_id && (
 					<span className='text-red-500'>{errors.province_id.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='city_id'>City</Label>
+				<Label htmlFor='city_id'>Kota</Label>
 				<Controller
 					name='city_id'
 					control={control}
@@ -188,7 +190,7 @@ const AddressForm = ({ initial, action, label }) => {
 								handleCityChange(event.target.value);
 							}}
 							disabled={loading.cities || !province}>
-							<option value=''>Select a city</option>
+							<option value=''>Pilih kota</option>
 							{cities.map((city) => (
 								<option key={city.id} value={city.id}>
 									{city.name}
@@ -197,14 +199,14 @@ const AddressForm = ({ initial, action, label }) => {
 						</Select>
 					)}
 				/>
-				<Hint>Select the city where this address is located.</Hint>
+				<Hint>Pilih kota tempat alamat ini berada.</Hint>
 				{errors.city_id && (
 					<span className='text-red-500'>{errors.city_id.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='district_id'>District</Label>
+				<Label htmlFor='district_id'>Kecamatan</Label>
 				<Controller
 					name='district_id'
 					control={control}
@@ -215,7 +217,7 @@ const AddressForm = ({ initial, action, label }) => {
 								field.onChange(event);
 							}}
 							disabled={loading.districts || !city}>
-							<option value=''>Select a district</option>
+							<option value=''>Pilih kecamatan</option>
 							{districts.map((district) => (
 								<option key={district.id} value={district.id}>
 									{district.name}
@@ -224,41 +226,43 @@ const AddressForm = ({ initial, action, label }) => {
 						</Select>
 					)}
 				/>
-				<Hint>Select the district where this address is located.</Hint>
+				<Hint>Pilih kecamatan tempat alamat ini berada.</Hint>
 				{errors.district_id && (
 					<span className='text-red-500'>{errors.district_id.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='zipcode'>Zipcode</Label>
+				<Label htmlFor='zipcode'>Kode Pos</Label>
 				<Input
 					type='text'
-					placeholder='Enter zipcode'
+					placeholder='Masukkan kode pos'
 					maxLength={5}
 					pattern='[0-9]*'
 					{...register('zipcode')}
 				/>
-				<Hint>5-digit postal code for this address.</Hint>
+				<Hint>Kode pos 5 digit untuk alamat ini.</Hint>
 				{errors.zipcode && (
 					<span className='text-red-500'>{errors.zipcode.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='note'>Note</Label>
+				<Label htmlFor='note'>Catatan</Label>
 				<Textarea
-					placeholder='Add a note for this address'
+					placeholder='Tambahkan catatan untuk alamat ini'
 					{...register('note')}
 				/>
-				<Hint>This note will help the driver navigate to your destination correctly.</Hint>
+				<Hint>
+					Catatan ini membantu kurir menemukan lokasi Anda dengan lebih mudah.
+				</Hint>
 				{errors.note && (
 					<span className='text-red-500'>{errors.note.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='location'>Location</Label>
+				<Label htmlFor='location'>Lokasi</Label>
 				<Map
 					location={{
 						latitude: watch('latitude'),
@@ -275,7 +279,7 @@ const AddressForm = ({ initial, action, label }) => {
 			<div className='flex items-center gap-2 col-span-full'>
 				<Button>{label}</Button>
 				<Button variant='outline' type='button' onClick={handleUseMyLocation}>
-					Use my location
+					Gunakan lokasi saya
 				</Button>
 			</div>
 		</form>

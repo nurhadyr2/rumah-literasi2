@@ -39,7 +39,7 @@ const CreateMember = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Create Member</HeadingTitle>
+				<HeadingTitle>Tambah Anggota</HeadingTitle>
 				<HeadingDescription>
 					Buat anggota untuk mendukung kegiatan literasi baca-tulis di Mraen Mimpi
 				</HeadingDescription>

@@ -40,7 +40,7 @@ const CreateBook = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Create Book</HeadingTitle>
+				<HeadingTitle>Tambah Buku</HeadingTitle>
 				<HeadingDescription>
 					Tambahkan buku yang ingin didonasikan ke dalam sistem kami. Pastikan untuk mengisi informasi buku dengan lengkap dan akurat agar dapat membantu 
 					kami dalam proses distribusi buku kepada mereka yang membutuhkan.

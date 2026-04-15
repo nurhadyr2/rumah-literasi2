@@ -12,28 +12,28 @@ const RecipientDetail = ({ recipient, className }) => {
 
 	const details = [
 		{
-			label: 'Name',
+			label: 'Nama',
 			value: recipient.name,
 		},
 		{
-			label: 'Phone',
+			label: 'No. Telepon',
 			value: recipient.phone,
 		},
 		{
-			label: 'Address',
+			label: 'Alamat',
 			value: recipient.address,
 		},
 		{
-			label: 'Borrowed Date',
+			label: 'Tanggal Pinjam',
 			value: recipient.borrowed_date,
 		},
 		{
-			label: 'Deadline Date',
+			label: 'Tanggal Batas',
 			value: recipient.deadline_date || deadline,
 		},
 		{
 			muted: true,
-			label: 'Notes',
+			label: 'Catatan',
 			value: recipient.note,
 		},
 	];
@@ -41,7 +41,7 @@ const RecipientDetail = ({ recipient, className }) => {
 	return (
 		<div className='border border-zinc-200 rounded-2xl'>
 			<div className='p-4 text-lg font-semibold '>
-				<h3>Recipient Detail</h3>
+				<h3>Detail Penerima</h3>
 			</div>
 
 			<div

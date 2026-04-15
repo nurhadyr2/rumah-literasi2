@@ -35,10 +35,10 @@ const DonationForm = ({ initial, action, label }) => {
 	return (
 		<form onSubmit={handleSubmit(action)} className='grid lg:grid-cols-2 gap-6'>
 			<div className='col-span-full'>
-				<Label htmlFor='amount'>Amount</Label>
+				<Label htmlFor='amount'>Jumlah Donasi</Label>
 				<Input
 					type='number'
-					placeholder='Enter the amount of donation'
+					placeholder='Masukkan jumlah donasi'
 					{...register('amount')}
 				/>
 				{errors.amount && (
@@ -47,10 +47,10 @@ const DonationForm = ({ initial, action, label }) => {
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='notes'>Notes</Label>
+				<Label htmlFor='notes'>Catatan</Label>
 				<Textarea
 					type='text'
-					placeholder='Enter your notes'
+					placeholder='Masukkan catatan'
 					{...register('notes')}
 				/>
 				{errors.notes && (
@@ -65,9 +65,9 @@ const DonationForm = ({ initial, action, label }) => {
 					<select
 						className='block w-full p-3 border shadow-sm border-zinc-300 rounded-xl focus:border-primary-500 focus:ring-primary-500 sm:text-sm bg-zinc-100'
 						{...register('status')}>
-						<option value='pending'>Pending</option>
-						<option value='success'>Success</option>
-						<option value='failed'>Failed</option>
+						<option value='pending'>Menunggu</option>
+						<option value='success'>Berhasil</option>
+						<option value='failed'>Gagal</option>
 					</select>
 
 					{errors.status && (

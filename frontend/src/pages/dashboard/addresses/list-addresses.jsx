@@ -55,60 +55,56 @@ const ListAddresses = () => {
 
 	const handleDelete = async (id) => {
 		confirm({
-			title: 'Confirm Action',
+			title: 'Konfirmasi Aksi',
 			variant: 'destructive',
-			description: 'Are you sure you want to delete this address?',
+			description: 'Apakah Anda yakin ingin menghapus alamat ini?',
 		})
 			.then(async () => {
 				try {
 					await axios.delete('/addresses/' + id);
 					mutate();
-					toast('Address deleted', {
-						description: 'Successfully deleted address',
+					toast('Alamat berhasil dihapus', {
+						description: 'Data alamat telah dihapus',
 					});
 				} catch (error) {
-					toast.error('Failed to delete address', {
+					toast.error('Gagal menghapus alamat', {
 						description: error.response?.data?.message || error.message,
 					});
 					console.error(error);
 				}
 			})
-			.catch(() => {
-				// pass
-			});
+			.catch(() => {});
 	};
 
 	const handleDefault = async (id) => {
 		confirm({
-			title: 'Confirm Action',
-			description: 'Are you sure you want to set this address as default?',
+			title: 'Konfirmasi Aksi',
+			description: 'Jadikan alamat ini sebagai alamat utama?',
 		})
 			.then(async () => {
 				try {
 					await axios.patch('/addresses/' + id + '/default');
 					mutate('/addresses');
 					mutate('/addresses/' + id);
-					toast('Address set as default', {
-						description: 'Successfully set address as default',
+					toast('Alamat dijadikan utama', {
+						description: 'Alamat berhasil dijadikan sebagai alamat utama',
 					});
 				} catch (error) {
-					toast.error('Failed to set address as default', {
+					toast.error('Gagal menjadikan alamat utama', {
 						description: error.response?.data?.message || error.message,
 					});
 					console.error(error);
 				}
 			})
-			.catch(() => {
-				// pass
-			});
+			.catch(() => {});
 	};
 
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Addresses List</HeadingTitle>
+				<HeadingTitle>Daftar Alamat</HeadingTitle>
 				<HeadingDescription>
-					Manage all addresses with pagination and search functionality.
+					Kelola semua alamat dengan fitur pencarian dan pagination.
 				</HeadingDescription>
 			</Heading>
 
@@ -116,11 +112,11 @@ const ListAddresses = () => {
 				<Input
 					type='search'
 					value={search}
-					placeholder='Search by name, address...'
+					placeholder='Cari nama, alamat...'
 					onChange={(e) => setSearch(e.target.value)}
 				/>
 				<Link to='/dashboard/addresses/create' className='flex-none'>
-					<Button>Create Address</Button>
+					<Button>Buat Alamat</Button>
 				</Link>
 			</div>
 
@@ -128,12 +124,12 @@ const ListAddresses = () => {
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead>Member</TableHead>
-							<TableHead>Name</TableHead>
-							<TableHead>Default</TableHead>
-							<TableHead>Address</TableHead>
-							<TableHead>Zipcode</TableHead>
-							<TableHead>Action</TableHead>
+							<TableHead>Pengguna</TableHead>
+							<TableHead>Nama</TableHead>
+							<TableHead>Utama</TableHead>
+							<TableHead>Alamat</TableHead>
+							<TableHead>Kode Pos</TableHead>
+							<TableHead>Aksi</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -145,7 +141,7 @@ const ListAddresses = () => {
 								<TableCell>{address.name}</TableCell>
 								<TableCell>
 									{address.is_default ? (
-										<Badge variant='primary'>default</Badge>
+										<Badge variant='primary'>Utama</Badge>
 									) : (
 										<Badge
 											variant='outline'
@@ -153,7 +149,7 @@ const ListAddresses = () => {
 												if (address.is_default) return;
 												handleDefault(address.id);
 											}}>
-											not default
+											Bukan utama
 										</Badge>
 									)}
 								</TableCell>
@@ -171,7 +167,7 @@ const ListAddresses = () => {
 										<button
 											onClick={() => handleDelete(address.id)}
 											className='bg-transparent hover:text-red-500'>
-											Delete
+											Hapus
 										</button>
 									</div>
 								</TableCell>

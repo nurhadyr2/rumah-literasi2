@@ -31,15 +31,15 @@ const EditAddress = () => {
 			await axios.put('/addresses/' + id, data, {
 				headers: { 'Content-Type': 'application/json' },
 			});
-			toast('Address updated', {
-				description: 'Successfully updated address',
+			toast('Alamat berhasil diperbarui', {
+				description: 'Data alamat berhasil diperbarui',
 			});
 
 			mutate('/addresses');
 			mutate('/addresses/' + id);
 			navigate('/dashboard/addresses/');
 		} catch (error) {
-			toast.error('Failed to update address', {
+			toast.error('Gagal memperbarui alamat', {
 				description: error.response?.data?.message || error.message,
 			});
 			console.error(error);
@@ -53,11 +53,11 @@ const EditAddress = () => {
 		<div className='grid gap-8'>
 			<Heading>
 				<HeadingTitle className='flex items-center justify-between'>
-					<span>Edit Address</span>
-					{result && result.data.is_default && <Badge>default</Badge>}
+					<span>Edit Alamat</span>
+					{result && result.data.is_default && <Badge>Utama</Badge>}
 				</HeadingTitle>
 				<HeadingDescription>
-					Update your address information.
+					Perbarui informasi alamat Anda.
 				</HeadingDescription>
 			</Heading>
 
@@ -65,7 +65,7 @@ const EditAddress = () => {
 				<AddressForm
 					initial={result.data}
 					action={onSubmit}
-					label='Update Address'
+					label='Perbarui Alamat'
 				/>
 			)}
 		</div>

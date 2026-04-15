@@ -36,14 +36,13 @@ const ShowDonation = () => {
 	return (
 		<div className='grid gap-8'>
 			<Link to='/dashboard/donations'>
-				<Button variant='outline'>Back</Button>
+				<Button variant='outline'>Kembali</Button>
 			</Link>
 
 			<Heading>
-				<HeadingTitle>Detail Donation</HeadingTitle>
+				<HeadingTitle>Detail Donasi</HeadingTitle>
 				<HeadingDescription>
-					Detail informasi donasi finansial untuk mendukung kegiatan literasi
-					baca-tulis di Taman Mraen Mimpi
+					Detail informasi donasi finansial untuk mendukung kegiatan literasi baca-tulis di Taman Mraen Mimpi
 				</HeadingDescription>
 			</Heading>
 
@@ -53,12 +52,12 @@ const ShowDonation = () => {
 			{result && (
 				<div className='grid gap-6 lg:grid-cols-2'>
 					<div className='col-span-full'>
-						<Label htmlFor='amount'>Amount</Label>
+						<Label htmlFor='amount'>Jumlah</Label>
 						<Input disabled type='number' defaultValue={result.data.amount} />
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='notes'>Notes</Label>
+						<Label htmlFor='notes'>Catatan</Label>
 						<Textarea disabled type='text' defaultValue={result.data.notes} />
 					</div>
 
@@ -69,12 +68,12 @@ const ShowDonation = () => {
 
 					<div className='col-span-full'>
 						<div className='flex items-center gap-2'>
-							{result.data.status !== 'pending ' && (
+							{result.data.status !== 'pending' && (
 								<Link
 									to={result.data.payment_url}
 									target='_blank'
 									rel='noreferrer'>
-									<Button variant='primary'>Complete Payment</Button>
+									<Button variant='primary'>Selesaikan Pembayaran</Button>
 								</Link>
 							)}
 

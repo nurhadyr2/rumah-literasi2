@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
 const VerifyEmailSchema = z.object({
-	otp: z.string().min(6, 'OTP must be at least 6 characters'),
+	otp: z.string().min(6, 'Kode OTP minimal 6 karakter'),
 });
 
 const SignUpVerify = () => {
@@ -44,12 +44,12 @@ const SignUpVerify = () => {
 	const handleResendEmail = async () => {
 		try {
 			await axios.post('/auth/resend-verification');
-			toast.success('Verification code sent', {
-				description: 'Please check your email inbox',
+			toast.success('Kode verifikasi terkirim', {
+				description: 'Silakan cek email Anda',
 			});
 			setSent(true);
 		} catch (error) {
-			toast.error('Failed to send verification code', {
+			toast.error('Gagal mengirim kode verifikasi', {
 				description: error.response?.data?.message || error.message,
 			});
 		}
@@ -58,16 +58,16 @@ const SignUpVerify = () => {
 	return (
 		<div>
 			<h1 className='mb-8 text-4xl font-bold text-primary-500'>
-				Verify Your Email
+				Verifikasi Email Anda
 			</h1>
 
 			<form className='grid gap-6' onSubmit={handleResendEmail}>
 				{emailSent ? (
 					<React.Fragment>
 						<div className='text-sm text-zinc-500 '>
-							We've sent you an email to <strong>{registeredEmail}</strong> with
-							the link verification, please check your inbox. If you don't
-							receive the email, please check your spam folder.
+							Kami telah mengirim email ke <strong>{registeredEmail}</strong> berisi
+							link verifikasi. Silakan cek inbox Anda. Jika tidak ditemukan,
+							periksa folder spam.
 						</div>
 					</React.Fragment>
 				) : (
@@ -76,7 +76,7 @@ const SignUpVerify = () => {
 							<Label htmlFor='email'>Email</Label>
 							<Input
 								type='email'
-								placeholder='Enter your email'
+								placeholder='Masukkan email Anda'
 								{...register('email')}
 							/>
 							{errors.email && (
@@ -86,15 +86,15 @@ const SignUpVerify = () => {
 					</React.Fragment>
 				)}
 				<Button type='submit' onClick={handleResendEmail} disabled={emailSent}>
-					Resend Verification
+					Kirim Ulang Verifikasi
 				</Button>
 
 				<div className='text-sm text-center text-zinc-500'>
-					Back to{' '}
+					Kembali ke{' '}
 					<Link
 						to='/auth/signin'
 						className='font-medium text-primary-600 hover:text-primary-500'>
-						Sign in
+						Masuk
 					</Link>
 				</div>
 			</form>

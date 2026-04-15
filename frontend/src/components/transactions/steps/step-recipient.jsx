@@ -45,8 +45,8 @@ const StepRecipient = () => {
 
 	const handleUseMyLocation = async () => {
 		confirm({
-			title: 'Use my location',
-			description: 'Are you sure you want to use your location?',
+			title: 'Gunakan lokasi saya',
+			description: 'Apakah Anda yakin ingin menggunakan lokasi Anda?',
 		})
 			.then(async () => {
 				if ('geolocation' in navigator) {
@@ -57,8 +57,8 @@ const StepRecipient = () => {
 							setValue('longitude', longitude);
 						},
 						(error) => {
-							console.error('Error getting location:', error);
-							alert('Unable to retrieve your location.');
+							console.error('Error mendapatkan lokasi:', error);
+							alert('Tidak dapat mengambil lokasi Anda.');
 						},
 						{ enableHighAccuracy: true }
 					);
@@ -74,10 +74,10 @@ const StepRecipient = () => {
 			onSubmit={handleSubmit(onSubmit)}
 			className='grid gap-6 lg:grid-cols-2'>
 			<div>
-				<Label htmlFor='name'>name</Label>
+				<Label htmlFor='name'>Nama</Label>
 				<Input
 					type='text'
-					placeholder='Enter your name'
+					placeholder='Masukkan nama'
 					{...register('name')}
 				/>
 				{errors.name && (
@@ -86,10 +86,10 @@ const StepRecipient = () => {
 			</div>
 
 			<div>
-				<Label htmlFor='phone'>Phone</Label>
+				<Label htmlFor='phone'>No. Telepon</Label>
 				<Input
 					type='text'
-					placeholder='Enter your phone'
+					placeholder='Masukkan nomor telepon'
 					{...register('phone')}
 				/>
 				{errors.phone && (
@@ -98,23 +98,23 @@ const StepRecipient = () => {
 			</div>
 
 			<div>
-				<Label htmlFor='address'>Address</Label>
-				<Textarea placeholder='Enter your address' {...register('address')} />
+				<Label htmlFor='address'>Alamat</Label>
+				<Textarea placeholder='Masukkan alamat' {...register('address')} />
 				{errors.address && (
 					<span className='text-red-500'>{errors.address.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='note'>Notes</Label>
-				<Textarea placeholder='Enter your notes' {...register('note')} />
+				<Label htmlFor='note'>Catatan</Label>
+				<Textarea placeholder='Masukkan catatan' {...register('note')} />
 				{errors.note && (
 					<span className='text-red-500'>{errors.note.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='location'>Location</Label>
+				<Label htmlFor='location'>Lokasi</Label>
 				<Map
 					location={{
 						latitude: watch('latitude'),
@@ -130,12 +130,12 @@ const StepRecipient = () => {
 
 			<div className='flex items-center justify-end gap-2 col-span-full'>
 				<Button variant='outline' onClick={() => route(STEPS.BOOKS)}>
-					Back
+					Kembali
 				</Button>
 				<Button variant='outline' type='button' onClick={handleUseMyLocation}>
-					Use my location
+					Gunakan lokasi saya
 				</Button>
-				<Button>Next</Button>
+				<Button>Lanjut</Button>
 			</div>
 		</form>
 	);

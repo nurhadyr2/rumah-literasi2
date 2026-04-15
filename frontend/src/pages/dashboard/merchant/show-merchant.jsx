@@ -31,9 +31,9 @@ const ShowMerchant = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Merchant Detail</HeadingTitle>
+				<HeadingTitle>Detail Merchant</HeadingTitle>
 				<HeadingDescription>
-					Manage merchant information and details
+					Kelola informasi dan detail merchant
 				</HeadingDescription>
 			</Heading>
 
@@ -48,11 +48,12 @@ const ShowMerchant = () => {
 								className='text-sm'
 								content={{
 									icon: Phone,
-									title: 'Phone',
+									title: 'Telepon',
 									description: result.data.phone,
 								}}
 							/>
 						</Link>
+
 						<Link to={'mailto:' + result.data.email}>
 							<Card
 								className='text-sm'
@@ -63,11 +64,12 @@ const ShowMerchant = () => {
 								}}
 							/>
 						</Link>
+
 						<Card
 							className='text-sm'
 							content={{
 								icon: MapPin,
-								title: 'Area ID',
+								title: 'ID Area',
 								description: result.data.area_id,
 							}}
 						/>
@@ -75,12 +77,12 @@ const ShowMerchant = () => {
 
 					<div className='grid gap-6 lg:grid-cols-2'>
 						<div className='col-span-full'>
-							<Label htmlFor='title'>Name</Label>
+							<Label htmlFor='title'>Nama</Label>
 							<Input disabled type='text' defaultValue={result.data.name} />
 						</div>
 
 						<div className='col-span-full'>
-							<Label htmlFor='description'>Address</Label>
+							<Label htmlFor='description'>Alamat</Label>
 							<Textarea
 								disabled
 								type='text'
@@ -89,12 +91,12 @@ const ShowMerchant = () => {
 						</div>
 
 						<div className='col-span-full'>
-							<Label htmlFor='description'>Zipcode</Label>
+							<Label htmlFor='description'>Kode Pos</Label>
 							<Input disabled type='text' defaultValue={result.data.zipcode} />
 						</div>
 
 						<div className='col-span-full'>
-							<Label htmlFor='location'>Location</Label>
+							<Label htmlFor='location'>Lokasi</Label>
 							<div className='mt-2'>
 								<Map
 									location={{

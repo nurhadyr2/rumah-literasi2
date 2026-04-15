@@ -37,19 +37,19 @@ const ListDonations = () => {
 
 	const handleDelete = async (id) => {
 		confirm({
-			title: 'Confirm Action',
+			title: 'Konfirmasi Aksi',
 			variant: 'destructive',
-			description: 'Are you sure you want to delete this record?',
+			description: 'Apakah Anda yakin ingin menghapus data ini?',
 		})
 			.then(async () => {
 				try {
 					await axios.delete('/donations/' + id);
 					mutate();
-					toast('Donation deleted', {
-						description: 'Successfully deleted donation',
+					toast('Donasi berhasil dihapus', {
+						description: 'Data donasi berhasil dihapus',
 					});
 				} catch (error) {
-					toast.error('Failed to delete donation', {
+					toast.error('Gagal menghapus donasi', {
 						description: error.response.data.message || error.message,
 					});
 					console.log(error);
@@ -63,14 +63,14 @@ const ListDonations = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Donations List</HeadingTitle>
+				<HeadingTitle>Daftar Donasi</HeadingTitle>
 				<HeadingDescription>
 					Daftar donasi finansial yang telah dibuat untuk mendukung kegiatan literasi baca-tulis di Taman Mraen Mimpi.
 				</HeadingDescription>
 
 				<div className='flex items-center justify-end'>
 					<Link to='/dashboard/donations/create'>
-						<Button>Create Donation</Button>
+						<Button>Tambah Donasi</Button>
 					</Link>
 				</div>
 			</Heading>
@@ -79,12 +79,12 @@ const ListDonations = () => {
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead>Member</TableHead>
-							<TableHead>Amount</TableHead>
-							<TableHead>Notes</TableHead>
+							<TableHead>Anggota</TableHead>
+							<TableHead>Jumlah</TableHead>
+							<TableHead>Catatan</TableHead>
 							<TableHead>Status</TableHead>
-							<TableHead>Payment Link</TableHead>
-							<TableHead>Action</TableHead>
+							<TableHead>Link Pembayaran</TableHead>
+							<TableHead>Aksi</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -107,7 +107,9 @@ const ListDonations = () => {
 											href={donation.payment_url}
 											target='_blank'
 											rel='noreferrer'>
-											<span className='text-primary-500'>Complete Payment</span>
+											<span className='text-primary-500'>
+												Selesaikan Pembayaran
+											</span>
 										</a>
 									)}
 								</TableCell>
@@ -121,7 +123,7 @@ const ListDonations = () => {
 										<button
 											onClick={() => handleDelete(donation.id)}
 											className='bg-transparent hover:text-red-500'>
-											Delete
+											Hapus
 										</button>
 									</div>
 								</TableCell>

@@ -36,19 +36,19 @@ const ListBooks = () => {
 
 	const handleDelete = async (id) => {
 		confirm({
-			title: 'Confirm Action',
+			title: 'Konfirmasi Aksi',
 			variant: 'destructive',
-			description: 'Are you sure you want to delete this record?',
+			description: 'Apakah Anda yakin ingin menghapus data ini?',
 		})
 			.then(async () => {
 				try {
 					await axios.delete('/books/' + id);
 					mutate();
-					toast('Book deleted', {
-						description: 'Successfully deleted book',
+					toast('Buku berhasil dihapus', {
+						description: 'Data buku berhasil dihapus',
 					});
 				} catch (error) {
-					toast.error('Failed to delete book', {
+					toast.error('Gagal menghapus buku', {
 						description: error.response.data.message || error.message,
 					});
 					console.log(error);
@@ -62,14 +62,14 @@ const ListBooks = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Book List</HeadingTitle>
+				<HeadingTitle>Daftar Buku</HeadingTitle>
 				<HeadingDescription>
-					Daftar buku yang telah didonasikan ke Taman Mraen Mimpi. Anda dapat menambahkan, memperbarui, atau menghapus buku yang ingin didonasikan. 
+					Daftar buku yang telah didonasikan ke Taman Mraen Mimpi. Anda dapat menambahkan, memperbarui, atau menghapus data buku donasi.
 				</HeadingDescription>
 
 				<div className='flex items-center justify-end'>
 					<Link to='/dashboard/books/create'>
-						<Button>Create Book</Button>
+						<Button>Tambah Buku</Button>
 					</Link>
 				</div>
 			</Heading>
@@ -78,13 +78,13 @@ const ListBooks = () => {
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead>Title</TableHead>
-							<TableHead>Author</TableHead>
-							<TableHead>Publisher</TableHead>
-							<TableHead>Year</TableHead>
-							<TableHead>Language</TableHead>
-							<TableHead>Amount</TableHead>
-							<TableHead>Action</TableHead>
+							<TableHead>Judul</TableHead>
+							<TableHead>Penulis</TableHead>
+							<TableHead>Penerbit</TableHead>
+							<TableHead>Tahun</TableHead>
+							<TableHead>Bahasa</TableHead>
+							<TableHead>Jumlah</TableHead>
+							<TableHead>Aksi</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -117,7 +117,7 @@ const ListBooks = () => {
 										<button
 											onClick={() => handleDelete(book.id)}
 											className='bg-transparent hover:text-red-500'>
-											Delete
+											Hapus
 										</button>
 									</div>
 								</TableCell>

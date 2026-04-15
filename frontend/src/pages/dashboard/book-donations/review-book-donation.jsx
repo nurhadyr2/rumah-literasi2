@@ -46,17 +46,17 @@ const ReviewBookDonation = () => {
 				courier,
 			});
 		} catch (error) {
-			toast.error('Validation Error', {
-				description: 'Some information is invalid. Please check all fields.',
+			toast.error('Kesalahan Validasi', {
+				description: 'Beberapa data tidak valid. Silakan periksa kembali.',
 			});
 			console.error(error);
 			return;
 		}
 
 		confirm({
-			title: 'Confirm Book Donation',
+			title: 'Konfirmasi Donasi Buku',
 			description:
-				'Are you sure you want to submit this book donation? This action cannot be undone.',
+				'Apakah Anda yakin ingin mengirim donasi buku ini? Tindakan ini tidak dapat dibatalkan.',
 		})
 			.then(async () => {
 				setLoading(true);
@@ -68,8 +68,9 @@ const ReviewBookDonation = () => {
 							courier,
 						},
 					});
-					toast.success('Book donation submitted successfully', {
-						description: 'Your book donation has been successfully submitted',
+
+					toast.success('Donasi buku berhasil dikirim', {
+						description: 'Donasi buku Anda telah berhasil diproses',
 					});
 
 					reset();
@@ -78,7 +79,7 @@ const ReviewBookDonation = () => {
 					mutate('/book-donations');
 					navigate('/dashboard/book-donations');
 				} catch (error) {
-					toast.error('Failed to submit book donation', {
+					toast.error('Gagal mengirim donasi buku', {
 						description: error.response?.data?.message || error.message,
 					});
 					console.error(error);
@@ -98,14 +99,13 @@ const ReviewBookDonation = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Review Your Book Donation</HeadingTitle>
+				<HeadingTitle>Tinjau Donasi Buku Anda</HeadingTitle>
 				<HeadingDescription>
-					Please review all the information below before submitting your book
-					donation.
+					Silakan periksa kembali semua informasi sebelum mengirim donasi buku.
 				</HeadingDescription>
 			</Heading>
 
-			<HeadingSubtitle>Donation Items</HeadingSubtitle>
+			<HeadingSubtitle>Item Donasi</HeadingSubtitle>
 
 			<div className='grid items-start grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
 				{items.map((item) => (
@@ -115,7 +115,7 @@ const ReviewBookDonation = () => {
 				))}
 			</div>
 
-			<HeadingSubtitle>Donation Details</HeadingSubtitle>
+			<HeadingSubtitle>Detail Donasi</HeadingSubtitle>
 
 			<Error error={!selectedLoading && selectedError} />
 			<Loading loading={selectedLoading} />
@@ -123,15 +123,16 @@ const ReviewBookDonation = () => {
 			{!selectedLoading && !selectedError && (
 				<div className='grid gap-6 lg:grid-cols-2'>
 					<div>
-						<Label htmlFor='address'>Delivery Address</Label>
+						<Label htmlFor='address'>Alamat Pengiriman</Label>
 						<Input
 							disabled
 							type='text'
 							defaultValue={selected && selected.data.name}
 						/>
 					</div>
+
 					<div>
-						<Label htmlFor='estimated_value'>Estimated Value</Label>
+						<Label htmlFor='estimated_value'>Perkiraan Nilai</Label>
 						<Input
 							disabled
 							type='text'
@@ -140,12 +141,12 @@ const ReviewBookDonation = () => {
 					</div>
 
 					<div>
-						<Label htmlFor='weight'>Total Weight</Label>
+						<Label htmlFor='weight'>Total Berat</Label>
 						<Input disabled type='text' defaultValue={detail.weight} />
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='street_address'>Street Address</Label>
+						<Label htmlFor='street_address'>Alamat Lengkap</Label>
 						<Textarea
 							disabled
 							defaultValue={selected && selected.data.street_address}
@@ -154,21 +155,21 @@ const ReviewBookDonation = () => {
 
 					<div className='grid grid-cols-1 sm:grid-cols-3 gap-6 col-span-full'>
 						<div>
-							<Label htmlFor='dimensions'>Length</Label>
+							<Label>Panjang</Label>
 							<Input disabled type='text' defaultValue={detail.length + 'cm'} />
 						</div>
 						<div>
-							<Label htmlFor='dimensions'>Width</Label>
+							<Label>Lebar</Label>
 							<Input disabled type='text' defaultValue={detail.width + 'cm'} />
 						</div>
 						<div>
-							<Label htmlFor='dimensions'>Height</Label>
+							<Label>Tinggi</Label>
 							<Input disabled type='text' defaultValue={detail.height + 'cm'} />
 						</div>
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='location'>Location</Label>
+						<Label>Lokasi</Label>
 						{selected && (
 							<Map
 								location={{
@@ -183,11 +184,11 @@ const ReviewBookDonation = () => {
 				</div>
 			)}
 
-			<HeadingSubtitle>Courier Information</HeadingSubtitle>
+			<HeadingSubtitle>Informasi Kurir</HeadingSubtitle>
 
 			<div className='grid gap-6 lg:grid-cols-2'>
 				<div>
-					<Label htmlFor='company'>Courier Company</Label>
+					<Label>Perusahaan Kurir</Label>
 					<Input
 						disabled
 						type='text'
@@ -197,7 +198,7 @@ const ReviewBookDonation = () => {
 				</div>
 
 				<div>
-					<Label htmlFor='type'>Courier Type</Label>
+					<Label>Jenis Layanan</Label>
 					<Input
 						disabled
 						type='text'
@@ -207,7 +208,7 @@ const ReviewBookDonation = () => {
 				</div>
 
 				<div>
-					<Label htmlFor='shipping_fee'>Shipping Fee</Label>
+					<Label>Biaya Pengiriman</Label>
 					<Input
 						disabled
 						type='text'
@@ -216,7 +217,7 @@ const ReviewBookDonation = () => {
 				</div>
 
 				<div>
-					<Label htmlFor='duration'>Shipping Duration</Label>
+					<Label>Estimasi Pengiriman</Label>
 					<Input disabled type='text' defaultValue={courier.duration} />
 				</div>
 			</div>
@@ -224,11 +225,12 @@ const ReviewBookDonation = () => {
 			<div className='col-span-full'>
 				<div className='flex flex-wrap items-center gap-2'>
 					<Button onClick={onSubmit} disabled={loading}>
-						{loading ? 'Submitting...' : 'Confirm and Submit Donation'}
+						{loading ? 'Mengirim...' : 'Konfirmasi dan Kirim Donasi'}
 					</Button>
+
 					<Button variant='outline' onClick={onPrevious}>
 						<ArrowLeft className='size-4 sm:mr-2' />
-						<span className='hidden sm:inline'>Back</span>
+						<span className='hidden sm:inline'>Kembali</span>
 					</Button>
 				</div>
 			</div>

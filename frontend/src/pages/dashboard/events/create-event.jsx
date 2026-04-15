@@ -23,7 +23,7 @@ const CreateEvent = () => {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			});
 			toast('Event created', {
-				description: 'Successfully created event',
+				description: 'Event has been successfully created',
 			});
 
 			mutate('/events');
@@ -41,7 +41,7 @@ const CreateEvent = () => {
 			<Heading>
 				<HeadingTitle>Create Event</HeadingTitle>
 				<HeadingDescription>
-					Buat acara untuk mendukung kegiatan literasi baca-tulis di Taman Mraen Mimpi
+					Create an event to support reading and writing literacy activities at Taman Mraen Mimpi
 				</HeadingDescription>
 			</Heading>
 

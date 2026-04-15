@@ -29,7 +29,7 @@ const EventSchema = z.object({
 
 				return file.type.startsWith('image/');
 			},
-			{ message: 'File must be an image and smaller than 2MB' }
+			{ message: 'File harus berupa gambar dan berukuran kurang dari 2MB' }
 		)
 		.optional(),
 });
@@ -59,27 +59,26 @@ const EventForm = ({ initial, action, label }) => {
 	return (
 		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
 			<div className='col-span-full'>
-				<Label htmlFor='title'>Title</Label>
+				<Label htmlFor='title'>Judul</Label>
 				<Input
 					type='text'
-					placeholder='Enter your title'
+					placeholder='Masukkan judul'
 					{...register('title')}
 				/>
-				<Hint>Title of the event to be organized.</Hint>
+				<Hint>Judul acara yang akan diselenggarakan.</Hint>
 				{errors.title && (
 					<span className='text-red-500'>{errors.title.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='description'>Description</Label>
+				<Label htmlFor='description'>Deskripsi</Label>
 				<Textarea
-					placeholder='Enter your description'
+					placeholder='Masukkan deskripsi'
 					{...register('description')}
 				/>
 				<Hint>
-					Detailed description of the event, including objectives and
-					activities.
+					Deskripsi lengkap acara, termasuk tujuan dan kegiatan yang akan dilakukan.
 				</Hint>
 				{errors.description && (
 					<span className='text-red-500'>{errors.description.message}</span>
@@ -87,32 +86,32 @@ const EventForm = ({ initial, action, label }) => {
 			</div>
 
 			<div>
-				<Label htmlFor='date'>Date</Label>
+				<Label htmlFor='date'>Tanggal</Label>
 				<Input type='date' {...register('date')} />
-				<Hint>Scheduled date for the event.</Hint>
+				<Hint>Tanggal pelaksanaan acara.</Hint>
 				{errors.date && (
 					<span className='text-red-500'>{errors.date.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='time'>Time</Label>
+				<Label htmlFor='time'>Waktu</Label>
 				<Input type='time' {...register('time')} />
-				<Hint>Scheduled time for the event.</Hint>
+				<Hint>Waktu pelaksanaan acara.</Hint>
 				{errors.time && (
 					<span className='text-red-500'>{errors.time.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='location'>Location</Label>
+				<Label htmlFor='location'>Lokasi</Label>
 				<Textarea
 					type='text'
-					placeholder='Enter event location'
+					placeholder='Masukkan lokasi acara'
 					{...register('location')}
 				/>
 				<Hint>
-					Complete address or location details where the event will be held.
+					Alamat lengkap atau detail lokasi tempat acara akan diselenggarakan.
 				</Hint>
 				{errors.location && (
 					<span className='text-red-500'>{errors.location.message}</span>
@@ -121,12 +120,12 @@ const EventForm = ({ initial, action, label }) => {
 
 			<div className='col-span-full'>
 				<Label htmlFor='media' className='flex justify-between w-full'>
-					<span>Event Image</span>
+					<span>Gambar Acara</span>
 					<span
 						className={cn('font-light text-zinc-500', {
 							'text-red-500': filesize > 2,
 						})}>
-						(Max 2MB, Selected {filesize})
+						(Maks 2MB, Dipilih {filesize})
 					</span>
 				</Label>
 				<ImageUpload
@@ -135,7 +134,7 @@ const EventForm = ({ initial, action, label }) => {
 					defaultValue={media}
 					{...register('media')}
 				/>
-				<Hint>Upload an image that represents the event (max 2MB).</Hint>
+				<Hint>Unggah gambar yang merepresentasikan acara (maks 2MB).</Hint>
 				{errors.media && (
 					<span className='text-red-500'>{errors.media.message}</span>
 				)}

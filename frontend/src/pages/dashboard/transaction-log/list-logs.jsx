@@ -53,9 +53,9 @@ const ListLogs = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Logs</HeadingTitle>
+				<HeadingTitle>Log Sistem</HeadingTitle>
 				<HeadingDescription>
-					View all system logs with pagination and search functionality.
+					Lihat semua log sistem dengan fitur pagination dan pencarian.
 				</HeadingDescription>
 			</Heading>
 
@@ -63,7 +63,7 @@ const ListLogs = () => {
 				<Input
 					value={search}
 					type='search'
-					placeholder='Search by action, message...'
+					placeholder='Cari berdasarkan aksi, pesan...'
 					onChange={(e) => setSearch(e.target.value)}
 				/>
 			</div>
@@ -73,9 +73,9 @@ const ListLogs = () => {
 					<TableHeader>
 						<TableRow>
 							<TableHead>User</TableHead>
-							<TableHead>Timestamp</TableHead>
-							<TableHead>Action</TableHead>
-							<TableHead>Action</TableHead>
+							<TableHead>Waktu</TableHead>
+							<TableHead>Aksi</TableHead>
+							<TableHead>Aksi</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>

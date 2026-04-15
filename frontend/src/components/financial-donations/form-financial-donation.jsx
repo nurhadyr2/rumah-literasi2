@@ -41,26 +41,26 @@ const FinancialDonationForm = ({ initial, action, label }) => {
 	return (
 		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
 			<div className='col-span-full'>
-				<Label htmlFor='amount'>Amount</Label>
+				<Label htmlFor='amount'>Jumlah Donasi</Label>
 				<Input
 					type='number'
-					placeholder='Enter the amount of donation'
+					placeholder='Masukkan jumlah donasi'
 					{...register('amount')}
 				/>
-				<Hint>Amount of the financial donation in rupiah.</Hint>
+				<Hint>Jumlah donasi finansial dalam rupiah.</Hint>
 				{errors.amount && (
 					<span className='text-red-500'>{errors.amount.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='notes'>Notes</Label>
+				<Label htmlFor='notes'>Catatan</Label>
 				<Textarea
 					type='text'
-					placeholder='Enter your notes'
+					placeholder='Masukkan catatan'
 					{...register('notes')}
 				/>
-				<Hint>Additional notes about the financial donation.</Hint>
+				<Hint>Catatan tambahan mengenai donasi finansial.</Hint>
 				{errors.notes && (
 					<span className='text-red-500'>{errors.notes.message}</span>
 				)}
@@ -77,20 +77,20 @@ const FinancialDonationForm = ({ initial, action, label }) => {
 								</option>
 							))}
 						</Select>
-						<Hint>Status of the financial donation process.</Hint>
+						<Hint>Status proses donasi finansial.</Hint>
 						{errors.status && (
 							<span className='text-red-500'>{errors.status.message}</span>
 						)}
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='acceptance-notes'>Acceptance Notes</Label>
+						<Label htmlFor='acceptance-notes'>Catatan Penerimaan</Label>
 						<Textarea
 							type='text'
-							placeholder='Enter acceptance notes'
+							placeholder='Masukkan catatan penerimaan'
 							{...register('acceptance_notes')}
 						/>
-						<Hint>Notes about the acceptance of this donation.</Hint>
+						<Hint>Catatan mengenai penerimaan donasi ini.</Hint>
 						{errors.acceptance_notes && (
 							<span className='text-red-500'>
 								{errors.acceptance_notes.message}

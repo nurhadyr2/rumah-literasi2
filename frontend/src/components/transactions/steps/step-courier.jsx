@@ -34,7 +34,7 @@ const StepCourier = ({ onSubmit }) => {
 				}));
 			},
 			onError: (error) => {
-				toast.error('Failed to fetch couriers', {
+				toast.error('Gagal mengambil data kurir', {
 					description: error.response.data.message || error.message,
 				});
 			},
@@ -77,10 +77,10 @@ const StepCourier = ({ onSubmit }) => {
 
 				<div className='flex items-center gap-2'>
 					<Button variant='outline' onClick={handleBack}>
-						Back
+						Kembali
 					</Button>
 					<Button disabled={disabled} onClick={onSubmit}>
-						Finish
+						Selesai
 					</Button>
 				</div>
 			</div>

@@ -46,7 +46,7 @@ const EditDonation = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Edit Financial Donations</HeadingTitle>
+				<HeadingTitle>Edit Donasi Finansial</HeadingTitle>
 				<HeadingDescription>
 					Perbarui informasi donasi finansial untuk mendukung kegiatan literasi baca-tulis di Mraen Mimpi
 				</HeadingDescription>

@@ -66,7 +66,7 @@ export const ConfirmProvider = ({ children }) => {
 						<div className='flex justify-end w-full space-x-2'>
 							<DialogClose asChild>
 								<Button variant='secondary' onClick={handleCancel}>
-									Cancel
+									Batal
 								</Button>
 							</DialogClose>
 							<DialogClose asChild>
@@ -75,7 +75,7 @@ export const ConfirmProvider = ({ children }) => {
 									onClick={handleConfirm}
 									autoFocus>
 									<Check className='mr-2 size-4' />
-									Confirm
+									Konfirmasi
 								</Button>
 							</DialogClose>
 						</div>

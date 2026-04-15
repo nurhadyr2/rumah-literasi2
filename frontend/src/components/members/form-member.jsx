@@ -39,13 +39,13 @@ const MemberForm = ({ initial, action, label }) => {
 	return (
 		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
 			<div className='col-span-full'>
-				<Label htmlFor='name'>Name</Label>
+				<Label htmlFor='name'>Nama</Label>
 				<Input
 					type='text'
-					placeholder='Enter your name'
+					placeholder='Masukkan nama'
 					{...register('name')}
 				/>
-				<Hint>Full name of the member.</Hint>
+				<Hint>Nama lengkap anggota.</Hint>
 				{errors.name && (
 					<span className='text-red-500'>{errors.name.message}</span>
 				)}
@@ -55,25 +55,24 @@ const MemberForm = ({ initial, action, label }) => {
 				<Label htmlFor='email'>Email</Label>
 				<Input
 					type='email'
-					placeholder='Enter your email'
+					placeholder='Masukkan email'
 					{...register('email')}
 				/>
-				<Hint>Email address for the member account.</Hint>
+				<Hint>Alamat email untuk akun anggota.</Hint>
 				{errors.email && (
 					<span className='text-red-500'>{errors.email.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='password'>Password</Label>
+				<Label htmlFor='password'>Kata Sandi</Label>
 				<Input
 					type='password'
-					placeholder='Enter your password'
+					placeholder='Masukkan kata sandi'
 					{...register('password')}
 				/>
 				<Hint>
-					Password for the member account (leave empty to keep current
-					password).
+					Kata sandi untuk akun (biarkan kosong jika tidak ingin mengubah).
 				</Hint>
 				{errors.password && (
 					<span className='text-red-500'>{errors.password.message}</span>
@@ -81,7 +80,7 @@ const MemberForm = ({ initial, action, label }) => {
 			</div>
 
 			<div>
-				<Label htmlFor='role'>Role</Label>
+				<Label htmlFor='role'>Peran</Label>
 				<Select {...register('role')}>
 					{ROLE_LIST.map((role) => (
 						<option key={role} value={role}>
@@ -89,19 +88,19 @@ const MemberForm = ({ initial, action, label }) => {
 						</option>
 					))}
 				</Select>
-				<Hint>Role assigned to the member in the system.</Hint>
+				<Hint>Peran yang diberikan kepada anggota dalam sistem.</Hint>
 				{errors.role && (
 					<span className='text-red-500'>{errors.role.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='is_verified'>Verified</Label>
+				<Label htmlFor='is_verified'>Terverifikasi</Label>
 				<Select {...register('is_verified')}>
-					<option value='true'>Yes</option>
-					<option value='false'>No</option>
+					<option value='true'>Ya</option>
+					<option value='false'>Tidak</option>
 				</Select>
-				<Hint>Indicates whether the member's account has been verified.</Hint>
+				<Hint>Menunjukkan apakah akun anggota sudah terverifikasi.</Hint>
 				{errors.is_verified && (
 					<span className='text-red-500'>{errors.is_verified.message}</span>
 				)}

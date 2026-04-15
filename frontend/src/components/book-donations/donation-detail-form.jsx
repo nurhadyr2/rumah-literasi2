@@ -36,7 +36,7 @@ const DonationDetailForm = ({ initial, action, previous, label }) => {
 	return (
 		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
 			<div className='col-span-full'>
-				<Label htmlFor='address_id'>Address</Label>
+				<Label htmlFor='address_id'>Alamat</Label>
 				<Controller
 					name='address_id'
 					control={control}
@@ -46,7 +46,7 @@ const DonationDetailForm = ({ initial, action, previous, label }) => {
 							value={field.value}
 							onChange={(event) => field.onChange(event.target.value)}
 							disabled={loading.addresses}>
-							<option value=''>Select an address</option>
+							<option value=''>Pilih alamat</option>
 							{result.map((address) => (
 								<option key={address.id} value={address.id}>
 									{address.name}
@@ -56,10 +56,10 @@ const DonationDetailForm = ({ initial, action, previous, label }) => {
 					)}
 				/>
 				<Hint>
-					The address where the book donation will be delivered, if you don't
-					have an address, you can create one in{' '}
+					Alamat tujuan pengiriman donasi buku. Jika belum memiliki alamat,
+					Anda dapat menambahkannya di{' '}
 					<Link className='text-primary-500' to='/dashboard/addresses'>
-						addresses page
+						halaman alamat
 					</Link>
 					.
 				</Hint>
@@ -69,39 +69,39 @@ const DonationDetailForm = ({ initial, action, previous, label }) => {
 			</div>
 
 			<div>
-				<Label htmlFor='package_size'>Package Size</Label>
+				<Label htmlFor='package_size'>Ukuran Paket</Label>
 				<Select {...register('package_size')}>
-					<option value='small'>Small (1-2 kg)</option>
-					<option value='medium'>Medium (2-4 kg)</option>
-					<option value='large'>Large (4-8 kg)</option>
+					<option value='small'>Kecil (1-2 kg)</option>
+					<option value='medium'>Sedang (2-4 kg)</option>
+					<option value='large'>Besar (4-8 kg)</option>
 				</Select>
-				<Hint>The size of the book donation package.</Hint>
+				<Hint>Ukuran paket donasi buku.</Hint>
 				{errors.package_size && (
 					<span className='text-red-500'>{errors.package_size.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='estimated_value'>Estimated Value</Label>
+				<Label htmlFor='estimated_value'>Perkiraan Nilai</Label>
 				<Input
 					type='number'
-					placeholder='Enter your estimated value'
+					placeholder='Masukkan perkiraan nilai'
 					{...register('estimated_value')}
 				/>
-				<Hint>Estimated value of the book donation in rupiah.</Hint>
+				<Hint>Perkiraan nilai donasi buku dalam rupiah.</Hint>
 				{errors.estimated_value && (
 					<span className='text-red-500'>{errors.estimated_value.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='weight'>Weight</Label>
+				<Label htmlFor='weight'>Berat</Label>
 				<Input
 					type='number'
-					placeholder='Enter your weight'
+					placeholder='Masukkan berat'
 					{...register('weight')}
 				/>
-				<Hint>Total weight of the book donation in kilograms.</Hint>
+				<Hint>Total berat donasi buku dalam kilogram.</Hint>
 				{errors.weight && (
 					<span className='text-red-500'>{errors.weight.message}</span>
 				)}
@@ -109,39 +109,39 @@ const DonationDetailForm = ({ initial, action, previous, label }) => {
 
 			<div className='grid grid-cols-1 sm:grid-cols-3 gap-6 col-span-full'>
 				<div>
-					<Label htmlFor='depth'>Length</Label>
+					<Label htmlFor='depth'>Panjang</Label>
 					<Input
 						type='number'
-						placeholder='Enter the package length'
+						placeholder='Masukkan panjang paket'
 						{...register('length')}
 					/>
-					<Hint>Length of the book donation in centimeters.</Hint>
+					<Hint>Panjang paket dalam sentimeter.</Hint>
 					{errors.length && (
 						<span className='text-red-500'>{errors['length'].message}</span>
 					)}
 				</div>
 
 				<div>
-					<Label htmlFor='width'>Width</Label>
+					<Label htmlFor='width'>Lebar</Label>
 					<Input
 						type='number'
-						placeholder='Enter the package width'
+						placeholder='Masukkan lebar paket'
 						{...register('width')}
 					/>
-					<Hint>Width of the book donation in centimeters.</Hint>
+					<Hint>Lebar paket dalam sentimeter.</Hint>
 					{errors.width && (
 						<span className='text-red-500'>{errors.width.message}</span>
 					)}
 				</div>
 
 				<div>
-					<Label htmlFor='height'>Height</Label>
+					<Label htmlFor='height'>Tinggi</Label>
 					<Input
 						type='number'
-						placeholder='Enter the package height'
+						placeholder='Masukkan tinggi paket'
 						{...register('height')}
 					/>
-					<Hint>Height of the book donation in centimeters.</Hint>
+					<Hint>Tinggi paket dalam sentimeter.</Hint>
 					{errors.height && (
 						<span className='text-red-500'>{errors.height.message}</span>
 					)}
@@ -152,7 +152,7 @@ const DonationDetailForm = ({ initial, action, previous, label }) => {
 				<div className='flex items-center gap-2'>
 					<Button>{label}</Button>
 					<Button type='button' variant='outline' onClick={() => previous()}>
-						Back
+						Kembali
 					</Button>
 				</div>
 			</div>

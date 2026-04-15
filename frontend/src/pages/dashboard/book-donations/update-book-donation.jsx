@@ -30,7 +30,7 @@ const UpdateBook = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Edit Donation Item</HeadingTitle>
+				<HeadingTitle>Edit Donasi Item</HeadingTitle>
 				<HeadingDescription>
 					Perbarui informasi item buku yang ingin didonasikan. Pastikan untuk mengisi informasi buku dengan lengkap dan akurat agar dapat membantu kami dalam proses distribusi buku kepada mereka yang membutuhkan.
 				</HeadingDescription>

@@ -37,7 +37,7 @@ const CreateBookDonation = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Create Book Donation</HeadingTitle>
+				<HeadingTitle>Buat Donasi Buku</HeadingTitle>
 				<HeadingDescription>
 					Buat donasi buku untuk mendukung kegiatan literasi baca-tulis di Taman Mraen Mimpi. Donasi buku Anda akan digunakan untuk membantu menyediakan bahan bacaan yang berkualitas bagi anak-anak dan komunitas yang membutuhkan. Terima kasih atas dukungan Anda!
 				</HeadingDescription>
@@ -72,14 +72,14 @@ const CreateBookDonation = () => {
 								});
 							navigate('/dashboard/book-donations/create/detail');
 						}}>
-						Add Donation Detail
+						Tambah Detail Donasi
 					</Button>
 
 					<Link to='/dashboard/book-donations/create/append'>
-						<Button variant='outline'>Add item</Button>
+						<Button variant='outline'>Tambah item</Button>
 					</Link>
 					<Button variant='destructive' onClick={() => handleReset()}>
-						Remove
+						Hapus
 					</Button>
 				</div>
 			</div>

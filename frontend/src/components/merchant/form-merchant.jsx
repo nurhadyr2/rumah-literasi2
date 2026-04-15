@@ -47,8 +47,8 @@ const MerchantForm = ({ initial, action, label }) => {
 
 	const handleUseMyLocation = async () => {
 		confirm({
-			title: 'Use my location',
-			description: 'Are you sure you want to use your location?',
+			title: 'Gunakan lokasi saya',
+			description: 'Apakah Anda yakin ingin menggunakan lokasi Anda?',
 		})
 			.then(async () => {
 				if ('geolocation' in navigator) {
@@ -59,9 +59,9 @@ const MerchantForm = ({ initial, action, label }) => {
 							setValue('longitude', longitude);
 						},
 						(error) => {
-							console.error('Error getting location:', error);
+							console.error('Error mendapatkan lokasi:', error);
 							alert(
-								'Unable to retrieve your location. Please check your browser permissions.'
+								'Tidak dapat mengambil lokasi Anda. Silakan periksa izin browser.'
 							);
 						},
 						{ enableHighAccuracy: true }
@@ -76,26 +76,26 @@ const MerchantForm = ({ initial, action, label }) => {
 	return (
 		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
 			<div className='col-span-full'>
-				<Label htmlFor='name'>Name</Label>
+				<Label htmlFor='name'>Nama</Label>
 				<Input
 					type='text'
-					placeholder='Enter merchant name'
+					placeholder='Masukkan nama merchant'
 					{...register('name')}
 				/>
-				<Hint>Name of the merchant or business.</Hint>
+				<Hint>Nama merchant atau bisnis.</Hint>
 				{errors.name && (
 					<span className='text-red-500'>{errors.name.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='phone'>Phone</Label>
+				<Label htmlFor='phone'>No. Telepon</Label>
 				<Input
 					type='text'
-					placeholder='Enter phone number'
+					placeholder='Masukkan nomor telepon'
 					{...register('phone')}
 				/>
-				<Hint>Contact phone number for the merchant.</Hint>
+				<Hint>Nomor telepon yang dapat dihubungi.</Hint>
 				{errors.phone && (
 					<span className='text-red-500'>{errors.phone.message}</span>
 				)}
@@ -105,55 +105,55 @@ const MerchantForm = ({ initial, action, label }) => {
 				<Label htmlFor='email'>Email</Label>
 				<Input
 					type='email'
-					placeholder='Enter email address'
+					placeholder='Masukkan alamat email'
 					{...register('email')}
 				/>
-				<Hint>Email address for the merchant.</Hint>
+				<Hint>Alamat email untuk merchant.</Hint>
 				{errors.email && (
 					<span className='text-red-500'>{errors.email.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='address'>Address</Label>
+				<Label htmlFor='address'>Alamat</Label>
 				<Textarea
-					placeholder='Enter merchant address'
+					placeholder='Masukkan alamat merchant'
 					{...register('address')}
 				/>
-				<Hint>Complete address of the merchant location.</Hint>
+				<Hint>Alamat lengkap lokasi merchant.</Hint>
 				{errors.address && (
 					<span className='text-red-500'>{errors.address.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='zipcode'>Zipcode</Label>
+				<Label htmlFor='zipcode'>Kode Pos</Label>
 				<Input
 					type='text'
-					placeholder='Enter zipcode'
+					placeholder='Masukkan kode pos'
 					{...register('zipcode')}
 				/>
-				<Hint>Postal code for the merchant's location.</Hint>
+				<Hint>Kode pos untuk lokasi merchant.</Hint>
 				{errors.zipcode && (
 					<span className='text-red-500'>{errors.zipcode.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='area_id'>Area ID</Label>
+				<Label htmlFor='area_id'>ID Area</Label>
 				<Input
 					type='text'
-					placeholder='Enter area ID'
+					placeholder='Masukkan ID area'
 					{...register('area_id')}
 				/>
-				<Hint>Do not edit this field unless you change the area ID.</Hint>
+				<Hint>Jangan ubah kecuali Anda ingin mengganti ID area.</Hint>
 				{errors.area_id && (
 					<span className='text-red-500'>{errors.area_id.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='location'>Location</Label>
+				<Label htmlFor='location'>Lokasi</Label>
 				<Map
 					location={{
 						latitude: watch('latitude'),
@@ -170,7 +170,7 @@ const MerchantForm = ({ initial, action, label }) => {
 			<div className='flex items-center gap-2 col-span-full'>
 				<Button>{label}</Button>
 				<Button variant='outline' type='button' onClick={handleUseMyLocation}>
-					Use my location
+					Gunakan lokasi saya
 				</Button>
 			</div>
 		</form>

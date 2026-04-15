@@ -25,7 +25,7 @@ const AppendItem = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Add Donation Item</HeadingTitle>
+				<HeadingTitle>Tambah Donasi Item</HeadingTitle>
 				<HeadingDescription>
 					Tambahkan item buku yang ingin didonasikan ke dalam daftar donasi Anda. Pastikan untuk mengisi informasi buku dengan lengkap dan akurat agar dapat membantu kami dalam proses distribusi buku kepada mereka yang membutuhkan.
 				</HeadingDescription>

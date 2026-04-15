@@ -34,8 +34,8 @@ const ShowAddress = () => {
 
 	const handleDefault = async (id) => {
 		confirm({
-			title: 'Confirm Action',
-			description: 'Are you sure you want to set this address as default?',
+			title: 'Konfirmasi Aksi',
+			description: 'Jadikan alamat ini sebagai alamat utama?',
 		})
 			.then(async () => {
 				try {
@@ -43,30 +43,28 @@ const ShowAddress = () => {
 
 					mutate('/addresses');
 					mutate('/addresses/' + id);
-					toast('Address set as default', {
-						description: 'Successfully set address as default',
+					toast('Alamat dijadikan utama', {
+						description: 'Alamat berhasil dijadikan sebagai alamat utama',
 					});
 				} catch (error) {
-					toast.error('Failed to set address as default', {
+					toast.error('Gagal menjadikan alamat utama', {
 						description: error.response?.data?.message || error.message,
 					});
 					console.error(error);
 				}
 			})
-			.catch(() => {
-				// pass
-			});
+			.catch(() => {});
 	};
 
 	return (
 		<div className='grid gap-8'>
 			<Heading>
 				<HeadingTitle className='flex items-center justify-between'>
-					<span>Address Details</span>
-					{result && result.data.is_default && <Badge>default</Badge>}
+					<span>Detail Alamat</span>
+					{result && result.data.is_default && <Badge>Utama</Badge>}
 				</HeadingTitle>
 				<HeadingDescription>
-					View and manage your address details.
+					Lihat dan kelola detail alamat Anda.
 				</HeadingDescription>
 			</Heading>
 
@@ -76,7 +74,7 @@ const ShowAddress = () => {
 			{result && (
 				<div className='grid gap-6 lg:grid-cols-2'>
 					<div>
-						<Label htmlFor='id'>Area ID</Label>
+						<Label htmlFor='id'>ID Area</Label>
 						<Input
 							disabled
 							type='text'
@@ -86,7 +84,7 @@ const ShowAddress = () => {
 					</div>
 
 					<div>
-						<Label htmlFor='area_id'>Contact Name</Label>
+						<Label htmlFor='area_id'>Nama Kontak</Label>
 						<Input
 							disabled
 							type='text'
@@ -95,7 +93,7 @@ const ShowAddress = () => {
 					</div>
 
 					<div>
-						<Label htmlFor='area_id'>Contact Phone</Label>
+						<Label htmlFor='area_id'>No. Telepon</Label>
 						<Input
 							disabled
 							type='text'
@@ -104,17 +102,17 @@ const ShowAddress = () => {
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='name'>Address Name</Label>
+						<Label htmlFor='name'>Nama Alamat</Label>
 						<Input disabled type='text' defaultValue={result.data.name} />
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='street_address'>Street Address</Label>
+						<Label htmlFor='street_address'>Alamat Lengkap</Label>
 						<Textarea disabled defaultValue={result.data.street_address} />
 					</div>
 
 					<div>
-						<Label htmlFor='province'>Province</Label>
+						<Label htmlFor='province'>Provinsi</Label>
 						<Input
 							disabled
 							type='text'
@@ -123,12 +121,12 @@ const ShowAddress = () => {
 					</div>
 
 					<div>
-						<Label htmlFor='city'>City</Label>
+						<Label htmlFor='city'>Kota</Label>
 						<Input disabled type='text' defaultValue={result.data.city.name} />
 					</div>
 
 					<div>
-						<Label htmlFor='district'>District</Label>
+						<Label htmlFor='district'>Kecamatan</Label>
 						<Input
 							disabled
 							type='text'
@@ -137,20 +135,20 @@ const ShowAddress = () => {
 					</div>
 
 					<div>
-						<Label htmlFor='zipcode'>Zipcode</Label>
+						<Label htmlFor='zipcode'>Kode Pos</Label>
 						<Input disabled type='text' defaultValue={result.data.zipcode} />
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='note'>Note</Label>
+						<Label htmlFor='note'>Catatan</Label>
 						<Textarea
 							disabled
-							defaultValue={result.data.note || 'No note added'}
+							defaultValue={result.data.note || 'Tidak ada catatan'}
 						/>
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='location'>Location</Label>
+						<Label htmlFor='location'>Lokasi</Label>
 						<Map
 							location={{
 								latitude: result.data.latitude,
@@ -166,9 +164,10 @@ const ShowAddress = () => {
 							<Link to='/dashboard/addresses'>
 								<Button variant='outline'>
 									<ArrowLeft className='size-4 sm:mr-2' />
-									<span className='hidden sm:inline'>Back</span>
+									<span className='hidden sm:inline'>Kembali</span>
 								</Button>
 							</Link>
+
 							{!result.data.is_default && (
 								<Button
 									variant='outline'
@@ -176,11 +175,12 @@ const ShowAddress = () => {
 										if (result.data.is_default) return;
 										handleDefault(result.data.id);
 									}}>
-									Set as Default
+									Jadikan Utama
 								</Button>
 							)}
+
 							<Link to={'/dashboard/addresses/' + result.data.id + '/edit'}>
-								<Button>Edit Address</Button>
+								<Button>Edit Alamat</Button>
 							</Link>
 						</div>
 					</div>

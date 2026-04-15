@@ -61,19 +61,19 @@ const ListBookDonations = () => {
 
 	const handleDelete = async (id) => {
 		confirm({
-			title: 'Confirm Action',
+			title: 'Konfirmasi Aksi',
 			variant: 'destructive',
-			description: 'Are you sure you want to delete this record?',
+			description: 'Apakah Anda yakin ingin menghapus data ini?',
 		})
 			.then(async () => {
 				try {
 					await axios.delete('/book-donations/' + id);
 					mutate();
-					toast('Book donation deleted', {
-						description: 'Successfully deleted book donation',
+					toast('Donasi buku dihapus', {
+						description: 'Berhasil menghapus donasi buku',
 					});
 				} catch (error) {
-					toast.error('Failed to delete book donation', {
+					toast.error('Gagal menghapus donasi buku', {
 						description: error.response?.data?.message || error.message,
 					});
 					console.error(error);
@@ -87,9 +87,9 @@ const ListBookDonations = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Book Donations List</HeadingTitle>
+				<HeadingTitle>Daftar Donasi Buku</HeadingTitle>
 				<HeadingDescription>
-					Manage all book donations with pagination and search functionality.
+					Kelola semua donasi buku dengan fitur pencarian dan pagination.
 				</HeadingDescription>
 			</Heading>
 
@@ -98,14 +98,14 @@ const ListBookDonations = () => {
 					<Input
 						value={search}
 						type='search'
-						placeholder='Search by member name, address...'
+						placeholder='Cari berdasarkan nama member, alamat...'
 						onChange={(e) => setSearch(e.target.value)}
 					/>
 					<Select
 						value={status}
 						className='max-w-40'
 						onChange={(e) => setStatus(e.target.value)}>
-						<option value=''>Select a status</option>
+						<option value=''>Pilih status</option>
 						{Object.values(PAYMENT_STATUS).map((status) => (
 							<option key={status} value={status}>
 								{status}
@@ -117,7 +117,7 @@ const ListBookDonations = () => {
 				<Link
 					to='/dashboard/book-donations/create'
 					className='flex-none w-full sm:w-auto'>
-					<Button className='w-full sm:w-auto'>Create Book Donation</Button>
+					<Button className='w-full sm:w-auto'>Buat Donasi Buku</Button>
 				</Link>
 			</div>
 
@@ -126,10 +126,10 @@ const ListBookDonations = () => {
 					<TableHeader>
 						<TableRow>
 							<TableHead>Member</TableHead>
-							<TableHead>Shipping Fee</TableHead>
+							<TableHead>Biaya Pengiriman</TableHead>
 							<TableHead>Status</TableHead>
-							<TableHead>Created At</TableHead>
-							<TableHead>Action</TableHead>
+							<TableHead>Tanggal Dibuat</TableHead>
+							<TableHead>Aksi</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -151,7 +151,7 @@ const ListBookDonations = () => {
 												target='_blank'
 												rel='noreferrer'>
 												<button className='bg-transparent hover:text-blue-500'>
-													Complete Payment
+													Selesaikan Pembayaran
 												</button>
 											</a>
 										)}
@@ -163,7 +163,7 @@ const ListBookDonations = () => {
 										<button
 											onClick={() => handleDelete(bookDonation.id)}
 											className='bg-transparent hover:text-red-500'>
-											Delete
+											Hapus
 										</button>
 									</div>
 								</TableCell>

@@ -42,12 +42,12 @@ const ForgotPassword = () => {
 	const onSubmit = handleSubmit(async (data) => {
 		try {
 			await axios.post('/auth/forgot-password', data);
-			toast('Forgot password sent', {
-				description: 'We will send you an email with the password reset link',
+			toast('Permintaan reset password berhasil dikirim', {
+				description: 'Kami akan mengirimkan link reset password ke email Anda',
 			});
 			setSent(true);
 		} catch (error) {
-			toast.error('Failed to send password reset email', {
+			toast.error('Gagal mengirim email reset password', {
 				description: error.response?.data?.message || error.message,
 			});
 			console.error(error);
@@ -57,16 +57,14 @@ const ForgotPassword = () => {
 	return (
 		<div>
 			<h1 className='mb-8 text-4xl font-bold text-primary-500'>
-				Forgot Password
+				Lupa Password
 			</h1>
 
 			<form className='grid gap-6' onSubmit={onSubmit}>
 				{sent ? (
 					<React.Fragment>
 						<div className='text-sm text-zinc-500 '>
-							We've sent you an email with the password reset link, please check
-							your inbox. If you don't receive the email, please check your spam
-							folder.
+							Kami telah mengirimkan email berisi link reset password. Silakan cek inbox Anda. Jika tidak ditemukan, periksa folder spam.
 						</div>
 					</React.Fragment>
 				) : (
@@ -75,7 +73,7 @@ const ForgotPassword = () => {
 							<Label htmlFor='email'>Email</Label>
 							<Input
 								type='email'
-								placeholder='Enter your email'
+								placeholder='Masukkan email Anda'
 								{...register('email')}
 							/>
 							{errors.email && (
@@ -85,14 +83,14 @@ const ForgotPassword = () => {
 					</React.Fragment>
 				)}
 
-				<Button disabled={sent}>Send Reset Link</Button>
+				<Button disabled={sent}>Kirim Link Reset</Button>
 
 				<div className='text-sm text-center text-zinc-500 '>
-					Back to{' '}
+					Kembali ke{' '}
 					<Link
 						to='/auth/signin'
 						className='font-medium text-primary-600 hover:text-primary-500'>
-						Sign in
+						Masuk
 					</Link>
 				</div>
 			</form>

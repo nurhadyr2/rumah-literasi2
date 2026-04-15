@@ -87,10 +87,9 @@ const ListDonations = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Financial Donations List</HeadingTitle>
+				<HeadingTitle> Daftar Donasi Finansial</HeadingTitle>
 				<HeadingDescription>
-					Manage all financial donations with pagination and search
-					functionality.
+					Kelola semua Donasi Finansial dengan fitur penomoran halaman dan pencarian.
 				</HeadingDescription>
 			</Heading>
 
@@ -119,7 +118,7 @@ const ListDonations = () => {
 					to='/dashboard/financial-donations/create'
 					className='flex-none w-full sm:w-auto'>
 					<Button className='w-full sm:w-auto'>
-						Create Financial Donation
+						Buat Donasi Finansial
 					</Button>
 				</Link>
 			</div>

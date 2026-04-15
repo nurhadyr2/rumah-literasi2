@@ -42,12 +42,12 @@ const OneTimePassword = () => {
 	const onSubmit = handleSubmit(async (data) => {
 		try {
 			await validate(data);
-			toast('One time password verified', {
-				description: 'You are now logged in',
+			toast('Kode OTP berhasil diverifikasi', {
+				description: 'Anda sekarang sudah login',
 			});
 			navigate('/dashboard');
 		} catch (error) {
-			toast.error('Failed to login', {
+			toast.error('Gagal login', {
 				description: error.response?.data?.message || error.message,
 			});
 			console.error(error);
@@ -59,7 +59,7 @@ const OneTimePassword = () => {
 			await signout();
 			navigate('/auth/signin');
 		} catch (error) {
-			toast.error('Failed to logout', {
+			toast.error('Gagal logout', {
 				description: error.response?.data?.message || error.message,
 			});
 		}
@@ -68,12 +68,12 @@ const OneTimePassword = () => {
 	return (
 		<div>
 			<h1 className='mb-8 text-4xl font-bold text-primary-500'>
-				One Time Password
+				Kode OTP (One Time Password)
 			</h1>
 
 			<form className='grid gap-6' onSubmit={onSubmit}>
 				<div>
-					<Label htmlFor='otp'>Input code</Label>
+					<Label htmlFor='otp'>Masukkan Kode</Label>
 					<Controller
 						control={control}
 						name='otp'
@@ -90,15 +90,15 @@ const OneTimePassword = () => {
 					)}
 				</div>
 
-				<Button>Login</Button>
+				<Button>Masuk</Button>
 
 				<div className='text-sm text-center text-zinc-500 '>
-					Didn&apos;t receive the code?{' '}
+					Tidak menerima kode?{' '}
 					<button
 						type='button'
 						onClick={handleLogout}
 						className='font-medium text-primary-600 hover:text-primary-500'>
-						Change Account
+						Ganti Akun
 					</button>
 				</div>
 			</form>

@@ -25,7 +25,7 @@ const BookSchema = z.object({
 
 			return file.type.startsWith('image/');
 		},
-		{ message: 'File must be an image and smaller than 2MB' }
+		{ message: 'File harus berupa gambar dan berukuran kurang dari 2MB' }
 	),
 });
 
@@ -55,10 +55,10 @@ const BookForm = ({ initial, action, label }) => {
 	return (
 		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
 			<div className='col-span-full'>
-				<Label htmlFor='title'>Title</Label>
+				<Label htmlFor='title'>Judul</Label>
 				<Input
 					type='text'
-					placeholder='Enter your title'
+					placeholder='Masukkan judul'
 					{...register('title')}
 				/>
 				{errors.title && (
@@ -67,10 +67,10 @@ const BookForm = ({ initial, action, label }) => {
 			</div>
 
 			<div className='col-span-2'>
-				<Label htmlFor='author'>Author</Label>
+				<Label htmlFor='author'>Penulis</Label>
 				<Input
 					type='text'
-					placeholder='Enter your author'
+					placeholder='Masukkan penulis'
 					{...register('author')}
 				/>
 				{errors.author && (
@@ -79,10 +79,10 @@ const BookForm = ({ initial, action, label }) => {
 			</div>
 
 			<div>
-				<Label htmlFor='publisher'>Publisher</Label>
+				<Label htmlFor='publisher'>Penerbit</Label>
 				<Input
 					type='text'
-					placeholder='Enter your publisher'
+					placeholder='Masukkan penerbit'
 					{...register('publisher')}
 				/>
 				{errors.publisher && (
@@ -91,10 +91,10 @@ const BookForm = ({ initial, action, label }) => {
 			</div>
 
 			<div>
-				<Label htmlFor='year'>Year</Label>
+				<Label htmlFor='year'>Tahun</Label>
 				<Input
 					type='number'
-					placeholder='Enter your year'
+					placeholder='Masukkan tahun'
 					{...register('year')}
 				/>
 				{errors.year && (
@@ -103,10 +103,10 @@ const BookForm = ({ initial, action, label }) => {
 			</div>
 
 			<div>
-				<Label htmlFor='language'>Language</Label>
+				<Label htmlFor='language'>Bahasa</Label>
 				<Input
 					type='text'
-					placeholder='Enter your language'
+					placeholder='Masukkan bahasa'
 					{...register('language')}
 				/>
 				{errors.language && (
@@ -115,10 +115,10 @@ const BookForm = ({ initial, action, label }) => {
 			</div>
 
 			<div>
-				<Label htmlFor='amount'>Amount</Label>
+				<Label htmlFor='amount'>Jumlah</Label>
 				<Input
 					type='number'
-					placeholder='Enter your amount'
+					placeholder='Masukkan jumlah'
 					{...register('amount')}
 				/>
 				{errors.amount && (
@@ -128,18 +128,18 @@ const BookForm = ({ initial, action, label }) => {
 
 			<div className='col-span-full'>
 				<Label htmlFor='cover' className='flex justify-between w-full'>
-					<span>Cover Image</span>
+					<span>Gambar Sampul</span>
 					<span
 						className={cn('font-light text-zinc-500', {
 							'text-red-500': filesize > 2,
 						})}>
-						(Max 2MB, Selected {filesize})
+						(Maks 2MB, Dipilih {filesize})
 					</span>
 				</Label>
 				<Input
 					type='file'
 					accept='image/*'
-					placeholder='Select cover image'
+					placeholder='Pilih gambar sampul'
 					className='file:hidden'
 					{...register('cover')}
 				/>

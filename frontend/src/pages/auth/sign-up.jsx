@@ -41,20 +41,20 @@ const SignUp = () => {
 
 	const onSubmit = handleSubmit(async (data) => {
 		try {
-			toast('Registering...', {
-				description: 'Checking your credentials and creating your account',
+			toast('Sedang mendaftar...', {
+				description: 'Memeriksa data dan membuat akun Anda',
 			});
 
 			await signup(data);
 
-			toast('Register successful', {
-				description: 'You are now registered',
+			toast('Pendaftaran berhasil', {
+				description: 'Akun Anda berhasil dibuat',
 			});
 			navigate('/auth/verify-email', {
 				state: { emailSent: true, email: data.email },
 			});
 		} catch (error) {
-			toast.error('Failed to register', {
+			toast.error('Gagal mendaftar', {
 				description: error.response?.data?.message || error.message,
 			});
 			console.error(error);
@@ -63,14 +63,14 @@ const SignUp = () => {
 
 	return (
 		<div>
-			<h1 className='mb-8 text-4xl font-bold text-primary-500'>Register</h1>
+			<h1 className='mb-8 text-4xl font-bold text-primary-500'>Daftar</h1>
 
 			<form className='grid gap-6' onSubmit={onSubmit}>
 				<div>
-					<Label> Name</Label>
+					<Label>Nama</Label>
 					<Input
 						type='text'
-						placeholder='Enter your name'
+						placeholder='Masukkan nama Anda'
 						{...register('name')}
 					/>
 					{errors.name && (
@@ -79,10 +79,10 @@ const SignUp = () => {
 				</div>
 
 				<div>
-					<Label> Email</Label>
+					<Label>Email</Label>
 					<Input
 						type='email'
-						placeholder='Enter your email'
+						placeholder='Masukkan email Anda'
 						{...register('email')}
 					/>
 					{errors.email && (
@@ -91,10 +91,10 @@ const SignUp = () => {
 				</div>
 
 				<div>
-					<Label> Password</Label>
+					<Label>Password</Label>
 					<Input
 						type='password'
-						placeholder='Enter your password'
+						placeholder='Masukkan password Anda'
 						{...register('password')}
 					/>
 					{errors.password && (
@@ -102,14 +102,14 @@ const SignUp = () => {
 					)}
 				</div>
 
-				<Button className='w-full'>Register</Button>
+				<Button className='w-full'>Daftar</Button>
 
 				<div className='text-sm text-center text-zinc-500 '>
-					Already have an account?{' '}
+					Sudah punya akun?{' '}
 					<Link
 						to='/auth/signin'
 						className='font-medium text-primary-600 hover:text-primary-500'>
-						Sign In
+						Masuk
 					</Link>
 				</div>
 			</form>

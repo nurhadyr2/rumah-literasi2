@@ -32,12 +32,11 @@ const DonationItemForm = ({ initial, action, label }) => {
 				<Label htmlFor='isbn'>ISBN</Label>
 				<Input
 					type='text'
-					placeholder='Enter your ISBN'
+					placeholder='Masukkan ISBN'
 					{...register('isbn')}
 				/>
 				<Hint>
-					International Standard Book Number uniquely identifying this
-					publication.
+					Nomor Standar Internasional Buku yang mengidentifikasi publikasi ini.
 				</Hint>
 				{errors.isbn && (
 					<span className='text-red-500'>{errors.isbn.message}</span>
@@ -45,78 +44,78 @@ const DonationItemForm = ({ initial, action, label }) => {
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='title'>Title</Label>
+				<Label htmlFor='title'>Judul</Label>
 				<Input
 					type='text'
-					placeholder='Enter your title'
+					placeholder='Masukkan judul'
 					{...register('title')}
 				/>
-				<Hint>Name of the publication you wish to donate.</Hint>
+				<Hint>Nama publikasi yang ingin Anda donasikan.</Hint>
 				{errors.title && (
 					<span className='text-red-500'>{errors.title.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-2'>
-				<Label htmlFor='author'>Author</Label>
+				<Label htmlFor='author'>Penulis</Label>
 				<Input
 					type='text'
-					placeholder='Enter your author'
+					placeholder='Masukkan nama penulis'
 					{...register('author')}
 				/>
-				<Hint>Writer or creator of this publication.</Hint>
+				<Hint>Penulis atau pembuat dari publikasi ini.</Hint>
 				{errors.author && (
 					<span className='text-red-500'>{errors.author.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='publisher'>Publisher</Label>
+				<Label htmlFor='publisher'>Penerbit</Label>
 				<Input
 					type='text'
-					placeholder='Enter your publisher'
+					placeholder='Masukkan penerbit'
 					{...register('publisher')}
 				/>
-				<Hint>Company responsible for publishing this work.</Hint>
+				<Hint>Perusahaan yang menerbitkan karya ini.</Hint>
 				{errors.publisher && (
 					<span className='text-red-500'>{errors.publisher.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='year'>Year</Label>
+				<Label htmlFor='year'>Tahun</Label>
 				<Input
 					type='number'
-					placeholder='Enter your year'
+					placeholder='Masukkan tahun'
 					{...register('year')}
 				/>
-				<Hint>Year when this publication was released.</Hint>
+				<Hint>Tahun publikasi ini diterbitkan.</Hint>
 				{errors.year && (
 					<span className='text-red-500'>{errors.year.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='language'>Language</Label>
+				<Label htmlFor='language'>Bahasa</Label>
 				<Input
 					type='text'
-					placeholder='Enter your language'
+					placeholder='Masukkan bahasa'
 					{...register('language')}
 				/>
-				<Hint>Primary language used in this publication.</Hint>
+				<Hint>Bahasa utama yang digunakan dalam publikasi ini.</Hint>
 				{errors.language && (
 					<span className='text-red-500'>{errors.language.message}</span>
 				)}
 			</div>
 
 			<div>
-				<Label htmlFor='amount'>Amount</Label>
+				<Label htmlFor='amount'>Jumlah</Label>
 				<Input
 					type='number'
-					placeholder='Enter your amount'
+					placeholder='Masukkan jumlah'
 					{...register('amount')}
 				/>
-				<Hint>Quantity of books you are contributing to the donation.</Hint>
+				<Hint>Jumlah buku yang Anda donasikan.</Hint>
 				{errors.amount && (
 					<span className='text-red-500'>{errors.amount.message}</span>
 				)}
@@ -126,7 +125,7 @@ const DonationItemForm = ({ initial, action, label }) => {
 				<div className='flex items-center gap-2'>
 					<Button>{label}</Button>
 					<Link to='/dashboard/book-donations/create'>
-						<Button variant='outline'>Cancel</Button>
+						<Button variant='outline'>Batal</Button>
 					</Link>
 				</div>
 			</div>

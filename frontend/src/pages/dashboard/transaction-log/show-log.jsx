@@ -23,9 +23,9 @@ const ShowLog = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Log Details</HeadingTitle>
+				<HeadingTitle>Detail Log</HeadingTitle>
 				<HeadingDescription>
-					View detailed information about this log entry.
+					Lihat informasi detail dari entri log ini.
 				</HeadingDescription>
 			</Heading>
 
@@ -35,17 +35,17 @@ const ShowLog = () => {
 			{result && (
 				<div className='grid gap-6 lg:grid-cols-2'>
 					<div className='col-span-full'>
-						<Label htmlFor='action'>Action</Label>
+						<Label htmlFor='action'>Aksi</Label>
 						<Input disabled type='text' defaultValue={result.data.action} />
 					</div>
 
 					<div className='col-span-full'>
-						<Label htmlFor='message'>Message</Label>
+						<Label htmlFor='message'>Pesan</Label>
 						<Textarea disabled defaultValue={result.data.message} />
 					</div>
 
 					<div>
-						<Label htmlFor='resourceType'>Resource Type</Label>
+						<Label htmlFor='resourceType'>Tipe Resource</Label>
 						<Input
 							disabled
 							type='text'
@@ -54,7 +54,7 @@ const ShowLog = () => {
 					</div>
 
 					<div>
-						<Label htmlFor='resourceId'>Resource ID</Label>
+						<Label htmlFor='resourceId'>ID Resource</Label>
 						<Input
 							disabled
 							type='text'
@@ -63,7 +63,7 @@ const ShowLog = () => {
 					</div>
 
 					<div>
-						<Label htmlFor='ipAddress'>IP Address</Label>
+						<Label htmlFor='ipAddress'>Alamat IP</Label>
 						<Input disabled type='text' defaultValue={result.data.ip_address} />
 					</div>
 
@@ -84,7 +84,7 @@ const ShowLog = () => {
 							<Link to='/dashboard/logs'>
 								<Button variant='outline'>
 									<ArrowLeft className='size-4 sm:mr-2' />
-									<span className='hidden sm:inline'>Back</span>
+									<span className='hidden sm:inline'>Kembali</span>
 								</Button>
 							</Link>
 						</div>

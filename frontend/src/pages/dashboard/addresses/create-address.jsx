@@ -22,14 +22,14 @@ const CreateAddress = () => {
 			await axios.post('/addresses', data, {
 				headers: { 'Content-Type': 'application/json' },
 			});
-			toast('Address created', {
-				description: 'Successfully created address',
+			toast('Alamat berhasil dibuat', {
+				description: 'Alamat berhasil ditambahkan',
 			});
 
 			mutate('/addresses');
 			navigate('/dashboard/addresses');
 		} catch (error) {
-			toast.error('Failed to create address', {
+			toast.error('Gagal membuat alamat', {
 				description: error.response?.data?.message || error.message,
 			});
 			console.error(error);
@@ -39,14 +39,14 @@ const CreateAddress = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Create Address</HeadingTitle>
+				<HeadingTitle>Buat Alamat</HeadingTitle>
 				<HeadingDescription>
-					Add a new address to your profile with a name (like Home, Office,
-					etc.) for book donations and other activities.
+					Tambahkan alamat baru ke profil Anda dengan nama (seperti Rumah,
+					Kantor, dll.) untuk donasi buku dan aktivitas lainnya.
 				</HeadingDescription>
 			</Heading>
 
-			<AddressForm action={onSubmit} label='Create Address' />
+			<AddressForm action={onSubmit} label='Buat Alamat' />
 		</div>
 	);
 };

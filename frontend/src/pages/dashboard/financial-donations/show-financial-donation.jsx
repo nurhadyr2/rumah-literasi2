@@ -39,7 +39,7 @@ const ShowDonation = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Detail Financial Donations</HeadingTitle>
+				<HeadingTitle>Detail Donasi Finansial</HeadingTitle>
 				<HeadingDescription>
 					Detail informasi donasi finansial untuk mendukung kegiatan literasi
 					baca-tulis di Mraen Mimpi

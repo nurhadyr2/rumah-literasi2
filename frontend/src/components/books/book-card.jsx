@@ -13,7 +13,7 @@ const BookCard = React.forwardRef(({ book, className, ...props }, ref) => {
 			{...props}>
 			<div className='relative overflow-hidden cursor-pointer rounded-xl aspect-book'>
 				<div className='absolute top-0 right-0 m-2'>
-					<Badge>{book.amount} books</Badge>
+					<Badge>{book.amount} buku</Badge>
 				</div>
 				<img
 					src='/cover.webp'

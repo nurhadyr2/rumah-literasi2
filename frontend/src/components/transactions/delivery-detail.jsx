@@ -5,27 +5,27 @@ import { cn } from '@/libs/utils';
 const DeliveryDetail = ({ delivery, className }) => {
 	const details = [
 		{
-			label: 'Company code',
+			label: 'Kode Perusahaan',
 			value: delivery.courier.company,
 		},
 		{
-			label: 'Delivery ID',
+			label: 'ID Pengiriman',
 			value: delivery.waybill_id,
 		},
 		{
-			label: 'Recipient',
+			label: 'Penerima',
 			value: delivery.destination.contact_name,
 		},
 		{
-			label: 'Recipient Address',
+			label: 'Alamat Penerima',
 			value: delivery.destination.address,
 		},
 		{
-			label: 'Origin',
+			label: 'Pengirim',
 			value: delivery.origin.contact_name,
 		},
 		{
-			label: 'Origin Address',
+			label: 'Alamat Pengirim',
 			value: delivery.origin.address,
 		},
 		{
@@ -37,7 +37,7 @@ const DeliveryDetail = ({ delivery, className }) => {
 	return (
 		<div className='border border-zinc-200 rounded-2xl'>
 			<div className='p-4 text-lg font-semibold '>
-				<h3>Delivery Detail</h3>
+				<h3>Detail Pengiriman</h3>
 			</div>
 
 			<div

@@ -35,7 +35,7 @@ const BookDonationForm = ({ initial, action, label }) => {
 
 	return (
 		<form onSubmit={handleSubmit(action)} className='space-y-8'>
-			<HeadingSubtitle>Donation Items</HeadingSubtitle>
+			<HeadingSubtitle>Item Donasi</HeadingSubtitle>
 
 			<div className='grid items-start grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
 				{initial.book_donation_items.map((item) => (
@@ -45,15 +45,15 @@ const BookDonationForm = ({ initial, action, label }) => {
 				))}
 			</div>
 
-			<HeadingSubtitle>Donation Details</HeadingSubtitle>
+			<HeadingSubtitle>Detail Donasi</HeadingSubtitle>
 
 			<div className='grid gap-6 lg:grid-cols-2'>
 				<div>
-					<Label htmlFor='member'>Member</Label>
+					<Label htmlFor='member'>Anggota</Label>
 					<Input disabled type='text' defaultValue={initial.user.name} />
 				</div>
 				<div>
-					<Label htmlFor='estimated_value'>Estimated Value (Rp)</Label>
+					<Label htmlFor='estimated_value'>Perkiraan Nilai (Rp)</Label>
 					<Input
 						disabled
 						type='text'
@@ -62,32 +62,32 @@ const BookDonationForm = ({ initial, action, label }) => {
 				</div>
 
 				<div>
-					<Label htmlFor='weight'>Total Weight (kg)</Label>
+					<Label htmlFor='weight'>Total Berat (kg)</Label>
 					<Input disabled type='text' defaultValue={initial.weight + ' kg'} />
 				</div>
 
 				<div>
-					<Label htmlFor='length'>Length (cm)</Label>
+					<Label htmlFor='length'>Panjang (cm)</Label>
 					<Input disabled type='text' defaultValue={initial.length + ' cm'} />
 				</div>
 
 				<div>
-					<Label htmlFor='width'>Width (cm)</Label>
+					<Label htmlFor='width'>Lebar (cm)</Label>
 					<Input disabled type='text' defaultValue={initial.width + ' cm'} />
 				</div>
 
 				<div>
-					<Label htmlFor='height'>Height (cm)</Label>
+					<Label htmlFor='height'>Tinggi (cm)</Label>
 					<Input disabled type='text' defaultValue={initial.height + ' cm'} />
 				</div>
 
 				<div className='col-span-full'>
-					<Label htmlFor='delivery_address'>Delivery Address</Label>
+					<Label htmlFor='delivery_address'>Alamat Pengiriman</Label>
 					<Input disabled type='text' defaultValue={initial.address.name} />
 				</div>
 
 				<div className='col-span-full'>
-					<Label htmlFor='street_address'>Street Address</Label>
+					<Label htmlFor='street_address'>Alamat Jalan</Label>
 					<Input
 						disabled
 						type='text'
@@ -96,7 +96,7 @@ const BookDonationForm = ({ initial, action, label }) => {
 				</div>
 
 				<div className='col-span-full'>
-					<Label htmlFor='location'>Location</Label>
+					<Label htmlFor='location'>Lokasi</Label>
 					<Map
 						location={{
 							latitude: initial.address.latitude,
@@ -108,11 +108,11 @@ const BookDonationForm = ({ initial, action, label }) => {
 				</div>
 			</div>
 
-			<HeadingSubtitle>Courier Information</HeadingSubtitle>
+			<HeadingSubtitle>Informasi Kurir</HeadingSubtitle>
 
 			<div className='grid gap-6 lg:grid-cols-2'>
 				<div>
-					<Label htmlFor='courier_code'>Courier Company</Label>
+					<Label htmlFor='courier_code'>Perusahaan Kurir</Label>
 					<Input
 						disabled
 						type='text'
@@ -122,7 +122,7 @@ const BookDonationForm = ({ initial, action, label }) => {
 				</div>
 
 				<div>
-					<Label htmlFor='courier_service_code'>Courier Type</Label>
+					<Label htmlFor='courier_service_code'>Jenis Layanan Kurir</Label>
 					<Input
 						disabled
 						type='text'
@@ -132,7 +132,7 @@ const BookDonationForm = ({ initial, action, label }) => {
 				</div>
 
 				<div>
-					<Label htmlFor='shipping_fee'>Shipping Fee</Label>
+					<Label htmlFor='shipping_fee'>Biaya Pengiriman</Label>
 					<Input
 						disabled
 						type='text'
@@ -141,36 +141,36 @@ const BookDonationForm = ({ initial, action, label }) => {
 				</div>
 
 				<div>
-					<Label htmlFor='shipping_eta'>Shipping Duration</Label>
+					<Label htmlFor='shipping_eta'>Estimasi Pengiriman</Label>
 					<Input disabled type='text' defaultValue={initial.shipping_eta} />
 				</div>
 			</div>
 
-			<HeadingSubtitle>Tracking Information</HeadingSubtitle>
+			<HeadingSubtitle>Informasi Pelacakan</HeadingSubtitle>
 
 			<div className='grid gap-6 lg:grid-cols-2'>
 				<div>
-					<Label htmlFor='order-id'>Order ID</Label>
+					<Label htmlFor='order-id'>ID Pesanan</Label>
 					<Input
 						disabled
 						type='text'
-						defaultValue={initial.order_id || 'Not available'}
+						defaultValue={initial.order_id || 'Tidak tersedia'}
 					/>
 				</div>
 				<div>
-					<Label htmlFor='tracking-id'>Tracking ID</Label>
+					<Label htmlFor='tracking-id'>ID Pelacakan</Label>
 					<Input
 						disabled
 						type='text'
-						defaultValue={initial.tracking_id || 'Not available'}
+						defaultValue={initial.tracking_id || 'Tidak tersedia'}
 					/>
 				</div>
 			</div>
 
-			<HeadingSubtitle>Status Management</HeadingSubtitle>
+			<HeadingSubtitle>Manajemen Status</HeadingSubtitle>
 
 			<div>
-				<Label htmlFor='status'>Update Status</Label>
+				<Label htmlFor='status'>Perbarui Status</Label>
 				<Select {...register('status')}>
 					{STATUS_LIST.map((status) => (
 						<option key={status} value={status}>
@@ -178,20 +178,20 @@ const BookDonationForm = ({ initial, action, label }) => {
 						</option>
 					))}
 				</Select>
-				<Hint>Status of the book donation process.</Hint>
+				<Hint>Status proses donasi buku.</Hint>
 				{errors.status && (
 					<span className='text-red-500'>{errors.status.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='acceptance-notes'>Acceptance Notes</Label>
+				<Label htmlFor='acceptance-notes'>Catatan Penerimaan</Label>
 				<Textarea
 					type='text'
-					placeholder='Enter acceptance notes'
+					placeholder='Masukkan catatan penerimaan'
 					{...register('acceptance_notes')}
 				/>
-				<Hint>Notes about the acceptance of this donation.</Hint>
+				<Hint>Catatan mengenai penerimaan donasi ini.</Hint>
 				{errors.acceptance_notes && (
 					<span className='text-red-500'>
 						{errors.acceptance_notes.message}

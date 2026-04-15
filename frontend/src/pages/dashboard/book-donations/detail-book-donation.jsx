@@ -27,9 +27,9 @@ const DetailBookDonation = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Add Donation Detail</HeadingTitle>
+				<HeadingTitle>Tambah Detail Donasi</HeadingTitle>
 				<HeadingDescription>
-					Enter the details for your book donation.
+					Masukkan detail donasi buku Anda.
 				</HeadingDescription>
 			</Heading>
 

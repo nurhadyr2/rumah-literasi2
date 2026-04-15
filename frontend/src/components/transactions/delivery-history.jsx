@@ -11,7 +11,7 @@ const DeliveryHistory = ({ histories, className }) => {
 	return (
 		<div className='border border-zinc-200 rounded-2xl'>
 			<div className='p-4 text-lg font-semibold '>
-				<h3>History Detail</h3>
+				<h3>Detail Riwayat</h3>
 			</div>
 
 			<div

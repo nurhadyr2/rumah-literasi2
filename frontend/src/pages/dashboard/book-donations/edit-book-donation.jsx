@@ -45,9 +45,9 @@ const EditBookDonationMain = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Edit Book Donation</HeadingTitle>
+				<HeadingTitle>Edit Donasi Buku</HeadingTitle>
 				<HeadingDescription>
-					Update the status of this book donation.
+					Perbarui status donasi buku ini.
 				</HeadingDescription>
 			</Heading>
 

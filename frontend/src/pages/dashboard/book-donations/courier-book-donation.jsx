@@ -31,12 +31,13 @@ const CourierBookDonation = () => {
 	};
 
 	if (!detail) return <Navigate to='/dashboard/book-donations/create/detail' />;
+
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Choose Courier</HeadingTitle>
+				<HeadingTitle>Pilih Kurir</HeadingTitle>
 				<HeadingDescription>
-					Select the courier service for your book donation delivery.
+					Pilih layanan kurir untuk pengiriman donasi buku Anda.
 				</HeadingDescription>
 			</Heading>
 
@@ -44,7 +45,7 @@ const CourierBookDonation = () => {
 				detail={detail}
 				action={onSubmit}
 				previous={onPrevious}
-				label='Choose Courier'
+				label='Pilih Kurir'
 			/>
 		</div>
 	);

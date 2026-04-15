@@ -5,19 +5,19 @@ import { cn } from '@/libs/utils';
 const CourierDetail = ({ courier, className }) => {
 	const details = [
 		{
-			label: 'Company code',
+			label: 'Perusahaan Kurir',
 			value: courier.courier_company.toUpperCase(),
 		},
 		{
-			label: 'Type code',
+			label: 'Jenis Layanan',
 			value: courier.courier_type.toUpperCase(),
 		},
 		{
-			label: 'Delivery Fee',
+			label: 'Biaya Pengiriman',
 			value: courier.delivery_fee,
 		},
 		{
-			label: 'Delivery Estimated Time',
+			label: 'Estimasi Pengiriman',
 			value: courier.delivery_eta,
 		},
 	];
@@ -25,7 +25,7 @@ const CourierDetail = ({ courier, className }) => {
 	return (
 		<div className='border border-zinc-200 rounded-2xl'>
 			<div className='p-4 text-lg font-semibold '>
-				<h3>Courier Detail</h3>
+				<h3>Detail Kurir</h3>
 			</div>
 
 			<div

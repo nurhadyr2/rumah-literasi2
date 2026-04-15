@@ -21,7 +21,7 @@ const ResetPasswordSchema = z
 		password_confirmation: z.string().min(8),
 	})
 	.refine((data) => data.password === data.password_confirmation, {
-		message: 'Password and password confirmation do not match',
+		message: 'Password dan konfirmasi password tidak sama',
 	});
 
 const ResetPassword = () => {
@@ -56,12 +56,12 @@ const ResetPassword = () => {
 	const onSubmit = handleSubmit(async (data) => {
 		try {
 			await axios.post('/auth/reset-password', data);
-			toast('Password reset successfully', {
-				description: 'Please login with your new password',
+			toast('Password berhasil direset', {
+				description: 'Silakan login menggunakan password baru Anda',
 			});
 			navigate('/auth/signin');
 		} catch (error) {
-			toast.error('Failed to reset password', {
+			toast.error('Gagal mereset password', {
 				description: error.response?.data?.message || error.message,
 			});
 			console.error(error);
@@ -76,10 +76,10 @@ const ResetPassword = () => {
 
 			<form className='grid gap-6' onSubmit={onSubmit}>
 				<div>
-					<Label htmlFor='password'>New Password</Label>
+					<Label htmlFor='password'>Password Baru</Label>
 					<Input
 						type='password'
-						placeholder='Enter your password'
+						placeholder='Masukkan password baru'
 						{...register('password')}
 					/>
 					{errors.password && (
@@ -88,10 +88,10 @@ const ResetPassword = () => {
 				</div>
 
 				<div>
-					<Label htmlFor='password_confirmation'>Confirm Password</Label>
+					<Label htmlFor='password_confirmation'>Konfirmasi Password</Label>
 					<Input
 						type='password'
-						placeholder='Confirm your password'
+						placeholder='Masukkan ulang password'
 						{...register('password_confirmation')}
 					/>
 					{errors.password_confirmation && (

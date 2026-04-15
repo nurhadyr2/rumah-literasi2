@@ -32,8 +32,8 @@ const StepBook = () => {
 
 	const handleSubmit = () => {
 		if (books.length === 0) {
-			toast('Please add books', {
-				description: 'Please add books before proceeding',
+			toast('Silakan tambahkan buku', {
+				description: 'Tambahkan buku terlebih dahulu sebelum melanjutkan',
 			});
 			return;
 		}
@@ -43,9 +43,9 @@ const StepBook = () => {
 
 	const handleReset = () => {
 		confirm({
-			title: 'Confirm Action',
+			title: 'Konfirmasi Aksi',
 			variant: 'destructive',
-			description: 'Are you sure you want to reset data?',
+			description: 'Apakah Anda yakin ingin mereset data?',
 		})
 			.then(() => reset())
 			.catch(() => {
@@ -69,8 +69,8 @@ const StepBook = () => {
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead>Title</TableHead>
-								<TableHead className='text-right'>Amount</TableHead>
+								<TableHead>Judul</TableHead>
+								<TableHead className='text-right'>Jumlah</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -104,9 +104,9 @@ const StepBook = () => {
 						Reset Data
 					</Button>
 					<Button variant='outline' onClick={() => purge()}>
-						Remove All
+						Hapus Semua
 					</Button>
-					<Button onClick={handleSubmit}>Next</Button>
+					<Button onClick={handleSubmit}>Lanjut</Button>
 				</div>
 			</div>
 		</div>

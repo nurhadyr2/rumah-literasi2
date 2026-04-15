@@ -55,19 +55,19 @@ const ListEvents = () => {
 
 	const handleDelete = async (id) => {
 		confirm({
-			title: 'Confirm Action',
+			title: 'Konfirmasi Tindakan',
 			variant: 'destructive',
-			description: 'Are you sure you want to delete this record?',
+			description: 'Apakah Anda yakin ingin menghapus data ini?',
 		})
 			.then(async () => {
 				try {
 					await axios.delete('/events/' + id);
 					mutate();
-					toast('Event deleted', {
-						description: 'Successfully deleted event',
+					toast('Event dihapus', {
+						description: 'Event berhasil dihapus',
 					});
 				} catch (error) {
-					toast.error('Failed to delete event', {
+					toast.error('Gagal menghapus event', {
 						description: error.response?.data?.message || error.message,
 					});
 					console.error(error);
@@ -81,9 +81,9 @@ const ListEvents = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Events List</HeadingTitle>
+				<HeadingTitle>Daftar Event</HeadingTitle>
 				<HeadingDescription>
-					Manage all events with pagination and search functionality.
+					Mengelola semua event dengan fitur pencarian dan pagination.
 				</HeadingDescription>
 			</Heading>
 
@@ -91,12 +91,12 @@ const ListEvents = () => {
 				<Input
 					value={search}
 					type='search'
-					placeholder='Search by title, description...'
+					placeholder='Cari berdasarkan judul, deskripsi...'
 					onChange={(e) => setSearch(e.target.value)}
 				/>
 
 				<Link to='/dashboard/events/create' className='flex-none'>
-					<Button>Create Event</Button>
+					<Button>Buat Event</Button>
 				</Link>
 			</div>
 
@@ -104,11 +104,11 @@ const ListEvents = () => {
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead>Title</TableHead>
-							<TableHead>Description</TableHead>
-							<TableHead>Date</TableHead>
-							<TableHead>Location</TableHead>
-							<TableHead>Action</TableHead>
+							<TableHead>Judul</TableHead>
+							<TableHead>Deskripsi</TableHead>
+							<TableHead>Tanggal</TableHead>
+							<TableHead>Lokasi</TableHead>
+							<TableHead>Aksi</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
@@ -128,7 +128,7 @@ const ListEvents = () => {
 										<button
 											onClick={() => handleDelete(event.id)}
 											className='bg-transparent hover:text-red-500'>
-											Delete
+											Hapus
 										</button>
 									</div>
 								</TableCell>

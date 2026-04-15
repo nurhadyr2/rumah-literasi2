@@ -23,14 +23,14 @@ const EditMerchant = () => {
 	const onSubmit = async (data) => {
 		try {
 			await axios.put('/merchant', data);
-			toast('Merchant updated', {
-				description: 'Successfully updated merchant details',
+			toast('Merchant diperbarui', {
+				description: 'Detail merchant berhasil diperbarui',
 			});
 
 			mutate('/merchant');
 			navigate('/dashboard/merchant');
 		} catch (error) {
-			toast.error('Failed to update merchant', {
+			toast.error('Gagal memperbarui merchant', {
 				description: error.response?.data?.message || error.message,
 			});
 			console.error(error);
@@ -42,7 +42,7 @@ const EditMerchant = () => {
 			<Heading>
 				<HeadingTitle>Edit Merchant</HeadingTitle>
 				<HeadingDescription>
-					Update merchant information and details
+					Perbarui informasi dan detail merchant
 				</HeadingDescription>
 			</Heading>
 
@@ -53,7 +53,7 @@ const EditMerchant = () => {
 				<MerchantForm
 					initial={result.data}
 					action={onSubmit}
-					label='Update Merchant'
+					label='Perbarui Merchant'
 				/>
 			)}
 		</div>

@@ -37,7 +37,7 @@ const CreateDonation = () => {
 	return (
 		<div className='grid gap-8'>
 			<Heading>
-				<HeadingTitle>Create Donation</HeadingTitle>
+				<HeadingTitle>Buat Donasi</HeadingTitle>
 				<HeadingDescription>
 					Buat donasi finansial untuk mendukung kegiatan literasi baca-tulis di Taman Mraen Mimpi. Donasi Anda akan digunakan untuk membeli buku, alat tulis, dan perlengkapan lainnya yang dibutuhkan untuk menjalankan program-program literasi kami. Terima kasih atas dukungan Anda!
 				</HeadingDescription>
