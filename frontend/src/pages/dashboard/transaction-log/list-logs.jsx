@@ -88,7 +88,7 @@ const ListLogs = () => {
 								<TableCell>{log.action}</TableCell>
 								<TableCell>
 									<div className='flex items-center gap-2'>
-										<Link to={log.uuid} relative='path'>
+										<Link to={`/dashboard/logs/${log.uuid}/detail`}>
 											<button className='bg-transparent hover:text-amber-500'>
 												Detail
 											</button>
