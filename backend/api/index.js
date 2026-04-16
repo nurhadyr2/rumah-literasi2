@@ -23,34 +23,31 @@ const app = express();
 app.use(helmet());
 app.set('trust proxy', 1);
 
+const allowedOrigins = ['https://www.mraenmimpi.com', 'https://mraenmimpi.com'];
 
-const allowedOrigins = [
-  'https://www.mraenmimpi.com',
-  'https://mraenmimpi.com'
-];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','X-Requested-With']
-}));
+app.use(
+	cors({
+		origin: function (origin, callback) {
+			if (!origin) return callback(null, true);
+			if (allowedOrigins.indexOf(origin) !== -1) {
+				callback(null, true);
+			} else {
+				callback(new Error('Not allowed by CORS'));
+			}
+		},
+		credentials: true,
+		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+	})
+);
 
 app.options('*', cors());
 const store = new SequelizeStore({
 	db: sequelize,
 	tableName: 'sessions',
-	checkExpirationInterval: 15 * 60 * 1000, 
+	checkExpirationInterval: 15 * 60 * 1000,
 	expiration: 24 * 60 * 60 * 1000,
 });
-
 
 app.use(
 	session({
@@ -78,10 +75,12 @@ if (isProduction) {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-app.use('uploads', express.static('uploads', {
-	maxAge: '7d',
-}));
-
+app.use(
+	'uploads',
+	express.static('uploads', {
+		maxAge: '7d',
+	})
+);
 
 const limiter = rateLimit({
 	windowMs: 60 * 1000,
@@ -89,7 +88,6 @@ const limiter = rateLimit({
 	standardHeaders: true,
 	legacyHeaders: false,
 });
-
 
 app.use('/api', limiter);
 
@@ -120,7 +118,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/teritories', teritoriesRoutes);
 app.use('/api/public', publicRoutes);
-
+app.use('/uploads', require('express').static('uploads'));
 app.use(authenticate);
 app.use('/api/book-donations', bookDonationRoutes);
 app.use('/api/financial-donations', financialDonationRoutes);
@@ -136,7 +134,6 @@ app.use((req, res) => {
 });
 
 app.use(errorHandler);
-
 
 (async () => {
 	try {

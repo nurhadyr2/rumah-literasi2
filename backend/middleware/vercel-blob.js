@@ -1,36 +1,36 @@
 const path = require('path');
 const multer = require('multer');
-const { put } = require('@vercel/blob');
+const fs = require('fs');
 
-class VercelBlobStorage {
+// pastikan folder uploads ada
+const uploadDir = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadDir)) {
+	fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+class LocalStorage {
 	constructor(options) {
 		this.options = options || {};
 	}
 
-	/**
-	 * Called when a file is detected in a request.
-	 * @param {*} req
-	 * @param {*} file
-	 * @param {*} cb
-	 */
 	_handleFile(req, file, cb) {
 		const hash = Date.now();
 		const ext = path.extname(file.originalname);
-		const prefix = this.options.prefix || 'files';
-		const filename = path.join(prefix, hash + ext);
+		const prefix = this.options.prefix || 'uploads';
+		const filename = hash + ext;
+
+		const finalPath = path.join(uploadDir, filename);
 
 		const chunks = [];
 		file.stream.on('data', (chunk) => chunks.push(chunk));
-		file.stream.on('end', async () => {
+		file.stream.on('end', () => {
 			try {
 				const buffer = Buffer.concat(chunks);
 
-				const blob = await put(filename, buffer, {
-					access: 'public',
-				});
+				fs.writeFileSync(finalPath, buffer);
 
 				cb(null, {
-					path: blob.url,
+					path: `/${prefix}/${filename}`,
 					filename: filename,
 					size: buffer.length,
 				});
@@ -42,11 +42,19 @@ class VercelBlobStorage {
 	}
 
 	_removeFile(req, file, cb) {
-		cb(null);
+		try {
+			const filePath = path.join(uploadDir, file.filename);
+			if (fs.existsSync(filePath)) {
+				fs.unlinkSync(filePath);
+			}
+			cb(null);
+		} catch (err) {
+			cb(err);
+		}
 	}
 }
 
-const storage = new VercelBlobStorage({
+const storage = new LocalStorage({
 	prefix: 'uploads',
 });
 
