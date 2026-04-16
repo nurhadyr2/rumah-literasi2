@@ -9,6 +9,8 @@ const AuthorizeLayout = ({ allowed = DEFAULT }) => {
 	const { user, loading } = useAuth();
 	const set = new Set([...allowed, ROLES.SUPERADMIN]);
 	const authorized = user && set.has(user.role);
+	console.log('User role:', user?.role);
+	console.log('Allowed:', allowed);
 
 	if (loading) {
 		return (
