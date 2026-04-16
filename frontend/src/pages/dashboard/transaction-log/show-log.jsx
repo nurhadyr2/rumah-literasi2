@@ -19,7 +19,9 @@ import { CodeBlock } from '@/components/codeblock';
 const ShowLog = () => {
 	const { uuid } = useParams();
 	const { error, data: result, isLoading: fetching } = useSWR('/logs/' + uuid);
+	console.log('SHOW LOG KE RENDER');
 
+	console.log('UUID:', uuid);
 	return (
 		<div className='grid gap-8'>
 			<Heading>

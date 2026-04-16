@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import LazyRoute from '@/routes/lazy';
 import ScrollToTop from '@/components/scroll-to-top';
