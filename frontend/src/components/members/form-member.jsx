@@ -15,7 +15,10 @@ const ROLE_LIST = Object.values(ROLES);
 const MemberSchema = z.object({
 	name: z.string().min(3),
 	email: z.string().min(3),
-	password: z.string().optional(),
+	password: z
+		.string()
+		.optional()
+		.transform((val) => (val === '' ? undefined : val)),
 	role: z.enum(ROLE_LIST),
 	is_verified: z.coerce.boolean(),
 });
@@ -40,11 +43,7 @@ const MemberForm = ({ initial, action, label }) => {
 		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
 			<div className='col-span-full'>
 				<Label htmlFor='name'>Nama</Label>
-				<Input
-					type='text'
-					placeholder='Masukkan nama'
-					{...register('name')}
-				/>
+				<Input type='text' placeholder='Masukkan nama' {...register('name')} />
 				<Hint>Nama lengkap anggota.</Hint>
 				{errors.name && (
 					<span className='text-red-500'>{errors.name.message}</span>
