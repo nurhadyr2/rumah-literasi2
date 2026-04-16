@@ -12,7 +12,7 @@ const AuthorizeLayout = ({ allowed = DEFAULT }) => {
 	console.log('User role:', user?.role);
 	console.log('Allowed:', allowed);
 
-	if (loading) {
+	if (loading || !user || !user.role) {
 		return (
 			<div className='grid gap-8'>
 				<div className='grid gap-2'>
@@ -22,7 +22,7 @@ const AuthorizeLayout = ({ allowed = DEFAULT }) => {
 						<div className='w-1/2 h-4 bg-zinc-100 animate-pulse rounded-xl' />
 					</div>
 				</div>
-				<Loading loading={loading} />
+				<Loading loading={true} />
 			</div>
 		);
 	}
