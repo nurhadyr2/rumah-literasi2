@@ -2,7 +2,7 @@ const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
 
-const uploadDir = path.join(__dirname, '../backend/uploads');
+const uploadDir = '/var/www/rumah-literasi2/backend/uploads';
 if (!fs.existsSync(uploadDir)) {
 	fs.mkdirSync(uploadDir, { recursive: true });
 }
