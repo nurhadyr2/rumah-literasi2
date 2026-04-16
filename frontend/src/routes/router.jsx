@@ -158,9 +158,7 @@ const Router = () => {
 
 					<Route
 						path='book-donations'
-						element={
-							<AuthorizeLayout allowed={[ROLES.GUEST, ROLES.ADMIN]} />
-						}>
+						element={<AuthorizeLayout allowed={[ROLES.GUEST, ROLES.ADMIN]} />}>
 						<Route index element={<ListBookDonations />} />
 						<Route path='create' element={<AddBookDonation />} />
 						<Route path='create/append' element={<AppendBookDonation />} />
@@ -181,7 +179,7 @@ const Router = () => {
 
 					<Route
 						path='addresses'
-						element={<AuthorizeLayout allowed={[ROLES.GUEST,ROLES.ADMIN]} />}>
+						element={<AuthorizeLayout allowed={[ROLES.GUEST, ROLES.ADMIN]} />}>
 						<Route index element={<ListAddresses />} />
 						<Route path='create' element={<AddAddress />} />
 						<Route path=':id/edit' element={<EditAddress />} />
@@ -203,7 +201,7 @@ const Router = () => {
 							<AuthorizeLayout allowed={[ROLES.ADMIN, ROLES.SUPERADMIN]} />
 						}>
 						<Route index element={<ListLogs />} />
-						<Route path=':uuid' element={<ShowLog />} />
+						<Route path=':uuid/detail' element={<ShowLog />} />
 					</Route>
 				</Route>
 
