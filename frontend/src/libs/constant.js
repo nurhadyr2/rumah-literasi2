@@ -74,7 +74,7 @@ export const SIDEBAR_MENUS = [
 				href: '/dashboard/addresses',
 				label: 'Alamat',
 				icon: MapPin,
-				roles: [ROLES.GUEST, ROLES.SUPERADMIN],
+				roles: [ROLES.GUEST, ROLES.ADMIN, ROLES.SUPERADMIN],
 			},
 			{
 				href: '/dashboard/merchant',

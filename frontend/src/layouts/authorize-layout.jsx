@@ -9,10 +9,8 @@ const AuthorizeLayout = ({ allowed = DEFAULT }) => {
 	const { user, loading } = useAuth();
 	const set = new Set([...allowed, ROLES.SUPERADMIN]);
 	const authorized = user && set.has(user.role);
-	console.log('User role:', user?.role);
-	console.log('Allowed:', allowed);
 
-	if (loading || !user || !user.role) {
+	if (loading) {
 		return (
 			<div className='grid gap-8'>
 				<div className='grid gap-2'>
@@ -22,7 +20,7 @@ const AuthorizeLayout = ({ allowed = DEFAULT }) => {
 						<div className='w-1/2 h-4 bg-zinc-100 animate-pulse rounded-xl' />
 					</div>
 				</div>
-				<Loading loading={true} />
+				<Loading loading={loading} />
 			</div>
 		);
 	}
