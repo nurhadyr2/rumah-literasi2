@@ -15,7 +15,7 @@ const FinancialDonationController = {
 			const { search, page, limit, status } = req.query;
 
 			const fd = FinancialDonation.scope({
-				method: ['authorize', req.user, ROLES.ADMIN],
+				method: ['authorize', req.user, [ROLES.ADMIN]],
 			});
 
 			const filters = {};

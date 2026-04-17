@@ -20,7 +20,7 @@ const BookDonationController = {
 			const { search, page, limit, status } = req.query;
 
 			const donations = BookDonation.scope({
-				method: ['authorize', req.user, ROLES.ADMIN],
+				method: ['authorize', req.user, [ROLES.ADMIN]],
 			});
 
 			const filters = {};
