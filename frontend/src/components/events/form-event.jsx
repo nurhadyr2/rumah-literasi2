@@ -23,7 +23,11 @@ const EventSchema = z.object({
 			(files) => {
 				if (!files) return true;
 
-				const [file] = files;
+				if (typeof files === 'string') return true;
+
+				if (!files[0]) return true;
+				
+				const file = files[0];
 				if (!file) return true;
 				if (file.size > 2 * 1024 * 1024) return false;
 
