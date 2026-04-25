@@ -95,9 +95,6 @@ const ShowEvent = () => {
 									<span className='hidden sm:inline'>Kembali</span>
 								</Button>
 							</Link>
-							<Link to={'/dashboard/events/' + result.data.id + '/edit'}>
-								<Button>Edit Acara</Button>
-							</Link>
 						</div>
 					</div>
 				</div>
