@@ -14,7 +14,7 @@ const upload = IS_PRODUCTION ? vercel : local;
 const admin = authorize([ROLES.ADMIN]);
 router.get('/', EventController.index);
 router.post('/', admin, upload.single('media[]'), EventController.store);
-router.get('/:id', admin, EventController.show);
+router.get('/:id', EventController.show);
 router.put('/:id', admin, upload.single('media[]'), EventController.update);
 router.delete('/:id', admin, EventController.destroy);
 
