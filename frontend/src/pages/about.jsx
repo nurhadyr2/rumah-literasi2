@@ -14,7 +14,7 @@ const About = () => {
 							className='w-full h-full object-cover'
 						/>
 
-						<div className='absolute top-0 left-0 -m-1 hidden lg:block'>
+						<div className='absolute top-0 left-0 -m-1 hidden xl:block'>
 							<div className='relative p-6 text-sm origin-center bg-white border w-72 animate-slow-hover border-zinc-200 rounded-xl'>
 								<div className='absolute top-0 left-0 -m-1'>
 									<div className='relative'>
