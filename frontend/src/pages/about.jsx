@@ -7,7 +7,7 @@ const About = () => {
 		<React.Fragment>
 			<div className='container grid items-center gap-8 py-10 sm:py-16 lg:py-24 lg:grid-cols-2 max-w-7xl'>
 				<FadeIn direction='left' duration={700}>
-					<div className='relative mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border bg-zinc-50 border-zinc-200 overflow-hidden'>
+					<div className='relative mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border rounded-lg bg-zinc-50 border-zinc-200 overflow-hidden'>
 						<LazyImage
 							src='/about.jpg'
 							alt='tentang kami'

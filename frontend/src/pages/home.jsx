@@ -34,7 +34,7 @@ const Home = () => {
 	return (
 		<React.Fragment>
 			<div className='w-full overflow-x-hidden'>
-				<div className='container grid items-center gap-6 py-10 sm:py-16 lg:py-24 lg:grid-cols-2 max-w-7xl'>
+				<div className='container grid items-center gap-6 py-10 sm:py-16 lg:py-10 lg:grid-cols-2 max-w-7xl'>
 					<FadeIn direction='left' duration={700}>
 						<div className='flex flex-col gap-6'>
 							<h1 className='text-3xl sm:text-4xl lg:text-6xl font-bold'>
@@ -61,11 +61,11 @@ const Home = () => {
 					</FadeIn>
 
 					<FadeIn direction='right' duration={700} delay={150}>
-						<div className='relative order-first mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border bg-zinc-50 border-zinc-200 lg:order-last hidden lg:block overflow-hidden'>
+						<div className='relative order-first mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border rounded-lg bg-zinc-50 border-zinc-200 lg:order-last hidden lg:block overflow-hidden'>
 							<LazyImage
 								src='/hero.jpg'
 								alt='beranda'
-								className='w-full h-full object-cover'
+								className='rounded-lg w-full h-full object-cover'
 							/>
 
 							<div className='absolute top-0 xl:-right-20 xl:top-16 hidden xl:block'>
@@ -128,7 +128,7 @@ const Home = () => {
 
 				<div
 					ref={ref}
-					className='container grid items-center gap-6 py-24 lg:grid-cols-2 max-w-7xl'>
+					className='container grid items-center gap-6 py-10 lg:grid-cols-2 max-w-7xl'>
 					<FadeIn direction='left' duration={700}>
 						 <div className='relative order-first mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border bg-zinc-50 border-zinc-200 overflow-hidden'>
 							<LazyImage
@@ -194,7 +194,7 @@ const Home = () => {
 					</div>
 				</div>
 
-				<div className='container py-24 max-w-7xl'>
+				<div className='container py-10 max-w-7xl'>
 					<FadeIn direction='up' duration={600}>
 						<div className='flex flex-col gap-6 text-center'>
 							<h2 className='text-4xl font-bold'>Apa Itu Taman Baca?</h2>
