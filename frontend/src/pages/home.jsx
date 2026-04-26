@@ -130,11 +130,11 @@ const Home = () => {
 					ref={ref}
 					className='container grid items-center gap-6 py-24 lg:grid-cols-2 max-w-7xl'>
 					<FadeIn direction='left' duration={700}>
-						<div className='relative order-first mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border rounded-full bg-zinc-50 border-zinc-200 overflow-hidden'>
+						 <div className='relative order-first mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border rounded-full bg-zinc-50 border-zinc-200 overflow-hidden'>
 							<LazyImage
 								src='/about.jpg'
 								alt='tentang kami'
-								className='rounded-full w-full h-full object-cover'
+								className='w-full h-full object-cover'
 							/>
 						</div>
 					</FadeIn>
