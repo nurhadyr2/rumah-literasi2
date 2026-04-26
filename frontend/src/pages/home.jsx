@@ -61,14 +61,14 @@ const Home = () => {
 					</FadeIn>
 
 					<FadeIn direction='right' duration={700} delay={150}>
-						<div className='relative order-first mx-auto w-full max-w-lg p-4 sm:p-6 rounded-xl bg-zinc-50 shadow-sm lg:order-last hidden lg:block'>
+						<div className='relative order-first mx-auto w-full max-w-lg p-1 sm:p-2 rounded-xl hidden lg:block'>
 							<LazyImage
 								src='/hero.jpg'
 								alt='beranda'
 								className='w-full rounded-xl aspect-video object-cover'
 							/>
 
-							<div className='absolute top-0 xl:-right-20 xl:top-16 hidden xl:block'>
+							<div className='absolute top-0 xl:-right-20 xl:top-16 hidden lg:block'>
 								<div className='relative p-6 text-sm origin-center bg-white border w-72 animate-slow-hover border-zinc-200 rounded-xl'>
 									<div className='absolute top-0 left-0 -m-1'>
 										<div className='relative'>
@@ -130,7 +130,7 @@ const Home = () => {
 					ref={ref}
 					className='container grid items-center gap-6 py-10 lg:grid-cols-2 max-w-7xl'>
 					<FadeIn direction='left' duration={700}>
-						 <div className='relative mx-auto w-full max-w-lg p-4 sm:p-6 rounded-xl bg-zinc-50 shadow-sm overflow-hidden'>
+						 <div className='relative mx-auto w-full max-w-lg p-1 sm:p-2 rounded-xl overflow-hidden'>
 							<LazyImage
 								src='/galleries/gallery-3.jpg'
 								alt='tentang kami'
