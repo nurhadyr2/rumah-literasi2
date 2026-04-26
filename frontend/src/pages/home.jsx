@@ -61,11 +61,11 @@ const Home = () => {
 					</FadeIn>
 
 					<FadeIn direction='right' duration={700} delay={150}>
-						<div className='relative order-first mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border rounded-full bg-zinc-50 border-zinc-200 lg:order-last hidden lg:block overflow-hidden'>
+						<div className='relative order-first mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border bg-zinc-50 border-zinc-200 lg:order-last hidden lg:block overflow-hidden'>
 							<LazyImage
 								src='/hero.jpg'
 								alt='beranda'
-								className='rounded-full w-full h-full object-cover'
+								className='w-full h-full object-cover'
 							/>
 
 							<div className='absolute top-0 xl:-right-20 xl:top-16 hidden xl:block'>
