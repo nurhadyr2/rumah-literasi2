@@ -35,8 +35,8 @@ const Home = () => {
 		<React.Fragment>
 			<div className='w-full overflow-x-hidden'>
 				<div className='container grid items-center gap-6 py-10 sm:py-16 lg:py-10 lg:grid-cols-2 max-w-7xl'>
-					<FadeIn direction='left' duration={700}>
-						<div className='flex flex-col gap-6 order-last lg:order-first'>
+					<FadeIn direction='left' duration={700}  className='order-last lg:order-first'>
+						<div className='flex flex-col gap-6'>
 							<h1 className='text-3xl sm:text-4xl lg:text-6xl font-bold'>
 								Memberdayakan Komunitas Melalui Literasi
 							</h1>
@@ -61,11 +61,11 @@ const Home = () => {
 					</FadeIn>
 
 					<FadeIn direction='right' duration={700} delay={150}>
-						<div className='relative order-first lg:order-last mx-auto w-full max-w-lg p-1 sm:p-2 rounded-xl'>
+						<div className='relative mx-auto w-full max-w-lg p-1 sm:p-2 rounded-xl'>
 							<LazyImage
 								src='/hero.jpg'
 								alt='beranda'
-								className='w-full rounded-xl aspect-video object-cover'
+								className='w-full rounded-xl aspect-video object-cover order-first lg:order-last'
 							/>
 
 							<div className='absolute top-0 xl:-right-20 xl:top-16 hidden lg:block'>
