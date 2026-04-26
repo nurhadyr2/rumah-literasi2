@@ -34,7 +34,7 @@ const Home = () => {
 	return (
 		<React.Fragment>
 			<div className='w-full overflow-x-hidden'>
-				<div className='container grid items-center gap-6 py-24 lg:grid-cols-2 max-w-7xl'>
+				<div className='container grid items-center gap-6 py-10 sm:py-16 lg:py-24 lg:grid-cols-2 max-w-7xl'>
 					<FadeIn direction='left' duration={700}>
 						<div className='flex flex-col gap-6'>
 							<h1 className='text-4xl sm:text-6xl font-bold'>
@@ -61,11 +61,11 @@ const Home = () => {
 					</FadeIn>
 
 					<FadeIn direction='right' duration={700} delay={150}>
-						<div className='relative order-first p-6 border rounded-full bg-zinc-50 size-full aspect-square border-zinc-200 lg:order-last'>
+						<div className='relative order-first p-4 sm:p-6 border rounded-full bg-zinc-50 w-full max-w-sm mx-auto lg:max-w-none aspect-square border-zinc-200 lg:order-last'>
 							<LazyImage
 								src='/hero.jpg'
 								alt='beranda'
-								className='rounded-full size-full aspect-square'
+								className='rounded-full size-full aspect-square object-cover'
 							/>
 
 							<div className='absolute top-0 xl:-right-20 xl:top-16 hidden xl:block'>
@@ -130,7 +130,7 @@ const Home = () => {
 					ref={ref}
 					className='container grid items-center gap-6 py-24 lg:grid-cols-2 max-w-7xl'>
 					<FadeIn direction='left' duration={700}>
-						<div className='relative order-first p-6 border rounded-full bg-zinc-50 size-full aspect-square border-zinc-200'>
+						<div className='relative order-first p-4 sm:p-6 border rounded-full bg-zinc-50 w-full max-w-sm mx-auto lg:max-w-none aspect-square border-zinc-200'>
 							<LazyImage
 								src='/about.jpg'
 								alt='tentang kami'
