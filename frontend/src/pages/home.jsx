@@ -37,7 +37,7 @@ const Home = () => {
 				<div className='container grid items-center gap-6 py-10 sm:py-16 lg:py-24 lg:grid-cols-2 max-w-7xl'>
 					<FadeIn direction='left' duration={700}>
 						<div className='flex flex-col gap-6'>
-							<h1 className='text-4xl sm:text-6xl font-bold'>
+							<h1 className='text-3xl sm:text-4xl lg:text-6xl font-bold'>
 								Memberdayakan Komunitas Melalui Literasi
 							</h1>
 							<p className='text-zinc-600'>
@@ -61,11 +61,11 @@ const Home = () => {
 					</FadeIn>
 
 					<FadeIn direction='right' duration={700} delay={150}>
-						<div className='relative order-first p-4 sm:p-6 border rounded-full bg-zinc-50 w-full max-w-sm mx-auto lg:max-w-none aspect-square border-zinc-200 lg:order-last'>
+						<div className='relative order-first mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border rounded-full bg-zinc-50 border-zinc-200 lg:order-last overflow-hidden'>
 							<LazyImage
 								src='/hero.jpg'
 								alt='beranda'
-								className='rounded-full size-full aspect-square object-cover'
+								className='rounded-full w-full h-full object-cover'
 							/>
 
 							<div className='absolute top-0 xl:-right-20 xl:top-16 hidden xl:block'>
@@ -130,11 +130,11 @@ const Home = () => {
 					ref={ref}
 					className='container grid items-center gap-6 py-24 lg:grid-cols-2 max-w-7xl'>
 					<FadeIn direction='left' duration={700}>
-						<div className='relative order-first p-4 sm:p-6 border rounded-full bg-zinc-50 w-full max-w-sm mx-auto lg:max-w-none aspect-square border-zinc-200'>
+						<div className='relative order-first mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border rounded-full bg-zinc-50 border-zinc-200 overflow-hidden'>
 							<LazyImage
 								src='/about.jpg'
 								alt='tentang kami'
-								className='rounded-full size-full aspect-square'
+								className='rounded-full w-full h-full object-cover'
 							/>
 						</div>
 					</FadeIn>
