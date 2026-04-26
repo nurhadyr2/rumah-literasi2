@@ -9,7 +9,7 @@ const About = () => {
 				<FadeIn direction='left' duration={700}>
 					<div className='relative mx-auto w-64 h-64 sm:w-80 sm:h-80 lg:w-full lg:h-auto lg:aspect-square p-4 sm:p-6 border rounded-lg bg-zinc-50 border-zinc-200 overflow-hidden'>
 						<LazyImage
-							src='/about.jpg'
+							src='/galleries/gallery-3.jpg'
 							alt='tentang kami'
 							className='w-full h-full object-cover'
 						/>
