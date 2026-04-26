@@ -61,7 +61,7 @@ const Home = () => {
 					</FadeIn>
 
 					<FadeIn direction='right' duration={700} delay={150}>
-						<div className='relative order-first mx-auto w-full max-w-lg p-1 sm:p-2 rounded-xl hidden lg:block'>
+						<div className='relative order-first mx-auto w-full max-w-lg p-1 sm:p-2 rounded-xl'>
 							<LazyImage
 								src='/hero.jpg'
 								alt='beranda'
