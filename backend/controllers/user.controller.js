@@ -48,7 +48,7 @@ const UserController = {
 
 			const user = await User.create(req.body);
 			await LogService.createLog(
-				'anggota_create',
+				'Menambah Anggota Baru',
 				req.user?.id,
 				'user',
 				user.id,
@@ -101,7 +101,7 @@ const UserController = {
 			await user.update(req.body);
 
 			await LogService.createLog(
-				'anggota_update',
+				'Update Detail Anggota',
 				req.user?.id,
 				'user',
 				user.id,
@@ -135,7 +135,7 @@ const UserController = {
 			await user.destroy();
 
 			await LogService.createLog(
-				'anggota_delete',
+				'Menghapus Data Anggota',
 				req.user?.id,
 				'user',
 				user.id,
