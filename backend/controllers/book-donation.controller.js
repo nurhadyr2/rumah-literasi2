@@ -184,11 +184,33 @@ const BookDonationController = {
 			}).findOne({
 				where: { id },
 			});
+
 			if (!donation) throw new ApiError(404, 'Book donation not found');
+
+			const oldStatus = donation.status;
 
 			await donation.update({
 				...req.body,
 			});
+
+			if (req.body.status && req.body.status !== oldStatus) {
+				await LogService.createLog(
+					'Status Donasi Buku di Update',
+					req.user.id,
+					'book_donation',
+					donation.id,
+					`${req.user.name} updated status from ${oldStatus} to ${donation.status}`,
+					{
+						donation_id: donation.id,
+						old_status: oldStatus,
+						new_status: donation.status,
+						updated_by: req.user.id,
+						updated_by_name: req.user.name,
+					},
+					req
+				);
+			}
+
 			return res.json(
 				new ApiResponse('Book donation updated successfully', donation)
 			);

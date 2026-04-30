@@ -129,7 +129,29 @@ const FinancialDonationController = {
 
 			if (!financialDonation)
 				throw new ApiError(404, 'Financial donation not found');
+
+			const oldData = financialDonation.toJSON();
+			const oldStatus = financialDonation.status;
+
 			await financialDonation.update(req.body);
+
+			if (req.body.status && req.body.status !== oldStatus) {
+				await LogService.createLog(
+					'Status Donasi Finansial di Update',
+					req.user.id,
+					'financial_donation',
+					financialDonation.id,
+					`${req.user.name} updated status from ${oldStatus} to ${financialDonation.status}`,
+					{
+						donation_id: financialDonation.id,
+						old_status: oldStatus,
+						new_status: financialDonation.status,
+						updated_by: req.user.id,
+						updated_by_name: req.user.name,
+					},
+					req
+				);
+			}
 
 			return res.json(
 				new ApiResponse(
@@ -141,7 +163,6 @@ const FinancialDonationController = {
 			next(error);
 		}
 	},
-
 	async destroy(req, res, next) {
 		try {
 			const id = req.params.id;

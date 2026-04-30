@@ -50,7 +50,7 @@ const EventController = {
 			});
 
 			await LogService.createLog(
-				'event_create',
+				'Membuat Data Event Baru',
 				req.user?.id,
 				'event',
 				event.id,
@@ -105,7 +105,7 @@ const EventController = {
 			});
 
 			await LogService.createLog(
-				'event_update',
+				'Mengupdate Data Event',
 				req.user?.id,
 				'event',
 				event.id,
@@ -139,7 +139,7 @@ const EventController = {
 			await event.destroy();
 
 			await LogService.createLog(
-				'event_delete',
+				'Menghapus Data Event',
 				req.user?.id,
 				'event',
 				event.id,
