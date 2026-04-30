@@ -115,7 +115,7 @@ const ListBookDonations = () => {
 					</Select>
 				</div>
 
-				{user?.role === 'GUEST' && (
+				{user?.role === 'Guest' && (
 					<Link
 						to='/dashboard/book-donations/create'
 						className='flex-none w-full sm:w-auto'>
@@ -163,7 +163,7 @@ const ListBookDonations = () => {
 												Detail
 											</button>
 										</Link>
-										{user?.role === 'ADMIN' && (
+										{user?.role === 'Admin' && (
 											<button
 												onClick={() => handleDelete(bookDonation.id)}
 												className='bg-transparent hover:text-red-500'>

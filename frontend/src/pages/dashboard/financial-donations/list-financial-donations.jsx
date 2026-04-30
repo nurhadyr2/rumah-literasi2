@@ -115,7 +115,7 @@ const ListDonations = () => {
 						))}
 					</Select>
 				</div>
-				{user?.role === 'GUEST' && (
+				{user?.role === 'Guest' && (
 					<Link
 						to='/dashboard/financial-donations/create'
 						className='flex-none w-full sm:w-auto'>
@@ -170,7 +170,7 @@ const ListDonations = () => {
 											</button>
 										</Link>
 
-										{(user?.role === 'ADMIN' ||
+										{(user?.role === 'Admin' ||
 											user?.id === donation.user_id) && (
 											<button
 												onClick={() => handleDelete(donation.id)}
