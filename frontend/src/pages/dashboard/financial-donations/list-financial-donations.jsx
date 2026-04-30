@@ -171,7 +171,7 @@ const ListDonations = () => {
 										</Link>
 
 										{(user?.role === 'Admin' ||
-											user?.id === donation.user_id) && (
+											user?.role === 'Superadmin') && (
 											<button
 												onClick={() => handleDelete(donation.id)}
 												className='bg-transparent hover:text-red-500'>
