@@ -163,7 +163,8 @@ const ListBookDonations = () => {
 												Detail
 											</button>
 										</Link>
-										{user?.role === 'Admin' && (
+										{(user?.role === 'Admin' ||
+											user?.id === bookDonation.user_id) && (
 											<button
 												onClick={() => handleDelete(bookDonation.id)}
 												className='bg-transparent hover:text-red-500'>
