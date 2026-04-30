@@ -73,7 +73,7 @@ const ShowLog = () => {
 
 					<div className='col-span-full'>
 						<Label htmlFor='metadata'>Metadata</Label>
-						<CodeBlock>
+						<CodeBlock className='whitespace-pre-wrap break-all'>
 							{JSON.stringify(result.data.metadata, null, 2)}
 						</CodeBlock>
 					</div>
