@@ -6,7 +6,7 @@ import {
 	UsersRound,
 	Phone,
 	Instagram,
-	Facebook,
+	Music2,
 	HeartHandshake,
 	Bolt,
 	Calendar,
@@ -139,7 +139,7 @@ export const WIDGET_SOCIAL = [
 	{
 		href: 'https://www.tiktok.com/@mraenmimpi',
 		label: 'Mraen Mimpi',
-		icon: Facebook,
+		icon: Music2,
 	},
 ];
 

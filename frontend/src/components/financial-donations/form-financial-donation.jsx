@@ -13,9 +13,14 @@ import { Select } from '@/components/ui/select';
 
 const STATUS_LIST = Object.values(PAYMENT_STATUS);
 
+// const FinancialDonationSchema = z.object({
+// 	amount: z.coerce.number().min(1),
+// 	notes: z.string().min(3),
+// });
+
 const FinancialDonationSchema = z.object({
-	amount: z.coerce.number().min(1),
-	notes: z.string().min(3),
+	amount: z.coerce.number().min(1.000, 'Jumlah donasi harus minimal Rp 1.000'),
+	notes: z.string().optional(),
 });
 
 const EditSchema = FinancialDonationSchema.merge(
@@ -33,7 +38,7 @@ const FinancialDonationForm = ({ initial, action, label }) => {
 	} = useForm({
 		resolver: zodResolver(initial ? EditSchema : FinancialDonationSchema),
 		defaultValues: initial || {
-			amount: 0,
+			amount: '',
 			notes: '',
 		},
 	});
@@ -43,10 +48,11 @@ const FinancialDonationForm = ({ initial, action, label }) => {
 			<div className='col-span-full'>
 				<Label htmlFor='amount'>Jumlah Donasi</Label>
 				<Input
-					type='number'
-					placeholder='Masukkan jumlah donasi'
-					{...register('amount')}
-				/>
+				type='text'
+				inputMode='numeric'
+				placeholder='Masukkan jumlah donasi'
+				{...register('amount')}
+			/>
 				<Hint>Jumlah donasi finansial dalam rupiah.</Hint>
 				{errors.amount && (
 					<span className='text-red-500'>{errors.amount.message}</span>
