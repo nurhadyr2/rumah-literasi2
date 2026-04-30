@@ -142,37 +142,44 @@ const Router = () => {
 						<Route path=':id/edit' element={<EditEvent />} />
 					</Route>
 
-					<Route
-						path='financial-donations'
-						element={<AuthorizeLayout allowed={[ROLES.GUEST, ROLES.ADMIN]} />}>
-						<Route index element={<ListDonations />} />
-						<Route path='create' element={<AddDonation />} />
-						<Route path=':id' element={<ShowDonation />} />
-					</Route>
+					<Route path='financial-donations'>
+						<Route
+							element={
+								<AuthorizeLayout allowed={[ROLES.GUEST, ROLES.ADMIN]} />
+							}>
+							<Route index element={<ListDonations />} />
+							<Route path=':id' element={<ShowDonation />} />
+						</Route>
 
-					<Route
-						path='financial-donations'
-						element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
-						<Route path=':id/edit' element={<EditDonation />} />
-					</Route>
+						<Route element={<AuthorizeLayout allowed={[ROLES.GUEST]} />}>
+							<Route path='create' element={<AddDonation />} />
+						</Route>
 
-					<Route
-						path='book-donations'
-						element={<AuthorizeLayout allowed={[ROLES.GUEST, ROLES.ADMIN]} />}>
-						<Route index element={<ListBookDonations />} />
-						<Route path='create' element={<AddBookDonation />} />
-						<Route path='create/append' element={<AppendBookDonation />} />
-						<Route path='create/:id/edit' element={<UpdateBookDonation />} />
-						<Route path='create/detail' element={<DetailBookDonation />} />
-						<Route path='create/courier' element={<CourierBookDonation />} />
-						<Route path='create/review' element={<ReviewBookDonation />} />
-						<Route path=':id' element={<ShowBookDonation />} />
+						<Route element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
+							<Route path=':id/edit' element={<EditDonation />} />
+						</Route>
 					</Route>
+					<Route path='book-donations'>
+						<Route
+							element={
+								<AuthorizeLayout allowed={[ROLES.GUEST, ROLES.ADMIN]} />
+							}>
+							<Route index element={<ListBookDonations />} />
+							<Route path=':id' element={<ShowBookDonation />} />
+						</Route>
 
-					<Route
-						path='book-donations'
-						element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
-						<Route path=':id/edit' element={<EditBookDonation />} />
+						<Route element={<AuthorizeLayout allowed={[ROLES.GUEST]} />}>
+							<Route path='create' element={<AddBookDonation />} />
+							<Route path='create/append' element={<AppendBookDonation />} />
+							<Route path='create/:id/edit' element={<UpdateBookDonation />} />
+							<Route path='create/detail' element={<DetailBookDonation />} />
+							<Route path='create/courier' element={<CourierBookDonation />} />
+							<Route path='create/review' element={<ReviewBookDonation />} />
+						</Route>
+
+						<Route element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
+							<Route path=':id/edit' element={<EditBookDonation />} />
+						</Route>
 					</Route>
 
 					<Route path='profile' element={<ProfileDetail />} />

@@ -39,6 +39,7 @@ const ListDonations = () => {
 	const { confirm } = useConfirm();
 	const { page, limit, search, setSearch, debounced } = usePagination();
 	const [status, setStatus] = useString('status');
+	const { user } = useAuth();
 
 	const {
 		error,
@@ -113,14 +114,13 @@ const ListDonations = () => {
 						))}
 					</Select>
 				</div>
-
-				<Link
-					to='/dashboard/financial-donations/create'
-					className='flex-none w-full sm:w-auto'>
-					<Button className='w-full sm:w-auto'>
-						Buat Donasi Finansial
-					</Button>
-				</Link>
+				{user?.role === 'GUEST' && (
+					<Link
+						to='/dashboard/financial-donations/create'
+						className='flex-none w-full sm:w-auto'>
+						<Button className='w-full sm:w-auto'>Buat Donasi Finansial</Button>
+					</Link>
+				)}
 			</div>
 
 			<div className='w-full overflow-x-auto border rounded-xl border-zinc-200'>
@@ -169,11 +169,14 @@ const ListDonations = () => {
 											</button>
 										</Link>
 
-										<button
-											onClick={() => handleDelete(donation.id)}
-											className='bg-transparent hover:text-red-500'>
-											Hapus
-										</button>
+										{(user?.role === 'ADMIN' ||
+											user?.id === donation.user_id) && (
+											<button
+												onClick={() => handleDelete(donation.id)}
+												className='bg-transparent hover:text-red-500'>
+												Hapus
+											</button>
+										)}
 									</div>
 								</TableCell>
 							</TableRow>

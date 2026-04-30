@@ -1,6 +1,7 @@
 const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
 const SearchService = require('../libs/search-service');
+const LogService = require('../libs/log-service');
 
 const { Event, sequelize } = require('../models');
 
@@ -44,16 +45,30 @@ const EventController = {
 		try {
 			const event = await Event.create({
 				...req.body,
-				media: req.file.path,
+				media: req.file?.path || null,
 				user_id: req.user.id,
 			});
+
+			await LogService.createLog(
+				'event_create',
+				req.user?.id,
+				'event',
+				event.id,
+				`${req.user?.name || 'System'} created event ${event.title}`,
+				{
+					event_id: event.id,
+					title: event.title,
+					location: event.location,
+					date: event.date,
+				},
+				req
+			);
 
 			return res.json(new ApiResponse('Event created successfully', event));
 		} catch (error) {
 			next(error);
 		}
 	},
-
 	async show(req, res, next) {
 		try {
 			const id = req.params.id;
@@ -81,11 +96,26 @@ const EventController = {
 			});
 
 			if (!event) throw new ApiError(404, 'Event not found');
+
+			const oldData = event.toJSON();
+
 			await event.update({
 				...req.body,
 				media: req.file ? req.file.path : event.media,
 			});
-			await event.save();
+
+			await LogService.createLog(
+				'event_update',
+				req.user?.id,
+				'event',
+				event.id,
+				`${req.user?.name || 'System'} updated event ${event.title}`,
+				{
+					before: oldData,
+					after: event.toJSON(),
+				},
+				req
+			);
 
 			return res.json(new ApiResponse('Event updated successfully', event));
 		} catch (error) {
@@ -104,7 +134,24 @@ const EventController = {
 
 			if (!event) throw new ApiError(404, 'Event not found');
 
+			const deletedData = event.toJSON();
+
 			await event.destroy();
+
+			await LogService.createLog(
+				'event_delete',
+				req.user?.id,
+				'event',
+				event.id,
+				`${req.user?.name || 'System'} deleted event ${event.title}`,
+				{
+					event_id: event.id,
+					title: deletedData.title,
+					location: deletedData.location,
+				},
+				req
+			);
+
 			return res.json(new ApiResponse('Event deleted successfully', event));
 		} catch (error) {
 			next(error);

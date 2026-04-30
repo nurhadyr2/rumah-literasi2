@@ -7,12 +7,14 @@ const { authorize } = require('../middleware/authorize');
 
 const guest = authorize([ROLES.GUEST, ROLES.ADMIN]);
 router.get('/', guest, BookDonationController.index);
-router.post('/', guest, BookDonationController.store);
 router.get('/:id', guest, BookDonationController.show);
 router.get('/:id/track', guest, BookDonationController.track);
-router.delete('/:id', guest, BookDonationController.destroy);
 
-const admin = authorize([ROLES.ADMIN,]);
+const guestOnly = authorize([ROLES.GUEST]);
+router.post('/', guestOnly, BookDonationController.store);
+
+const admin = authorize([ROLES.ADMIN]);
 router.put('/:id', admin, BookDonationController.update);
+router.delete('/:id', admin, BookDonationController.destroy);
 
 module.exports = router;

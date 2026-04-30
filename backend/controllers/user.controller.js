@@ -1,6 +1,7 @@
 const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
 const SearchService = require('../libs/search-service');
+const LogService = require('../libs/log-service');
 
 const { User, sequelize } = require('../models');
 
@@ -46,6 +47,20 @@ const UserController = {
 			if (!password) throw new ApiError(400, 'Password is required');
 
 			const user = await User.create(req.body);
+			await LogService.createLog(
+				'anggota_create',
+				req.user?.id,
+				'user',
+				user.uuid,
+				`${req.user?.name || 'System'} created user ${user.name}`,
+				{
+					created_user_id: user.uuid,
+					name: user.name,
+					email: user.email,
+					role: user.role,
+				},
+				req
+			);
 
 			return res.json(new ApiResponse('User created successfully', user));
 		} catch (error) {
@@ -80,8 +95,23 @@ const UserController = {
 			});
 
 			if (!user) throw new ApiError(404, 'User not found');
+
+			const oldData = user.toJSON();
+
 			await user.update(req.body);
-			await user.save();
+
+			await LogService.createLog(
+				'anggota_update',
+				req.user?.id,
+				'user',
+				user.uuid,
+				`${req.user?.name || 'System'} updated user ${user.name}`,
+				{
+					before: oldData,
+					after: user.toJSON(),
+				},
+				req
+			);
 
 			return res.json(new ApiResponse('User updated successfully', user));
 		} catch (error) {
@@ -97,9 +127,27 @@ const UserController = {
 			const user = await User.findOne({
 				where: { uuid },
 			});
+
 			if (!user) throw new ApiError(404, 'User not found');
 
+			const deletedData = user.toJSON();
+
 			await user.destroy();
+
+			await LogService.createLog(
+				'anggota_delete',
+				req.user?.id,
+				'user',
+				user.uuid,
+				`${req.user?.name || 'System'} deleted user ${user.name}`,
+				{
+					deleted_user_id: user.uuid,
+					name: deletedData.name,
+					email: deletedData.email,
+				},
+				req
+			);
+
 			return res.json(new ApiResponse('User deleted successfully', user));
 		} catch (error) {
 			next(error);
