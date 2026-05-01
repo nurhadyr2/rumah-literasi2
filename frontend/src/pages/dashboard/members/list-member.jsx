@@ -148,11 +148,11 @@ const ListMembers = () => {
 
 								<TableCell>
 									<div className='flex items-center gap-2'>
-										<Link to={'/dashboard/members/' + member.uuid + '/edit'}>
+										{/* <Link to={'/dashboard/members/' + member.uuid}>
 											<button className='bg-transparent hover:text-amber-500'>
-												Edit
+												Detail
 											</button>
-										</Link>
+										</Link> */}
 
 										<button
 											onClick={() => handleDelete(member.uuid)}
