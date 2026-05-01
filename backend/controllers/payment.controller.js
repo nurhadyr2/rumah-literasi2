@@ -71,7 +71,10 @@ const PaymentController = {
 				calculated,
 			});
 
-			if (calculated !== signature_key) return res.sendStatus(204);
+			if (calculated !== signature_key) {
+				console.log('SIGNATURE INVALID');
+				return res.status(200).json({ ignored: true });
+			}
 			const statuses = ['settlement', 'cancel', 'failure', 'expire'];
 			if (!statuses.includes(transaction_status)) return res.sendStatus(204);
 
