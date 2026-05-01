@@ -48,6 +48,8 @@ const PaymentController = {
 	},
 
 	async callback(req, res, next) {
+		console.log('callback=', req.body);
+
 		try {
 			const crypto = require('crypto');
 			const {
