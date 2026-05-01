@@ -63,20 +63,26 @@ const PaymentController = {
 				.update(order_id + status_code + gross_amount + MIDTRANS_SERVER_KEY)
 				.digest('hex');
 
-			console.log({
-				order_id,
-				status_code,
-				gross_amount,
-				signature_key,
-				calculated,
-			});
-
 			if (calculated !== signature_key) {
 				console.log('SIGNATURE INVALID');
 				return res.status(200).json({ ignored: true });
 			}
-			const statuses = ['settlement', 'cancel', 'failure', 'expire'];
-			if (!statuses.includes(transaction_status)) return res.sendStatus(204);
+			const allowedStatuses = [
+				'pending',
+				'settlement',
+				'cancel',
+				'failure',
+				'expire',
+			];
+
+			if (!allowedStatuses.includes(transaction_status)) {
+				return res.status(200).json({ ignored: true });
+			}
+
+			if (transaction_status === 'pending') {
+				console.log('PAYMENT PENDING:', order_id);
+				return res.status(200).json({ message: 'pending received' });
+			}
 
 			const book = req.query.type === DONATION_TYPES.BOOK;
 			const model = book ? BookDonation : FinancialDonation;
@@ -89,13 +95,16 @@ const PaymentController = {
 				include: includes,
 			});
 
-			if (!donation) return res.sendStatus(204);
+			if (!donation) return res.status(200).json({ ignored: true });
 			if (donation.status !== PAYMENT_STATUS.PENDING) {
 				return res.sendStatus(IGNORE);
 			}
 
 			const amount = book ? donation.shipping_fee : donation.amount;
-			if (!Number(gross_amount) === amount) return res.sendStatus(204);
+			if (Number(gross_amount) !== amount) {
+				console.log('AMOUNT MISMATCH');
+				return res.status(200).json({ ignored: true });
+			}
 
 			switch (true) {
 				case book && transaction_status === 'settlement':
