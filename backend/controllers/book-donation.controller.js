@@ -228,9 +228,11 @@ const BookDonationController = {
 				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findOne({
 				where: { id },
+				include: ['user', 'address', 'book_donation_items'],
 			});
 
 			if (!donation) throw new ApiError(404, 'Book donation not found');
+
 			if (donation.status !== PAYMENT_STATUS.PENDING) {
 				throw new ApiError(
 					400,
@@ -238,8 +240,37 @@ const BookDonationController = {
 				);
 			}
 
-			if (donation.order_id) await DeliveryController.cancel(donation);
+			const deletedData = donation.toJSON();
+
+			if (donation.order_id) {
+				try {
+					await DeliveryController.cancel(donation);
+				} catch (err) {
+					console.log('BITESHIP CANCEL ERROR:', err.message);
+				}
+			}
+
 			await donation.destroy();
+
+			await LogService.createLog(
+				'Menghapus Data Donasi Buku',
+				req.user.id,
+				'book_donation',
+				deletedData.id,
+				`${req.user.name} deleted book donation #${deletedData.id}`,
+				{
+					donation_id: deletedData.id,
+					deleted_by: req.user.id,
+					deleted_by_name: req.user.name,
+					shipping_fee: deletedData.shipping_fee,
+					status: deletedData.status,
+					order_id: deletedData.order_id,
+					user_id: deletedData.user_id,
+					items_count: deletedData.book_donation_items?.length || 0,
+				},
+				req
+			);
+
 			return res.json(
 				new ApiResponse('Book donation deleted successfully', donation)
 			);

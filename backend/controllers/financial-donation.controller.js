@@ -186,7 +186,27 @@ const FinancialDonationController = {
 				);
 			}
 
+			const oldData = financialDonation.toJSON();
+
+			await LogService.createLog(
+				'Menghapus Data Donasi Finansial ',
+				req.user.id,
+				'financial_donation',
+				financialDonation.id,
+				`${req.user.name} deleted financial donation of Rp ${financialDonation.amount}`,
+				{
+					deleted_by: req.user.id,
+					deleted_by_name: req.user.name,
+					donation_id: financialDonation.id,
+					amount: financialDonation.amount,
+					status: financialDonation.status,
+					data: oldData,
+				},
+				req
+			);
+
 			await financialDonation.destroy();
+
 			return res.json(
 				new ApiResponse(
 					'Financial donation deleted successfully',

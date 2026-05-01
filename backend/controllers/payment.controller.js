@@ -63,6 +63,14 @@ const PaymentController = {
 				.update(order_id + status_code + gross_amount + MIDTRANS_SERVER_KEY)
 				.digest('hex');
 
+			console.log({
+				order_id,
+				status_code,
+				gross_amount,
+				signature_key,
+				calculated,
+			});
+
 			if (calculated !== signature_key) return res.sendStatus(204);
 			const statuses = ['settlement', 'cancel', 'failure', 'expire'];
 			if (!statuses.includes(transaction_status)) return res.sendStatus(204);
