@@ -67,6 +67,13 @@ const PaymentController = {
 
 			if (calculated !== signature_key) {
 				console.log('SIGNATURE INVALID');
+				console.log('CALCULATED:', calculated);
+				console.log('RECEIVED:', signature_key);
+				console.log('DATA:', {
+					order_id,
+					status_code,
+					gross_amount,
+				});
 				return res.status(200).json({ ignored: true });
 			}
 			const allowedStatuses = [
@@ -157,7 +164,7 @@ const PaymentController = {
 				settlement: PAYMENT_STATUS.SUCCESS,
 				cancel: PAYMENT_STATUS.FAILED,
 				failure: PAYMENT_STATUS.FAILED,
-				expire: PAYMENT_STATUS.FAILED,
+				expire: PAYMENT_STATUS.EXPIRED,
 			};
 
 			const old = donation.status;

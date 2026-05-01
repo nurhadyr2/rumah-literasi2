@@ -8,6 +8,7 @@ const PAYMENT_STATUS = {
 	PENDING: 'Pending',
 	SUCCESS: 'Success',
 	FAILED: 'Failed',
+	EXPIRED: 'EXPIRED',
 };
 
 const DONATION_TYPES = {
