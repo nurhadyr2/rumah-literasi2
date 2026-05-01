@@ -38,7 +38,7 @@ const ListAddresses = () => {
 	const {
 		error,
 		mutate,
-		data,
+		data = { rows: [], pagination: null },
 		isLoading: loading,
 	} = useSWR([
 		'addresses',
