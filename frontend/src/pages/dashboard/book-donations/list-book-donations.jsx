@@ -115,7 +115,7 @@ const ListBookDonations = () => {
 					</Select>
 				</div>
 
-				{user?.role === 'Guest' && (
+				{user?.role === 'Donatur' && (
 					<Link
 						to='/dashboard/book-donations/create'
 						className='flex-none w-full sm:w-auto'>

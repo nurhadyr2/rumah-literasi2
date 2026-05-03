@@ -6,7 +6,7 @@ const TransactionController = require('../controllers/transaction.controller');
 const { ROLES } = require('../libs/constant');
 const { authorize } = require('../middleware/authorize');
 
-const guest = authorize([ROLES.GUEST, ROLES.ADMIN]);
+const guest = authorize([ROLES.DONATUR, ROLES.ADMIN]);
 router.get('/', guest, TransactionController.index);
 router.post('/', guest, TransactionController.store);
 router.get('/:uuid', guest, TransactionController.show);

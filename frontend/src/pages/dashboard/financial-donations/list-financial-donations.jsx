@@ -115,7 +115,7 @@ const ListDonations = () => {
 						))}
 					</Select>
 				</div>
-				{user?.role === 'Guest' && (
+				{user?.role === 'Donatur' && (
 					<Link
 						to='/dashboard/financial-donations/create'
 						className='flex-none w-full sm:w-auto'>

@@ -1,5 +1,5 @@
 const ROLES = {
-	GUEST: 'Guest',
+	DONATUR: 'Donatur',
 	ADMIN: 'Admin',
 	SUPERADMIN: 'Superadmin',
 };

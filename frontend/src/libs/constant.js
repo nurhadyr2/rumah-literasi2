@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export const ROLES = {
-	GUEST: 'Guest',
+	DONATUR: 'Donatur',
 	ADMIN: 'Admin',
 	SUPERADMIN: 'Superadmin',
 };
@@ -50,13 +50,13 @@ export const SIDEBAR_MENUS = [
 				href: '/dashboard/book-donations',
 				label: 'Donasi Buku',
 				icon: Gift,
-				roles: [ROLES.GUEST, ROLES.ADMIN, ROLES.SUPERADMIN],
+				roles: [ROLES.DONATUR, ROLES.ADMIN, ROLES.SUPERADMIN],
 			},
 			{
 				href: '/dashboard/financial-donations',
 				label: 'Donasi Finansial',
 				icon: HeartHandshake,
-				roles: [ROLES.GUEST, ROLES.ADMIN, ROLES.SUPERADMIN],
+				roles: [ROLES.DONATUR, ROLES.ADMIN, ROLES.SUPERADMIN],
 			},
 		],
 	},
@@ -74,7 +74,7 @@ export const SIDEBAR_MENUS = [
 				href: '/dashboard/addresses',
 				label: 'Alamat',
 				icon: MapPin,
-				roles: [ROLES.GUEST, ROLES.ADMIN, ROLES.SUPERADMIN],
+				roles: [ROLES.DONATUR, ROLES.ADMIN, ROLES.SUPERADMIN],
 			},
 			{
 				href: '/dashboard/merchant',

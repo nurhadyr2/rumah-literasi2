@@ -34,7 +34,7 @@ const MemberForm = ({ initial, action, label }) => {
 			name: '',
 			email: '',
 			password: '',
-			role: ROLES.GUEST,
+			role: ROLES.DONATUR,
 			is_verified: 'true',
 		},
 	});

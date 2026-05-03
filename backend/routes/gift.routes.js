@@ -5,7 +5,7 @@ const GiftController = require('../controllers/gift.controller');
 const { ROLES } = require('../libs/constant');
 const { authorize } = require('../middleware/authorize');
 
-const guest = authorize([ROLES.GUEST, ROLES.ADMIN]);
+const guest = authorize([ROLES.DONATUR, ROLES.ADMIN]);
 router.get('/', guest, GiftController.index);
 router.post('/', guest, GiftController.store);
 router.get('/:id', guest, GiftController.show);

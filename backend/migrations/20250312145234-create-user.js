@@ -29,9 +29,9 @@ module.exports = {
 				type: DataTypes.STRING,
 			},
 			role: {
-			allowNull: false,
-			type: DataTypes.STRING,
-			defaultValue: ROLES.GUEST,
+				allowNull: false,
+				type: DataTypes.STRING,
+				defaultValue: ROLES.DONATUR,
 			},
 			is_verified: {
 				allowNull: false,

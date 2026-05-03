@@ -62,6 +62,8 @@ const AddressForm = ({ initial, action, label }) => {
 		resolver: zodResolver(initial ? EditSchema : AddressSchema),
 		defaultValues: initial || {
 			name: '',
+			contact_name: '',
+			contact_phone: '',
 			street_address: '',
 			province_id: '',
 			city_id: '',
@@ -71,6 +73,63 @@ const AddressForm = ({ initial, action, label }) => {
 			...DEFAULT_LOCATION,
 		},
 	});
+
+	const watchedDistrictId = watch('district_id');
+	const watchedCityId = watch('city_id');
+	const watchedProvinceId = watch('province_id');
+
+	React.useEffect(() => {
+		if (!watchedDistrictId || !districts.length) return;
+		const found = districts.find(
+			(d) => String(d.id) === String(watchedDistrictId)
+		);
+		if (
+			found &&
+			found.latitude &&
+			found.longitude &&
+			found.latitude !== 0 &&
+			found.longitude !== 0
+		) {
+			setValue('latitude', found.latitude);
+			setValue('longitude', found.longitude);
+		}
+	}, [watchedDistrictId, districts, setValue]);
+
+	React.useEffect(() => {
+		if (!watchedCityId || !cities.length) return;
+		const currentDistrict = watch('district_id');
+		if (currentDistrict) return;
+		const found = cities.find((c) => String(c.id) === String(watchedCityId));
+		if (
+			found &&
+			found.latitude &&
+			found.longitude &&
+			found.latitude !== 0 &&
+			found.longitude !== 0
+		) {
+			setValue('latitude', found.latitude);
+			setValue('longitude', found.longitude);
+		}
+	}, [watchedCityId, cities, setValue]);
+
+	React.useEffect(() => {
+		if (!watchedProvinceId || !provinces.length) return;
+		const currentCity = watch('city_id');
+		if (currentCity) return;
+		const found = provinces.find(
+			(p) => String(p.id) === String(watchedProvinceId)
+		);
+		if (
+			found &&
+			found.latitude &&
+			found.longitude &&
+			found.latitude !== 0 &&
+			found.longitude !== 0
+		) {
+			setValue('latitude', found.latitude);
+			setValue('longitude', found.longitude);
+		}
+	}, [watchedProvinceId, provinces, setValue]);
 
 	const handleUseMyLocation = async () => {
 		confirm({
@@ -95,9 +154,7 @@ const AddressForm = ({ initial, action, label }) => {
 					);
 				}
 			})
-			.catch(() => {
-				// pass
-			});
+			.catch(() => {});
 	};
 
 	return (
@@ -142,7 +199,8 @@ const AddressForm = ({ initial, action, label }) => {
 					{...register('street_address')}
 				/>
 				<Hint>
-					Alamat lengkap termasuk nomor bangunan, nama jalan, dan detail lainnya.
+					Alamat lengkap termasuk nomor bangunan, nama jalan, dan detail
+					lainnya.
 				</Hint>
 				{errors.street_address && (
 					<span className='text-red-500'>{errors.street_address.message}</span>
@@ -160,6 +218,8 @@ const AddressForm = ({ initial, action, label }) => {
 							onChange={(event) => {
 								field.onChange(event);
 								handleProvinceChange(event.target.value);
+								setValue('city_id', '');
+								setValue('district_id', '');
 							}}
 							disabled={loading.provinces}>
 							<option value=''>Pilih provinsi</option>
@@ -188,6 +248,7 @@ const AddressForm = ({ initial, action, label }) => {
 							onChange={(event) => {
 								field.onChange(event);
 								handleCityChange(event.target.value);
+								setValue('district_id', '');
 							}}
 							disabled={loading.cities || !province}>
 							<option value=''>Pilih kota</option>
@@ -226,7 +287,10 @@ const AddressForm = ({ initial, action, label }) => {
 						</Select>
 					)}
 				/>
-				<Hint>Pilih kecamatan tempat alamat ini berada.</Hint>
+				<Hint>
+					Pilih kecamatan tempat alamat ini berada. Peta akan otomatis
+					menyesuaikan lokasi.
+				</Hint>
 				{errors.district_id && (
 					<span className='text-red-500'>{errors.district_id.message}</span>
 				)}
@@ -263,6 +327,10 @@ const AddressForm = ({ initial, action, label }) => {
 
 			<div className='col-span-full'>
 				<Label htmlFor='location'>Lokasi</Label>
+				<Hint className='mb-2'>
+					Peta otomatis menyesuaikan saat kecamatan dipilih. Anda juga bisa klik
+					peta atau gunakan tombol di bawah untuk menentukan lokasi manual.
+				</Hint>
 				<Map
 					location={{
 						latitude: watch('latitude'),
