@@ -18,13 +18,6 @@ module.exports = (sequelize, DataTypes) => {
 				primaryKey: true,
 				type: DataTypes.INTEGER,
 			},
-			isbn: {
-				allowNull: false,
-				type: DataTypes.STRING,
-				validate: {
-					notEmpty: true,
-				},
-			},
 			title: {
 				allowNull: false,
 				type: DataTypes.STRING,
@@ -49,13 +42,6 @@ module.exports = (sequelize, DataTypes) => {
 			year: {
 				allowNull: false,
 				type: DataTypes.INTEGER,
-				validate: {
-					notEmpty: true,
-				},
-			},
-			language: {
-				allowNull: false,
-				type: DataTypes.STRING,
 				validate: {
 					notEmpty: true,
 				},

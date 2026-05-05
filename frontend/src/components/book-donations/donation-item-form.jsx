@@ -16,33 +16,16 @@ const DonationItemForm = ({ initial, action, label }) => {
 	} = useForm({
 		resolver: zodResolver(itemSchema),
 		defaultValues: initial || {
-			isbn: '',
 			title: '',
 			author: '',
 			publisher: '',
 			year: new Date().getFullYear(),
-			language: '',
 			amount: 0,
 		},
 	});
 
 	return (
 		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
-			<div className='col-span-full'>
-				<Label htmlFor='isbn'>ISBN</Label>
-				<Input
-					type='text'
-					placeholder='Masukkan ISBN'
-					{...register('isbn')}
-				/>
-				<Hint>
-					Nomor Standar Internasional Buku yang mengidentifikasi publikasi ini.
-				</Hint>
-				{errors.isbn && (
-					<span className='text-red-500'>{errors.isbn.message}</span>
-				)}
-			</div>
-
 			<div className='col-span-full'>
 				<Label htmlFor='title'>Judul</Label>
 				<Input
@@ -92,19 +75,6 @@ const DonationItemForm = ({ initial, action, label }) => {
 				<Hint>Tahun publikasi ini diterbitkan.</Hint>
 				{errors.year && (
 					<span className='text-red-500'>{errors.year.message}</span>
-				)}
-			</div>
-
-			<div>
-				<Label htmlFor='language'>Bahasa</Label>
-				<Input
-					type='text'
-					placeholder='Masukkan bahasa'
-					{...register('language')}
-				/>
-				<Hint>Bahasa utama yang digunakan dalam publikasi ini.</Hint>
-				{errors.language && (
-					<span className='text-red-500'>{errors.language.message}</span>
 				)}
 			</div>
 

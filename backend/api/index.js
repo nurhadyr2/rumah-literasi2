@@ -23,7 +23,12 @@ const app = express();
 app.use(helmet());
 app.set('trust proxy', 1);
 
-const allowedOrigins = ['https://www.mraenmimpi.com', 'https://mraenmimpi.com'];
+const allowedOrigins = [
+	'https://www.mraenmimpi.com',
+	'https://mraenmimpi.com',
+	'http://localhost:3000',
+	'http://localhost:5173',
+];
 
 app.use(
 	cors({

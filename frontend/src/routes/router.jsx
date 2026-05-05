@@ -47,30 +47,25 @@ const EditUser = load(() => import('~/members/edit-member'));
 const ListBookDonations = load(
 	() => import('~/book-donations/list-book-donations')
 );
-const AddBookDonation = load(
+
+const CreateBookDonation = load(
 	() => import('~/book-donations/create-book-donation')
 );
+
 const AppendBookDonation = load(
 	() => import('~/book-donations/append-book-donation')
 );
 const UpdateBookDonation = load(
 	() => import('~/book-donations/update-book-donation')
 );
-const EditBookDonation = load(
-	() => import('~/book-donations/edit-book-donation')
-);
-const DetailBookDonation = load(
-	() => import('~/book-donations/detail-book-donation')
-);
+
 const ShowBookDonation = load(
 	() => import('~/book-donations/show-book-donation')
 );
-const CourierBookDonation = load(
-	() => import('~/book-donations/courier-book-donation')
+const EditBookDonation = load(
+	() => import('~/book-donations/edit-book-donation')
 );
-const ReviewBookDonation = load(
-	() => import('~/book-donations/review-book-donation')
-);
+
 const ListDonations = load(
 	() => import('~/financial-donations/list-financial-donations')
 );
@@ -88,6 +83,7 @@ const ListAddresses = load(() => import('~/addresses/list-addresses'));
 const AddAddress = load(() => import('~/addresses/create-address'));
 const EditAddress = load(() => import('~/addresses/edit-address'));
 const ShowAddress = load(() => import('~/addresses/show-address'));
+
 const ShowMerchant = load(() => import('~/merchant/show-merchant'));
 const EditMerchant = load(() => import('~/merchant/edit-merchant'));
 
@@ -150,15 +146,14 @@ const Router = () => {
 							<Route index element={<ListDonations />} />
 							<Route path=':id' element={<ShowDonation />} />
 						</Route>
-
 						<Route element={<AuthorizeLayout allowed={[ROLES.DONATUR]} />}>
 							<Route path='create' element={<AddDonation />} />
 						</Route>
-
 						<Route element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
 							<Route path=':id/edit' element={<EditDonation />} />
 						</Route>
 					</Route>
+
 					<Route path='book-donations'>
 						<Route
 							element={
@@ -169,12 +164,10 @@ const Router = () => {
 						</Route>
 
 						<Route element={<AuthorizeLayout allowed={[ROLES.DONATUR]} />}>
-							<Route path='create' element={<AddBookDonation />} />
+							<Route path='create' element={<CreateBookDonation />} />
+
 							<Route path='create/append' element={<AppendBookDonation />} />
 							<Route path='create/:id/edit' element={<UpdateBookDonation />} />
-							<Route path='create/detail' element={<DetailBookDonation />} />
-							<Route path='create/courier' element={<CourierBookDonation />} />
-							<Route path='create/review' element={<ReviewBookDonation />} />
 						</Route>
 
 						<Route element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>

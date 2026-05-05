@@ -27,15 +27,15 @@ const EditBookDonationMain = () => {
 	const onSubmit = async (data) => {
 		try {
 			await axios.put('/book-donations/' + result.data.id, data);
-			toast('Book donation updated', {
-				description: 'Successfully updated book donation',
+			toast('Donasi buku diperbarui', {
+				description: 'Status donasi berhasil diperbarui',
 			});
 
 			mutate('/book-donations');
 			mutate('/book-donations/' + id);
 			navigate('/dashboard/book-donations/');
 		} catch (error) {
-			toast.error('Failed to update book donation', {
+			toast.error('Gagal memperbarui donasi buku', {
 				description: error.response?.data?.message || error.message,
 			});
 			console.error(error);
@@ -58,7 +58,7 @@ const EditBookDonationMain = () => {
 				<BookDonationForm
 					initial={result.data}
 					action={onSubmit}
-					label='Update Status'
+					label='Simpan Perubahan'
 				/>
 			)}
 		</div>

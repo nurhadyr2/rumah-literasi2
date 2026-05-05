@@ -5,7 +5,6 @@ const ApiResponse = require('../libs/response');
 const SearchService = require('../libs/search-service');
 const { bookDonationSchema } = require('../libs/schemas');
 const { ROLES, PAYMENT_STATUS, DONATION_TYPES } = require('../libs/constant');
-const { Op } = require('sequelize');
 const LogService = require('../libs/log-service');
 
 const PaymentController = require('./payment.controller');
@@ -61,41 +60,54 @@ const BookDonationController = {
 	async store(req, res, next) {
 		try {
 			const validated = bookDonationSchema.parse(req.body.transaction);
+
+			const { items, detail, courier, method, schedule } = validated;
+
 			const address = await Address.scope({
 				method: ['authorize', req.user],
-			}).findOne({
-				where: {
-					id: validated.detail.address_id,
-				},
-			});
+			}).findOne({ where: { id: detail.address_id } });
+
 			if (!address) throw new ApiError(404, 'Address not found');
+
+			const pickupSchedule = method === 'pickup' ? schedule : null;
+			const dropoffSchedule = method === 'drop_off' ? schedule : null;
 
 			const created = await BookDonation.create(
 				{
 					user_id: req.user.id,
 					address_id: address.id,
-					estimated_value: validated.detail.estimated_value,
-					length: validated.detail.length,
-					width: validated.detail.width,
-					height: validated.detail.height,
-					weight: validated.detail.weight,
+					method,
+					pickup_date: pickupSchedule?.date || null,
+					pickup_time_slot: pickupSchedule?.time_slot || null,
+					pickup_note: pickupSchedule?.note || null,
+					dropoff_point_id: dropoffSchedule?.point_id || null,
+					dropoff_point_name: dropoffSchedule?.point_name || null,
+					dropoff_point_address: dropoffSchedule?.point_address || null,
+					estimated_value: detail.estimated_value,
+					length: detail.length,
+					width: detail.width,
+					height: detail.height,
+					weight: detail.weight,
 					order_id: null,
 					tracking_id: null,
-					shipping_eta: validated.courier.duration,
-					courier_code: validated.courier.courier_code,
-					courier_service_code: validated.courier.courier_service_code,
-					book_donation_items: validated.items,
+					shipping_eta: courier.duration,
+					courier_code: courier.courier_code,
+					courier_service_code: courier.courier_service_code,
+					book_donation_items: items,
 					status: PAYMENT_STATUS.PENDING,
 				},
-				{
-					include: ['book_donation_items'],
-				}
+				{ include: ['book_donation_items'] }
 			);
 
 			const donation = await BookDonation.findOne({
 				where: { id: created.id },
 				include: ['user', 'address', 'book_donation_items'],
 			});
+
+			donation.method = method;
+			donation.pickup_schedule = pickupSchedule;
+			donation.dropoff_schedule = dropoffSchedule;
+
 			const { data: draft } = await DeliveryController.draft(donation);
 			await donation.update({
 				order_id: draft.id,
@@ -107,46 +119,45 @@ const BookDonationController = {
 				req.user,
 				DONATION_TYPES.BOOK
 			);
-			await donation.update({
-				payment_url: payment.redirect_url,
-			});
+			await donation.update({ payment_url: payment.redirect_url });
 
 			await LogService.createLog(
 				'book_donation_created',
 				req.user.id,
 				'book_donation',
 				donation.id,
-				`Book donation #${donation.id} created by user ${req.user.name}`,
+				`Book donation #${donation.id} created by ${req.user.name} via ${method}`,
 				{
 					user_id: req.user.id,
 					donation_id: donation.id,
-					amount: donation.shipping_fee,
+					method,
 					order_id: donation.order_id,
+					shipping_fee: donation.shipping_fee,
 					status: donation.status,
 				},
 				req
 			);
 
 			await donation.save();
+
 			return res.json(
 				new ApiResponse('Book donation submitted successfully', donation)
 			);
 		} catch (error) {
-			console.log(JSON.stringify(error, null, 2));
+			console.error(JSON.stringify(error, null, 2));
 			if (error instanceof ApiError) return next(error);
-			if (error instanceof ValidationError) {
+			if (error.name === 'ZodError') {
 				return next(
 					new ApiError(
 						400,
-						'Failed to submit book donation',
-						error.issues.map((issue) => issue.message).join(', ')
+						'Validasi gagal: ' + error.issues.map((i) => i.message).join(', ')
 					)
 				);
 			}
 			return next(
 				new ApiError(
 					error.response?.status || 500,
-					error.response?.data.message || error.message,
+					error.response?.data?.message || error.message,
 					error.response?.data
 				)
 			);
@@ -164,6 +175,7 @@ const BookDonationController = {
 				where: { id },
 				include: ['user', 'address', 'book_donation_items'],
 			});
+
 			if (!donation) throw new ApiError(404, 'Book donation not found');
 
 			return res.json(
@@ -181,21 +193,16 @@ const BookDonationController = {
 
 			const donation = await BookDonation.scope({
 				method: ['authorize', req.user, [ROLES.ADMIN]],
-			}).findOne({
-				where: { id },
-			});
+			}).findOne({ where: { id } });
 
 			if (!donation) throw new ApiError(404, 'Book donation not found');
 
 			const oldStatus = donation.status;
-
-			await donation.update({
-				...req.body,
-			});
+			await donation.update(req.body);
 
 			if (req.body.status && req.body.status !== oldStatus) {
 				await LogService.createLog(
-					'Status Donasi Buku di Update',
+					'book_donation_status_updated',
 					req.user.id,
 					'book_donation',
 					donation.id,
@@ -204,8 +211,6 @@ const BookDonationController = {
 						donation_id: donation.id,
 						old_status: oldStatus,
 						new_status: donation.status,
-						updated_by: req.user.id,
-						updated_by_name: req.user.name,
 					},
 					req
 				);
@@ -236,7 +241,7 @@ const BookDonationController = {
 			if (donation.status !== PAYMENT_STATUS.PENDING) {
 				throw new ApiError(
 					400,
-					'Cannot delete bookDonation unless the status is pending'
+					'Cannot delete donation unless status is pending'
 				);
 			}
 
@@ -246,28 +251,19 @@ const BookDonationController = {
 				try {
 					await DeliveryController.cancel(donation);
 				} catch (err) {
-					console.log('BITESHIP CANCEL ERROR:', err.message);
+					console.error('Biteship cancel error:', err.message);
 				}
 			}
 
 			await donation.destroy();
 
 			await LogService.createLog(
-				'Menghapus Data Donasi Buku',
+				'book_donation_deleted',
 				req.user.id,
 				'book_donation',
 				deletedData.id,
 				`${req.user.name} deleted book donation #${deletedData.id}`,
-				{
-					donation_id: deletedData.id,
-					deleted_by: req.user.id,
-					deleted_by_name: req.user.name,
-					shipping_fee: deletedData.shipping_fee,
-					status: deletedData.status,
-					order_id: deletedData.order_id,
-					user_id: deletedData.user_id,
-					items_count: deletedData.book_donation_items?.length || 0,
-				},
+				{ donation_id: deletedData.id, deleted_by: req.user.id },
 				req
 			);
 
@@ -286,22 +282,16 @@ const BookDonationController = {
 
 			const donation = await BookDonation.scope({
 				method: ['authorize', req.user, [ROLES.ADMIN]],
-			}).findOne({
-				where: { id },
-			});
+			}).findOne({ where: { id } });
 
 			if (!donation) throw new ApiError(404, 'Book donation not found');
-			if (!donation.tracking_id) {
+			if (!donation.tracking_id)
 				throw new ApiError(404, 'Tracking ID not available');
-			}
 
 			const { data: tracking } = await DeliveryController.track(donation);
 
 			return res.json(
-				new ApiResponse(
-					'Book donation tracking retrieved successfully',
-					tracking
-				)
+				new ApiResponse('Tracking retrieved successfully', tracking)
 			);
 		} catch (error) {
 			next(error);

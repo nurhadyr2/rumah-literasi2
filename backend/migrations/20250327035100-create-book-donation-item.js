@@ -9,10 +9,7 @@ module.exports = {
 				primaryKey: true,
 				type: DataTypes.INTEGER,
 			},
-			isbn: {
-				allowNull: false,
-				type: DataTypes.STRING,
-			},
+
 			title: {
 				allowNull: false,
 				type: DataTypes.STRING,
@@ -29,10 +26,7 @@ module.exports = {
 				allowNull: false,
 				type: DataTypes.INTEGER,
 			},
-			language: {
-				allowNull: false,
-				type: DataTypes.STRING,
-			},
+
 			amount: {
 				allowNull: false,
 				type: DataTypes.INTEGER,

@@ -1,109 +1,80 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { STEPS } from '@/libs/constant';
 import { bookDonationSchema } from '@/libs/schemas';
 
-const initial = [
-	{
-		id: 1,
-		isbn: '9780743273565',
-		title: 'The Great Gatsby',
-		author: 'F. Scott Fitzgerald',
-		publisher: 'Scribner',
-		year: 1925,
-		language: 'English',
-		amount: 5,
-	},
-	{
-		id: 2,
-		isbn: '9780439139601',
-		title: 'Harry Potter and the Goblet of Fire',
-		author: 'J.K. Rowling',
-		publisher: 'Bloomsbury',
-		year: 2000,
-		language: 'English',
-		amount: 12,
-	},
-];
+export const STEPS = {
+	ITEMS: 'items',
+	METHOD: 'method',
+	DETAIL: 'detail',
+	COURIER: 'courier',
+	SCHEDULE: 'schedule',
+	REVIEW: 'review',
+};
+
+export const DELIVERY_METHODS = {
+	PICKUP: 'pickup',
+	DROPOFF: 'drop_off',
+};
+
+const initial = [];
 
 export const useDonation = create(
 	persist(
 		(set, get) => ({
 			step: STEPS.ITEMS,
 			items: initial,
+			method: null,
 			detail: null,
 			courier: null,
+			schedule: null,
 
-			route: (step) => set({ step: step }),
+			route: (step) => set({ step }),
+			setMethod: (method) => set({ method, courier: null, schedule: null }),
 			setDetail: (detail) => set({ detail }),
 			setCourier: (courier) => set({ courier }),
+			setSchedule: (schedule) => set({ schedule }),
 
-			append: (item) => {
-				return set((state) => {
-					return {
-						items: [
-							...state.items,
-							{
-								id: new Date().getTime(),
-								...item,
-							},
-						],
-					};
-				});
-			},
+			append: (item) =>
+				set((state) => ({
+					items: [...state.items, { id: new Date().getTime(), ...item }],
+				})),
 
-			update: (id, updated) => {
-				return set((state) => {
-					return {
-						items: state.items.map((item) => {
-							if (item.id === id) {
-								return {
-									...item,
-									...updated,
-								};
-							}
+			update: (id, updated) =>
+				set((state) => ({
+					items: state.items.map((item) =>
+						item.id === id ? { ...item, ...updated } : item
+					),
+				})),
 
-							return item;
-						}),
-					};
-				});
-			},
+			remove: (id) =>
+				set((state) => ({
+					items: state.items.filter((item) => item.id !== id),
+				})),
 
-			remove: (id) => {
-				return set((state) => {
-					return {
-						items: state.items.filter((item) => item.id !== id),
-					};
-				});
-			},
+			purge: () => set({ items: [] }),
 
-			purge: () => {
-				return set({
-					items: [],
-				});
-			},
-
-			reset: () => {
-				return set({
+			reset: () =>
+				set({
 					step: STEPS.ITEMS,
 					items: [],
+					method: null,
 					detail: null,
 					courier: null,
-				});
-			},
+					schedule: null,
+				}),
 
 			validate: () => {
-				const { items, detail, courier } = get();
+				const { items, detail, courier, method, schedule } = get();
 				return bookDonationSchema.parse({
 					items,
 					detail,
 					courier,
+					method,
+					schedule,
 				});
 			},
 		}),
-		{
-			name: 'book-donation-storage',
-		}
+		{ name: 'book-donation-storage' }
 	)
 );
