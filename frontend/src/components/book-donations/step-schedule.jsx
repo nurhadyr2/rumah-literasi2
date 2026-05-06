@@ -147,6 +147,7 @@ const DropoffForm = ({ onSubmit, onBack, detail, defaultValues }) => {
 			toast.error('Pilih titik drop off terlebih dahulu');
 			return;
 		}
+
 		onSubmit({
 			type: 'drop_off',
 			point_id: selected.id,
@@ -165,7 +166,8 @@ const DropoffForm = ({ onSubmit, onBack, detail, defaultValues }) => {
 					<MapPin className='size-10 text-zinc-300' />
 					<p className='font-medium'>Tidak ada titik drop off tersedia</p>
 					<p className='text-sm'>
-						Coba gunakan metode pickup sebagai alternatif.
+						Tidak ada agen kurir di sekitar alamat Anda. Coba gunakan metode
+						pickup sebagai alternatif.
 					</p>
 				</div>
 			)}
@@ -205,6 +207,11 @@ const DropoffForm = ({ onSubmit, onBack, detail, defaultValues }) => {
 											{point.open_hours}
 										</p>
 									)}
+									{point.courier_code && (
+										<p className='text-xs text-primary-500 mt-1 font-medium uppercase'>
+											{point.courier_code}
+										</p>
+									)}
 								</div>
 							</div>
 						</button>
@@ -216,7 +223,9 @@ const DropoffForm = ({ onSubmit, onBack, detail, defaultValues }) => {
 				<Button type='button' variant='outline' onClick={onBack}>
 					Kembali
 				</Button>
-				<Button onClick={handleSubmit} disabled={!selected}>
+				<Button
+					onClick={handleSubmit}
+					disabled={!selected || points.length === 0}>
 					Konfirmasi Lokasi Drop Off
 				</Button>
 			</div>
@@ -258,7 +267,7 @@ const StepSchedule = () => {
 						<MapPin className='size-4 text-primary-500 flex-none' />
 						<span>
 							Pilih <strong className='text-zinc-700'>titik drop off</strong>{' '}
-							terdekat
+							terdekat dari alamat Anda
 						</span>
 					</>
 				)}
@@ -278,7 +287,7 @@ const StepSchedule = () => {
 					onBack={handleBack}
 					detail={detail}
 					defaultValues={
-						savedSchedule?.type === 'dropoff' ? savedSchedule : null
+						savedSchedule?.type === 'drop_off' ? savedSchedule : null
 					}
 				/>
 			)}

@@ -9,9 +9,8 @@ import { useAsync } from '@/hooks/use-async';
 import { Button } from '@/components/ui/button';
 import { Loading } from '@/components/loading';
 import { Error } from '@/components/error';
-import { Empty } from '@/components/empty';
 import { Badge } from '@/components/ui/badge';
-import { Truck, MapPin, Clock, Package } from 'lucide-react';
+import { Truck, MapPin, Clock, Package, AlertCircle } from 'lucide-react';
 
 const StepCourier = () => {
 	const {
@@ -19,6 +18,7 @@ const StepCourier = () => {
 		method,
 		courier: savedCourier,
 		setCourier,
+		setMethod,
 		route,
 	} = useDonation();
 
@@ -45,7 +45,7 @@ const StepCourier = () => {
 	);
 
 	const filteredData = React.useMemo(() => {
-		if (!data) return [];
+		if (!data || !data.length) return [];
 
 		if (method === DELIVERY_METHODS.PICKUP) {
 			return data.filter((c) =>
@@ -55,12 +55,19 @@ const StepCourier = () => {
 
 		if (method === DELIVERY_METHODS.DROPOFF) {
 			return data.filter((c) =>
-				c.available_collection_method?.includes('dropoff')
+				c.available_collection_method?.includes('drop_off')
 			);
 		}
 
 		return data;
 	}, [data, method]);
+
+	const isDropoffUnavailable =
+		!loading &&
+		!error &&
+		method === DELIVERY_METHODS.DROPOFF &&
+		data.length > 0 &&
+		filteredData.length === 0;
 
 	const handleContinue = () => {
 		if (!selected) return;
@@ -77,6 +84,11 @@ const StepCourier = () => {
 
 	const handleBack = () => {
 		route(STEPS.DETAIL);
+	};
+
+	const handleSwitchToPickup = () => {
+		setMethod(DELIVERY_METHODS.PICKUP);
+		setSelected(null);
 	};
 
 	return (
@@ -97,7 +109,37 @@ const StepCourier = () => {
 
 			<Loading loading={loading} />
 			<Error error={!loading && error} />
-			<Empty empty={!loading && !error && data.length === 0} />
+
+			{isDropoffUnavailable && (
+				<div className='flex flex-col gap-4 items-start p-5 bg-amber-50 border border-amber-200 rounded-2xl text-sm text-amber-800'>
+					<div className='flex items-start gap-3'>
+						<AlertCircle className='size-5 flex-none mt-0.5' />
+						<div>
+							<p className='font-semibold mb-1'>
+								Drop Off tidak tersedia di area ini
+							</p>
+							<p className='text-amber-700'>
+								Tidak ada kurir yang mendukung drop off untuk rute pengiriman
+								ini. Silakan gunakan metode Pickup agar kurir datang ke lokasi
+								Anda.
+							</p>
+						</div>
+					</div>
+					<Button variant='outline' onClick={handleSwitchToPickup}>
+						Ganti ke Pickup
+					</Button>
+				</div>
+			)}
+
+			{!loading && !error && data.length === 0 && (
+				<div className='flex flex-col items-center gap-3 py-12 text-center text-zinc-500'>
+					<Package className='size-10 text-zinc-300' />
+					<p className='font-medium'>Tidak ada kurir tersedia</p>
+					<p className='text-sm'>
+						Coba periksa kembali alamat dan detail paket Anda.
+					</p>
+				</div>
+			)}
 
 			<div className='grid gap-3 md:grid-cols-2 lg:grid-cols-3'>
 				{filteredData.map((courier) => {
@@ -161,7 +203,9 @@ const StepCourier = () => {
 				<Button variant='outline' onClick={handleBack}>
 					Kembali
 				</Button>
-				<Button onClick={handleContinue} disabled={!selected}>
+				<Button
+					onClick={handleContinue}
+					disabled={!selected || isDropoffUnavailable}>
 					Pilih & Lanjutkan
 				</Button>
 			</div>

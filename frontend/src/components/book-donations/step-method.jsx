@@ -1,5 +1,12 @@
 import * as React from 'react';
-import { Package, MapPin, ArrowRight, Truck, CheckCircle2 } from 'lucide-react';
+import {
+	Package,
+	MapPin,
+	ArrowRight,
+	Truck,
+	CheckCircle2,
+	Info,
+} from 'lucide-react';
 
 import { useDonation, STEPS, DELIVERY_METHODS } from '@/stores/use-donation';
 import { Button } from '@/components/ui/button';
@@ -18,6 +25,7 @@ const METHOD_OPTIONS = [
 			'Bisa jadwalkan waktu',
 			'Cocok untuk paket besar',
 		],
+		note: null,
 	},
 	{
 		id: DELIVERY_METHODS.DROPOFF,
@@ -31,6 +39,7 @@ const METHOD_OPTIONS = [
 			'Banyak titik lokasi',
 			'Proses lebih cepat',
 		],
+		note: 'Ketersediaan drop off bergantung pada kurir yang tersedia di area Anda. Akan ditampilkan di langkah berikutnya.',
 	},
 ];
 
@@ -107,6 +116,13 @@ const StepMethod = () => {
 											</li>
 										))}
 									</ul>
+
+									{opt.note && (
+										<div className='mt-3 flex items-start gap-2 text-xs text-zinc-500'>
+											<Info className='size-3.5 flex-none mt-0.5 text-zinc-400' />
+											<span>{opt.note}</span>
+										</div>
+									)}
 								</div>
 							</div>
 						</button>

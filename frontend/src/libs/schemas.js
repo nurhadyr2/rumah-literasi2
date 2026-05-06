@@ -35,7 +35,7 @@ export const pickupScheduleSchema = z.object({
 });
 
 export const dropoffScheduleSchema = z.object({
-	type: z.literal('dropoff'),
+	type: z.literal('drop_off'),
 	point_id: z.string().nonempty('Pilih titik drop off'),
 	point_name: z.string().nonempty(),
 	point_address: z.string().nonempty(),
@@ -50,6 +50,6 @@ export const bookDonationSchema = z.object({
 	items: z.array(itemSchema).min(1),
 	detail: detailSchema,
 	courier: courierSchema,
-	method: z.enum(['pickup', 'dropoff']),
+	method: z.enum(['pickup', 'drop_off']),
 	schedule: scheduleSchema,
 });

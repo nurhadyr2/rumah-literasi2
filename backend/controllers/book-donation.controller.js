@@ -69,8 +69,11 @@ const BookDonationController = {
 
 			if (!address) throw new ApiError(404, 'Address not found');
 
-			const pickupSchedule = method === 'pickup' ? schedule : null;
-			const dropoffSchedule = method === 'drop_off' ? schedule : null;
+			const isPickup = method === 'pickup';
+			const pickupSchedule =
+				isPickup && schedule.type === 'pickup' ? schedule : null;
+			const dropoffSchedule =
+				!isPickup && schedule.type === 'drop_off' ? schedule : null;
 
 			const created = await BookDonation.create(
 				{
@@ -109,6 +112,7 @@ const BookDonationController = {
 			donation.dropoff_schedule = dropoffSchedule;
 
 			const { data: draft } = await DeliveryController.draft(donation);
+
 			await donation.update({
 				order_id: draft.id,
 				shipping_fee: draft.price,
@@ -134,6 +138,8 @@ const BookDonationController = {
 					order_id: donation.order_id,
 					shipping_fee: donation.shipping_fee,
 					status: donation.status,
+					courier_code: courier.courier_code,
+					courier_service_code: courier.courier_service_code,
 				},
 				req
 			);
@@ -144,7 +150,10 @@ const BookDonationController = {
 				new ApiResponse('Book donation submitted successfully', donation)
 			);
 		} catch (error) {
-			console.error(JSON.stringify(error, null, 2));
+			console.error(
+				'Book donation create error:',
+				JSON.stringify(error, null, 2)
+			);
 			if (error instanceof ApiError) return next(error);
 			if (error.name === 'ZodError') {
 				return next(
