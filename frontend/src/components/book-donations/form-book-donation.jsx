@@ -23,6 +23,11 @@ const BookDonationSchema = z.object({
 	acceptance_notes: z.string().optional(),
 });
 
+const displayWeight = (weight) => {
+	if (!weight && weight !== 0) return '—';
+	return `${Number(weight)} gram`;
+};
+
 const BookDonationForm = ({ initial, action, label }) => {
 	const {
 		register,
@@ -45,6 +50,42 @@ const BookDonationForm = ({ initial, action, label }) => {
 				))}
 			</div>
 
+			<div className='border border-zinc-200 rounded-xl overflow-hidden'>
+				<div className='p-3 bg-zinc-50 border-b border-zinc-100'>
+					<p className='text-sm font-semibold'>Detail Lengkap Item Buku</p>
+				</div>
+				<div className='overflow-x-auto'>
+					<table className='w-full text-sm'>
+						<thead className='bg-zinc-100'>
+							<tr>
+								<th className='text-left px-4 py-2 font-semibold'>Judul</th>
+								<th className='text-left px-4 py-2 font-semibold'>Penulis</th>
+								<th className='text-left px-4 py-2 font-semibold'>Penerbit</th>
+								<th className='text-left px-4 py-2 font-semibold'>Tahun</th>
+								<th className='text-left px-4 py-2 font-semibold'>Jumlah</th>
+							</tr>
+						</thead>
+						<tbody>
+							{initial.book_donation_items.map((item, idx) => (
+								<tr key={item.id} className={idx % 2 === 0 ? '' : 'bg-zinc-50'}>
+									<td className='px-4 py-2 max-w-xs'>
+										<p className='whitespace-normal break-words'>
+											{item.title}
+										</p>
+									</td>
+									<td className='px-4 py-2 whitespace-nowrap'>{item.author}</td>
+									<td className='px-4 py-2 whitespace-nowrap'>
+										{item.publisher}
+									</td>
+									<td className='px-4 py-2 whitespace-nowrap'>{item.year}</td>
+									<td className='px-4 py-2 whitespace-nowrap'>{item.amount}</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
 			<HeadingSubtitle>Detail Donasi</HeadingSubtitle>
 
 			<div className='grid gap-6 lg:grid-cols-2'>
@@ -62,8 +103,12 @@ const BookDonationForm = ({ initial, action, label }) => {
 				</div>
 
 				<div>
-					<Label htmlFor='weight'>Total Berat (kg)</Label>
-					<Input disabled type='text' defaultValue={initial.weight + ' kg'} />
+					<Label htmlFor='weight'>Berat</Label>
+					<Input
+						disabled
+						type='text'
+						defaultValue={displayWeight(initial.weight)}
+					/>
 				</div>
 
 				<div>

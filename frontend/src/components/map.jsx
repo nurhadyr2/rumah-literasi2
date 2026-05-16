@@ -32,7 +32,15 @@ export const Map = ({ location, setLocation = () => {}, className }) => {
 	React.useEffect(() => {
 		if (mapRef) mapRef.flyTo([location.latitude, location.longitude], 15);
 	}, [mapRef, location]);
-
+	function ChangeView({ center }) {
+		const map = useMap();
+		useEffect(() => {
+			if (center) {
+				map.setView(center, 16);
+			}
+		}, [center, map]);
+		return null;
+	}
 	return (
 		<MapContainer
 			zoom={15}

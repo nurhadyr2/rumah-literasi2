@@ -15,23 +15,18 @@ import { useConfirm } from '@/hooks/use-confirm';
 import { useLocation } from '@/hooks/use-location';
 
 const AddressSchema = z.object({
-	name: z.string().min(1),
-	contact_name: z.string().min(1),
-	contact_phone: z.string().min(1),
-	street_address: z.string().min(3),
-	province_id: z.string().min(1),
-	city_id: z.string().min(1),
-	district_id: z.string().min(1),
+	name: z.string().min(1, 'Nama alamat wajib diisi'),
+	contact_name: z.string().min(1, 'Nama kontak wajib diisi'),
+	contact_phone: z.string().min(1, 'No. telepon wajib diisi'),
+	street_address: z.string().min(3, 'Alamat jalan terlalu pendek'),
+	province_id: z.string().min(1, 'Pilih provinsi'),
+	city_id: z.string().min(1, 'Pilih kota'),
+	district_id: z.string().min(1, 'Pilih kecamatan'),
 	latitude: z.coerce.number(),
 	longitude: z.coerce.number(),
-	zipcode: z
-		.string()
-		.min(5, 'Kode pos harus 5 digit')
-		.max(5, 'Kode pos harus 5 digit'),
+	zipcode: z.string().regex(/^\d{5}$/, 'Kode pos harus 5 digit angka'),
 	note: z.string().optional(),
 });
-
-const EditSchema = AddressSchema;
 
 const AddressForm = ({ initial, action, label }) => {
 	const { confirm } = useConfirm();
@@ -56,10 +51,11 @@ const AddressForm = ({ initial, action, label }) => {
 		watch,
 		register,
 		setValue,
+		getValues,
 		handleSubmit,
 		formState: { errors },
 	} = useForm({
-		resolver: zodResolver(initial ? EditSchema : AddressSchema),
+		resolver: zodResolver(AddressSchema),
 		defaultValues: initial || {
 			name: '',
 			contact_name: '',
@@ -75,14 +71,14 @@ const AddressForm = ({ initial, action, label }) => {
 	});
 
 	const watchedDistrictId = watch('district_id');
-	const watchedCityId = watch('city_id');
-	const watchedProvinceId = watch('province_id');
 
 	React.useEffect(() => {
 		if (!watchedDistrictId || !districts.length) return;
+
 		const found = districts.find(
 			(d) => String(d.id) === String(watchedDistrictId)
 		);
+
 		if (
 			found &&
 			found.latitude &&
@@ -90,15 +86,19 @@ const AddressForm = ({ initial, action, label }) => {
 			found.latitude !== 0 &&
 			found.longitude !== 0
 		) {
-			setValue('latitude', found.latitude);
-			setValue('longitude', found.longitude);
+			setValue('latitude', found.latitude, { shouldDirty: true });
+			setValue('longitude', found.longitude, { shouldDirty: true });
 		}
 	}, [watchedDistrictId, districts, setValue]);
 
+	const watchedCityId = watch('city_id');
+
 	React.useEffect(() => {
 		if (!watchedCityId || !cities.length) return;
-		const currentDistrict = watch('district_id');
+
+		const currentDistrict = getValues('district_id');
 		if (currentDistrict) return;
+
 		const found = cities.find((c) => String(c.id) === String(watchedCityId));
 		if (
 			found &&
@@ -107,15 +107,19 @@ const AddressForm = ({ initial, action, label }) => {
 			found.latitude !== 0 &&
 			found.longitude !== 0
 		) {
-			setValue('latitude', found.latitude);
-			setValue('longitude', found.longitude);
+			setValue('latitude', found.latitude, { shouldDirty: true });
+			setValue('longitude', found.longitude, { shouldDirty: true });
 		}
-	}, [watchedCityId, cities, setValue]);
+	}, [watchedCityId, cities, setValue, getValues]);
+
+	const watchedProvinceId = watch('province_id');
 
 	React.useEffect(() => {
 		if (!watchedProvinceId || !provinces.length) return;
-		const currentCity = watch('city_id');
+
+		const currentCity = getValues('city_id');
 		if (currentCity) return;
+
 		const found = provinces.find(
 			(p) => String(p.id) === String(watchedProvinceId)
 		);
@@ -126,10 +130,10 @@ const AddressForm = ({ initial, action, label }) => {
 			found.latitude !== 0 &&
 			found.longitude !== 0
 		) {
-			setValue('latitude', found.latitude);
-			setValue('longitude', found.longitude);
+			setValue('latitude', found.latitude, { shouldDirty: true });
+			setValue('longitude', found.longitude, { shouldDirty: true });
 		}
-	}, [watchedProvinceId, provinces, setValue]);
+	}, [watchedProvinceId, provinces, setValue, getValues]);
 
 	const handleUseMyLocation = async () => {
 		confirm({
@@ -137,25 +141,32 @@ const AddressForm = ({ initial, action, label }) => {
 			description: 'Apakah Anda yakin ingin menggunakan lokasi Anda?',
 		})
 			.then(async () => {
-				if ('geolocation' in navigator) {
-					navigator.geolocation.getCurrentPosition(
-						(position) => {
-							const { latitude, longitude } = position.coords;
-							setValue('latitude', latitude);
-							setValue('longitude', longitude);
-						},
-						(error) => {
-							console.error('Error mendapatkan lokasi:', error);
-							alert(
-								'Tidak dapat mengambil lokasi Anda. Silakan periksa izin browser.'
-							);
-						},
-						{ enableHighAccuracy: true }
-					);
+				if (!('geolocation' in navigator)) {
+					alert('Browser Anda tidak mendukung geolokasi.');
+					return;
 				}
+				navigator.geolocation.getCurrentPosition(
+					(position) => {
+						setValue('latitude', position.coords.latitude, {
+							shouldDirty: true,
+						});
+						setValue('longitude', position.coords.longitude, {
+							shouldDirty: true,
+						});
+					},
+					() => {
+						alert(
+							'Tidak dapat mengambil lokasi Anda. Silakan periksa izin browser.'
+						);
+					},
+					{ enableHighAccuracy: true }
+				);
 			})
 			.catch(() => {});
 	};
+
+	const lat = watch('latitude');
+	const lng = watch('longitude');
 
 	return (
 		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
@@ -185,8 +196,11 @@ const AddressForm = ({ initial, action, label }) => {
 
 			<div>
 				<Label htmlFor='name'>Nama Alamat</Label>
-				<Input placeholder='Masukkan nama alamat' {...register('name')} />
-				<Hint>Nama deskriptif untuk lokasi ini (misal: Rumah, Kantor).</Hint>
+				<Input
+					placeholder='Masukkan nama alamat (misal: Rumah, Kantor)'
+					{...register('name')}
+				/>
+				<Hint>Nama deskriptif untuk lokasi ini.</Hint>
 				{errors.name && (
 					<span className='text-red-500'>{errors.name.message}</span>
 				)}
@@ -215,17 +229,18 @@ const AddressForm = ({ initial, action, label }) => {
 					render={({ field }) => (
 						<Select
 							{...field}
-							onChange={(event) => {
-								field.onChange(event);
-								handleProvinceChange(event.target.value);
+							onChange={(e) => {
+								field.onChange(e);
+								handleProvinceChange(e.target.value);
 								setValue('city_id', '');
 								setValue('district_id', '');
+								setValue('zipcode', '');
 							}}
 							disabled={loading.provinces}>
 							<option value=''>Pilih provinsi</option>
-							{provinces.map((province) => (
-								<option key={province.id} value={province.id}>
-									{province.name}
+							{provinces.map((p) => (
+								<option key={p.id} value={p.id}>
+									{p.name}
 								</option>
 							))}
 						</Select>
@@ -237,24 +252,26 @@ const AddressForm = ({ initial, action, label }) => {
 				)}
 			</div>
 
+			{/* City */}
 			<div>
-				<Label htmlFor='city_id'>Kota</Label>
+				<Label htmlFor='city_id'>Kota / Kabupaten</Label>
 				<Controller
 					name='city_id'
 					control={control}
 					render={({ field }) => (
 						<Select
 							{...field}
-							onChange={(event) => {
-								field.onChange(event);
-								handleCityChange(event.target.value);
+							onChange={(e) => {
+								field.onChange(e);
+								handleCityChange(e.target.value);
 								setValue('district_id', '');
+								setValue('zipcode', '');
 							}}
 							disabled={loading.cities || !province}>
 							<option value=''>Pilih kota</option>
-							{cities.map((city) => (
-								<option key={city.id} value={city.id}>
-									{city.name}
+							{cities.map((c) => (
+								<option key={c.id} value={c.id}>
+									{c.name}
 								</option>
 							))}
 						</Select>
@@ -274,22 +291,23 @@ const AddressForm = ({ initial, action, label }) => {
 					render={({ field }) => (
 						<Select
 							{...field}
-							onChange={(event) => {
-								field.onChange(event);
+							onChange={(e) => {
+								field.onChange(e);
+								setValue('zipcode', '');
 							}}
 							disabled={loading.districts || !city}>
 							<option value=''>Pilih kecamatan</option>
-							{districts.map((district) => (
-								<option key={district.id} value={district.id}>
-									{district.name}
+							{districts.map((d) => (
+								<option key={d.id} value={d.id}>
+									{d.name}
 								</option>
 							))}
 						</Select>
 					)}
 				/>
 				<Hint>
-					Pilih kecamatan tempat alamat ini berada. Peta akan otomatis
-					menyesuaikan lokasi.
+					Pilih kecamatan. Peta akan otomatis menyesuaikan lokasi berdasarkan
+					kecamatan yang dipilih.
 				</Hint>
 				{errors.district_id && (
 					<span className='text-red-500'>{errors.district_id.message}</span>
@@ -300,21 +318,25 @@ const AddressForm = ({ initial, action, label }) => {
 				<Label htmlFor='zipcode'>Kode Pos</Label>
 				<Input
 					type='text'
-					placeholder='Masukkan kode pos'
+					inputMode='numeric'
+					placeholder='Contoh: 55285'
 					maxLength={5}
-					pattern='[0-9]*'
 					{...register('zipcode')}
 				/>
-				<Hint>Kode pos 5 digit untuk alamat ini.</Hint>
+				<Hint>
+					Kode pos 5 digit sesuai kecamatan yang dipilih. Pastikan kode pos
+					sesuai dengan wilayah di atas agar pengiriman dapat diproses dengan
+					benar.
+				</Hint>
 				{errors.zipcode && (
 					<span className='text-red-500'>{errors.zipcode.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='note'>Catatan</Label>
+				<Label htmlFor='note'>Catatan (opsional)</Label>
 				<Textarea
-					placeholder='Tambahkan catatan untuk alamat ini'
+					placeholder='Tambahkan catatan untuk kurir, misal: patokan rumah, nomor unit, dll.'
 					{...register('note')}
 				/>
 				<Hint>
@@ -326,20 +348,17 @@ const AddressForm = ({ initial, action, label }) => {
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='location'>Lokasi</Label>
+				<Label htmlFor='location'>Lokasi di Peta</Label>
 				<Hint className='mb-2'>
 					Peta otomatis menyesuaikan saat kecamatan dipilih. Anda juga bisa klik
-					peta atau gunakan tombol di bawah untuk menentukan lokasi manual.
+					peta langsung atau gunakan tombol "Gunakan lokasi saya" di bawah.
 				</Hint>
 				<Map
-					location={{
-						latitude: watch('latitude'),
-						longitude: watch('longitude'),
-					}}
+					location={{ latitude: lat, longitude: lng }}
 					className='aspect-banner'
 					setLocation={(location) => {
-						setValue('latitude', location.latitude);
-						setValue('longitude', location.longitude);
+						setValue('latitude', location.latitude, { shouldDirty: true });
+						setValue('longitude', location.longitude, { shouldDirty: true });
 					}}
 				/>
 			</div>

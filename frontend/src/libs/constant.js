@@ -1,4 +1,4 @@
-import { Store } from 'lucide-react';
+import { ClipboardList, Store } from 'lucide-react';
 
 import {
 	Gift,
@@ -14,6 +14,7 @@ import {
 	Mail,
 	Globe,
 	Home,
+	LayoutList,
 } from 'lucide-react';
 
 export const ROLES = {
@@ -57,6 +58,12 @@ export const SIDEBAR_MENUS = [
 				label: 'Donasi Finansial',
 				icon: HeartHandshake,
 				roles: [ROLES.DONATUR, ROLES.ADMIN, ROLES.SUPERADMIN],
+			},
+			{
+				href: '/dashboard/all-donations',
+				label: 'Semua Donasi',
+				icon: ClipboardList,
+				roles: [ROLES.ADMIN, ROLES.SUPERADMIN],
 			},
 		],
 	},

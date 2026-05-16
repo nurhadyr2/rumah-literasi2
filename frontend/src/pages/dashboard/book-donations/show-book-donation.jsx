@@ -114,6 +114,11 @@ const DeliveryMethodSection = ({ donation }) => {
 	);
 };
 
+const displayWeight = (weight) => {
+	if (!weight && weight !== 0) return '—';
+	return `${Number(weight)} gram`;
+};
+
 const ShowBookDonation = () => {
 	const { id } = useParams();
 	const { user, loading } = useAuth();
@@ -160,12 +165,74 @@ const ShowBookDonation = () => {
 					</div>
 
 					<div>
-						<HeadingSubtitle className='mb-4'>Item Donasi</HeadingSubtitle>
-						<div className='grid items-start grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
-							{result.data.book_donation_items.map((item) => (
-								<DonationItem key={item.id} item={item} />
-							))}
-						</div>
+						<HeadingSubtitle className='mb-4'>Item Donasi Buku</HeadingSubtitle>
+						{result.data.book_donation_items.length === 0 ? (
+							<p className='text-zinc-500 text-sm'>Tidak ada item.</p>
+						) : (
+							<>
+								<div className='grid items-start grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mb-6'>
+									{result.data.book_donation_items.map((item) => (
+										<DonationItem key={item.id} item={item} />
+									))}
+								</div>
+
+								{allowed && (
+									<div className='border border-zinc-200 rounded-xl overflow-hidden'>
+										<div className='p-3 bg-zinc-50 border-b border-zinc-100'>
+											<p className='text-sm font-semibold'>Detail Item Buku</p>
+										</div>
+										<div className='overflow-x-auto'>
+											<table className='w-full text-sm'>
+												<thead className='bg-zinc-100'>
+													<tr>
+														<th className='text-left px-4 py-2 font-semibold'>
+															Judul
+														</th>
+														<th className='text-left px-4 py-2 font-semibold'>
+															Penulis
+														</th>
+														<th className='text-left px-4 py-2 font-semibold'>
+															Penerbit
+														</th>
+														<th className='text-left px-4 py-2 font-semibold'>
+															Tahun
+														</th>
+														<th className='text-left px-4 py-2 font-semibold'>
+															Jumlah
+														</th>
+													</tr>
+												</thead>
+												<tbody>
+													{result.data.book_donation_items.map((item, idx) => (
+														<tr
+															key={item.id}
+															className={idx % 2 === 0 ? '' : 'bg-zinc-50'}>
+															<td className='px-4 py-2 max-w-xs'>
+																<p className='whitespace-normal break-words'>
+																	{item.title}
+																</p>
+															</td>
+															<td className='px-4 py-2 whitespace-nowrap'>
+																{item.author}
+															</td>
+															<td className='px-4 py-2 whitespace-nowrap'>
+																{item.publisher}
+															</td>
+															<td className='px-4 py-2 whitespace-nowrap'>
+																{item.year}
+															</td>
+															<td className='px-4 py-2 whitespace-nowrap'>
+																{item.amount}
+															</td>
+														</tr>
+													))}
+												</tbody>
+											</table>
+										</div>
+									</div>
+								)}
+							</>
+						)}
 					</div>
 
 					{result.data.method && (
@@ -188,7 +255,10 @@ const ShowBookDonation = () => {
 							</div>
 							<div>
 								<Label>Berat</Label>
-								<Input disabled defaultValue={result.data.weight + ' kg'} />
+								<Input
+									disabled
+									defaultValue={displayWeight(result.data.weight)}
+								/>
 							</div>
 							<div>
 								<Label>Panjang</Label>

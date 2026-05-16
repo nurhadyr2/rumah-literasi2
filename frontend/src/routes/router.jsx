@@ -94,6 +94,10 @@ const ShowLog = load(
 	() => import('@/pages/dashboard/transaction-log/show-log')
 );
 
+const AllDonations = load(
+	() => import('@/pages/dashboard/all-donations/all-donations')
+);
+
 const Router = () => {
 	return (
 		<BrowserRouter>
@@ -165,7 +169,6 @@ const Router = () => {
 
 						<Route element={<AuthorizeLayout allowed={[ROLES.DONATUR]} />}>
 							<Route path='create' element={<CreateBookDonation />} />
-
 							<Route path='create/append' element={<AppendBookDonation />} />
 							<Route path='create/:id/edit' element={<UpdateBookDonation />} />
 						</Route>
@@ -173,6 +176,12 @@ const Router = () => {
 						<Route element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
 							<Route path=':id/edit' element={<EditBookDonation />} />
 						</Route>
+					</Route>
+
+					<Route
+						path='all-donations'
+						element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
+						<Route index element={<AllDonations />} />
 					</Route>
 
 					<Route path='profile' element={<ProfileDetail />} />

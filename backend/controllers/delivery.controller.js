@@ -11,7 +11,6 @@ const DeliveryController = {
 		if (!merchant) throw new Error('Merchant data not found in database');
 
 		const isPickup = donation.method === 'pickup';
-
 		const deliveryType =
 			isPickup && donation.pickup_schedule ? 'scheduled' : 'now';
 
@@ -46,7 +45,7 @@ const DeliveryController = {
 					description: `Book donation delivery to ${merchant.name}`,
 					category: 'others',
 					value: Number(donation.estimated_value),
-					weight: Math.round(Number(donation.weight) * 1000),
+					weight: Math.round(Number(donation.weight)),
 					length: Number(donation.length),
 					width: Number(donation.width),
 					height: Number(donation.height),
@@ -114,7 +113,7 @@ const DeliveryController = {
 						description: `Book donation delivery to ${merchant.name}`,
 						category: 'others',
 						value: Number(detail.estimated_value),
-						weight: Math.round(Number(detail.weight) * 1000),
+						weight: Math.round(Number(detail.weight)),
 						length: Number(detail.length),
 						width: Number(detail.width),
 						height: Number(detail.height),
@@ -127,14 +126,11 @@ const DeliveryController = {
 
 			const pricings = (data.pricing || []).map((p) => ({
 				id: crypto.randomUUID(),
-
 				courier_name: p.courier_name,
 				courier_code: p.courier_code,
 				courier_service_name: p.courier_service_name,
 				courier_service_code: p.courier_service_code,
-
 				available_collection_method: p.available_collection_method || [],
-
 				price: p.price,
 				shipping_fee: p.shipping_fee,
 				duration: p.duration,

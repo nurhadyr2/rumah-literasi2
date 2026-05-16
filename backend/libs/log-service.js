@@ -1,4 +1,7 @@
 const { Log } = require('../models');
+const { ROLES } = require('./constant');
+
+const LOGGED_ROLES = new Set([ROLES.ADMIN, ROLES.SUPERADMIN]);
 
 class LogService {
 	static async createLog(
@@ -11,6 +14,15 @@ class LogService {
 		req = null
 	) {
 		try {
+			if (req && req.user) {
+				const role = req.user.role;
+				if (!LOGGED_ROLES.has(role)) {
+					return;
+				}
+			} else if (!userId) {
+				return;
+			}
+
 			await Log.create({
 				action,
 				user_id: userId,
@@ -18,8 +30,8 @@ class LogService {
 				resource_id: resourceId,
 				message,
 				metadata,
-				ip_address: req.ip || null,
-				user_agent: req.get('User-Agent') || null,
+				ip_address: req ? (req.ip || null) : null,
+				user_agent: req ? (req.get('User-Agent') || null) : null,
 			});
 		} catch (error) {
 			console.error('Failed to create log entry:', error);

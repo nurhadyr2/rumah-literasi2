@@ -26,6 +26,11 @@ import { Loading } from '@/components/loading';
 import { Error } from '@/components/error';
 import { Badge } from '@/components/ui/badge';
 
+const displayWeight = (weight) => {
+	if (!weight && weight !== 0) return '—';
+	return `${Number(weight)} gram`;
+};
+
 const ReviewBookDonation = () => {
 	const navigate = useNavigate();
 	const { confirm } = useConfirm();
@@ -178,7 +183,7 @@ const ReviewBookDonation = () => {
 						</div>
 						<div>
 							<Label>Berat</Label>
-							<Input disabled defaultValue={detail?.weight + ' kg'} />
+							<Input disabled defaultValue={displayWeight(detail?.weight)} />
 						</div>
 						<div className='col-span-full'>
 							<Label>Alamat Lengkap</Label>
