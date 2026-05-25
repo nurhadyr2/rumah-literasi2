@@ -22,8 +22,35 @@ const MerchantSchema = z.object({
 	longitude: z.coerce.number(),
 });
 
+const geocodeAddress = async (query) => {
+	try {
+		const params = new URLSearchParams({
+			q: query,
+			countrycodes: 'id',
+			format: 'json',
+			limit: '1',
+		});
+		const res = await fetch(
+			`https://nominatim.openstreetmap.org/search?${params}`,
+			{ headers: { 'Accept-Language': 'id' } }
+		);
+		const data = await res.json();
+		if (data.length > 0) {
+			return {
+				latitude: parseFloat(data[0].lat),
+				longitude: parseFloat(data[0].lon),
+			};
+		}
+		return null;
+	} catch {
+		return null;
+	}
+};
+
 const MerchantForm = ({ initial, action, label }) => {
 	const { confirm } = useConfirm();
+	const [geocoding, setGeocoding] = React.useState(false);
+	const [geocodeError, setGeocodeError] = React.useState('');
 
 	const {
 		register,
@@ -44,6 +71,37 @@ const MerchantForm = ({ initial, action, label }) => {
 			longitude: '',
 		},
 	});
+
+	const lat = watch('latitude');
+	const lng = watch('longitude');
+
+	const handleGeocode = async () => {
+		const address = watch('address');
+		const zipcode = watch('zipcode');
+
+		if (!address || address.length < 5) {
+			setGeocodeError('Masukkan alamat terlebih dahulu.');
+			return;
+		}
+
+		const query = [address, zipcode, 'Indonesia'].filter(Boolean).join(', ');
+
+		setGeocoding(true);
+		setGeocodeError('');
+
+		const result = await geocodeAddress(query);
+		setGeocoding(false);
+
+		if (result) {
+			setValue('latitude', result.latitude, { shouldDirty: true });
+			setValue('longitude', result.longitude, { shouldDirty: true });
+			setGeocodeError('');
+		} else {
+			setGeocodeError(
+				'Alamat tidak ditemukan. Coba perjelas alamat atau klik langsung di peta.'
+			);
+		}
+	};
 
 	const handleUseMyLocation = async () => {
 		confirm({
@@ -68,9 +126,7 @@ const MerchantForm = ({ initial, action, label }) => {
 					);
 				}
 			})
-			.catch(() => {
-				// pass
-			});
+			.catch(() => {});
 	};
 
 	return (
@@ -116,11 +172,28 @@ const MerchantForm = ({ initial, action, label }) => {
 
 			<div className='col-span-full'>
 				<Label htmlFor='address'>Alamat</Label>
-				<Textarea
-					placeholder='Masukkan alamat merchant'
-					{...register('address')}
-				/>
-				<Hint>Alamat lengkap lokasi merchant.</Hint>
+				<div className='flex gap-2 items-start'>
+					<Textarea
+						placeholder='Masukkan alamat merchant'
+						className='flex-1'
+						{...register('address')}
+					/>
+					<Button
+						type='button'
+						variant='outline'
+						disabled={geocoding}
+						onClick={handleGeocode}
+						className='flex-none whitespace-nowrap'>
+						{geocoding ? 'Mencari...' : '📍 Cari di Peta'}
+					</Button>
+				</div>
+				<Hint>
+					Ketik alamat lengkap lalu klik "Cari di Peta" agar titik lokasi
+					menyesuaikan dengan alamat yang dicantumkan.
+				</Hint>
+				{geocodeError && (
+					<span className='text-amber-500 text-sm'>{geocodeError}</span>
+				)}
 				{errors.address && (
 					<span className='text-red-500'>{errors.address.message}</span>
 				)}
@@ -153,16 +226,20 @@ const MerchantForm = ({ initial, action, label }) => {
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='location'>Lokasi</Label>
+				<Label htmlFor='location'>Lokasi di Peta</Label>
+				<Hint className='mb-2'>
+					Klik "Cari di Peta" pada alamat untuk menyesuaikan titik secara
+					otomatis, atau klik langsung di peta untuk menggeser penanda.
+				</Hint>
 				<Map
 					location={{
-						latitude: watch('latitude'),
-						longitude: watch('longitude'),
+						latitude: lat || 0,
+						longitude: lng || 0,
 					}}
 					className='aspect-banner'
 					setLocation={(location) => {
-						setValue('latitude', location.latitude);
-						setValue('longitude', location.longitude);
+						setValue('latitude', location.latitude, { shouldDirty: true });
+						setValue('longitude', location.longitude, { shouldDirty: true });
 					}}
 				/>
 			</div>

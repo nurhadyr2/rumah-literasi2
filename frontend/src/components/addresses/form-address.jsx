@@ -28,8 +28,78 @@ const AddressSchema = z.object({
 	note: z.string().optional(),
 });
 
+const geocodeAddress = async (query) => {
+	try {
+		const params = new URLSearchParams({
+			q: query,
+			countrycodes: 'id',
+			format: 'json',
+			limit: '1',
+		});
+		const res = await fetch(
+			`https://nominatim.openstreetmap.org/search?${params}`,
+			{ headers: { 'Accept-Language': 'id' } }
+		);
+		const data = await res.json();
+		if (data.length > 0) {
+			return {
+				latitude: parseFloat(data[0].lat),
+				longitude: parseFloat(data[0].lon),
+				display_name: data[0].display_name,
+			};
+		}
+		return null;
+	} catch {
+		return null;
+	}
+};
+
+const reverseGeocode = async (lat, lng) => {
+	try {
+		const params = new URLSearchParams({
+			lat: String(lat),
+			lon: String(lng),
+			format: 'json',
+			'accept-language': 'id',
+			addressdetails: '1',
+			zoom: '18',
+		});
+		const res = await fetch(
+			`https://nominatim.openstreetmap.org/reverse?${params}`,
+			{ headers: { 'Accept-Language': 'id' } }
+		);
+		const data = await res.json();
+		if (!data || data.error) return null;
+		return {
+			display_name: data.display_name || '',
+			address: data.address || {},
+		};
+	} catch {
+		return null;
+	}
+};
+
+const normalizeAdminName = (name) =>
+	String(name || '')
+		.toLowerCase()
+		.replace(/^(kabupaten|kota administrasi|kota|provinsi|kecamatan|daerah khusus ibukota|daerah istimewa)\s+/i, '')
+		.replace(/\s+/g, ' ')
+		.trim();
+
+const adminNameMatches = (a, b) => {
+	const na = normalizeAdminName(a);
+	const nb = normalizeAdminName(b);
+	if (!na || !nb) return false;
+	return na === nb || na.includes(nb) || nb.includes(na);
+};
+
 const AddressForm = ({ initial, action, label }) => {
 	const { confirm } = useConfirm();
+	const [geocoding, setGeocoding] = React.useState(false);
+	const [geocodeError, setGeocodeError] = React.useState('');
+	const [validation, setValidation] = React.useState(null);
+	const [validating, setValidating] = React.useState(false);
+	const [submitError, setSubmitError] = React.useState('');
 	const {
 		province,
 		city,
@@ -51,7 +121,6 @@ const AddressForm = ({ initial, action, label }) => {
 		watch,
 		register,
 		setValue,
-		getValues,
 		handleSubmit,
 		formState: { errors },
 	} = useForm({
@@ -71,6 +140,73 @@ const AddressForm = ({ initial, action, label }) => {
 	});
 
 	const watchedDistrictId = watch('district_id');
+	const watchedCityId = watch('city_id');
+	const watchedProvinceId = watch('province_id');
+	const watchedZipcode = watch('zipcode');
+	const lat = watch('latitude');
+	const lng = watch('longitude');
+
+	const provinceName = React.useMemo(
+		() =>
+			provinces.find((p) => String(p.id) === String(watchedProvinceId))?.name ||
+			'',
+		[provinces, watchedProvinceId]
+	);
+	const cityName = React.useMemo(
+		() => cities.find((c) => String(c.id) === String(watchedCityId))?.name || '',
+		[cities, watchedCityId]
+	);
+	const districtName = React.useMemo(
+		() =>
+			districts.find((d) => String(d.id) === String(watchedDistrictId))?.name ||
+			'',
+		[districts, watchedDistrictId]
+	);
+
+	React.useEffect(() => {
+		if (!lat || !lng) {
+			setValidation(null);
+			return;
+		}
+		setValidating(true);
+		const handler = setTimeout(async () => {
+			const result = await reverseGeocode(lat, lng);
+			setValidating(false);
+			if (!result) {
+				setValidation({ ok: null, displayAddress: '', mismatches: [] });
+				return;
+			}
+			const addr = result.address;
+			const osmProvince = addr.state || '';
+			const osmCity = addr.city || addr.county || addr.town || addr.municipality || '';
+			const osmDistrict = addr.suburb || addr.city_district || addr.village || addr.subdistrict || '';
+			const osmPostcode = addr.postcode || '';
+
+			const provinceMatch = provinceName
+				? adminNameMatches(osmProvince, provinceName)
+				: null;
+			const cityMatch = cityName ? adminNameMatches(osmCity, cityName) : null;
+			const districtMatch = districtName
+				? adminNameMatches(osmDistrict, districtName)
+				: null;
+
+			setValidation({
+				displayAddress: result.display_name,
+				osmProvince,
+				osmCity,
+				osmDistrict,
+				osmPostcode,
+				provinceMatch,
+				cityMatch,
+				districtMatch,
+				zipcodeMatch:
+					osmPostcode && watchedZipcode
+						? osmPostcode === watchedZipcode
+						: null,
+			});
+		}, 800);
+		return () => clearTimeout(handler);
+	}, [lat, lng, provinceName, cityName, districtName, watchedZipcode]);
 
 	React.useEffect(() => {
 		if (!watchedDistrictId || !districts.length) return;
@@ -91,12 +227,10 @@ const AddressForm = ({ initial, action, label }) => {
 		}
 	}, [watchedDistrictId, districts, setValue]);
 
-	const watchedCityId = watch('city_id');
-
 	React.useEffect(() => {
 		if (!watchedCityId || !cities.length) return;
 
-		const currentDistrict = getValues('district_id');
+		const currentDistrict = watch('district_id');
 		if (currentDistrict) return;
 
 		const found = cities.find((c) => String(c.id) === String(watchedCityId));
@@ -110,14 +244,12 @@ const AddressForm = ({ initial, action, label }) => {
 			setValue('latitude', found.latitude, { shouldDirty: true });
 			setValue('longitude', found.longitude, { shouldDirty: true });
 		}
-	}, [watchedCityId, cities, setValue, getValues]);
-
-	const watchedProvinceId = watch('province_id');
+	}, [watchedCityId, cities, setValue]);
 
 	React.useEffect(() => {
 		if (!watchedProvinceId || !provinces.length) return;
 
-		const currentCity = getValues('city_id');
+		const currentCity = watch('city_id');
 		if (currentCity) return;
 
 		const found = provinces.find(
@@ -133,7 +265,42 @@ const AddressForm = ({ initial, action, label }) => {
 			setValue('latitude', found.latitude, { shouldDirty: true });
 			setValue('longitude', found.longitude, { shouldDirty: true });
 		}
-	}, [watchedProvinceId, provinces, setValue, getValues]);
+	}, [watchedProvinceId, provinces, setValue]);
+
+	const handleGeocode = async () => {
+		const streetAddress = watch('street_address');
+		if (!streetAddress || streetAddress.length < 5) {
+			setGeocodeError('Masukkan alamat jalan terlebih dahulu.');
+			return;
+		}
+
+		const query = [
+			streetAddress,
+			districtName,
+			cityName,
+			provinceName,
+			watchedZipcode,
+			'Indonesia',
+		]
+			.filter(Boolean)
+			.join(', ');
+
+		setGeocoding(true);
+		setGeocodeError('');
+
+		const result = await geocodeAddress(query);
+		setGeocoding(false);
+
+		if (result) {
+			setValue('latitude', result.latitude, { shouldDirty: true });
+			setValue('longitude', result.longitude, { shouldDirty: true });
+			setGeocodeError('');
+		} else {
+			setGeocodeError(
+				'Alamat tidak ditemukan. Coba perjelas nama jalan atau klik langsung di peta.'
+			);
+		}
+	};
 
 	const handleUseMyLocation = async () => {
 		confirm({
@@ -165,11 +332,19 @@ const AddressForm = ({ initial, action, label }) => {
 			.catch(() => {});
 	};
 
-	const lat = watch('latitude');
-	const lng = watch('longitude');
+	const guardedSubmit = (values) => {
+		setSubmitError('');
+		if (validation && validation.provinceMatch === false) {
+			setSubmitError(
+				`Lokasi peta berada di provinsi "${validation.osmProvince}", tidak sesuai dengan provinsi "${provinceName}" yang dipilih. Geser penanda peta atau perbaiki pilihan provinsi sebelum menyimpan.`
+			);
+			return;
+		}
+		return action(values);
+	};
 
 	return (
-		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
+		<form onSubmit={handleSubmit(guardedSubmit)} className='grid gap-6 lg:grid-cols-2'>
 			<div>
 				<Label htmlFor='contact_name'>Nama Kontak</Label>
 				<Input
@@ -208,14 +383,28 @@ const AddressForm = ({ initial, action, label }) => {
 
 			<div className='col-span-full'>
 				<Label htmlFor='street_address'>Alamat Jalan</Label>
-				<Textarea
-					placeholder='Masukkan alamat lengkap'
-					{...register('street_address')}
-				/>
+				<div className='flex gap-2 items-start'>
+					<Textarea
+						placeholder='Masukkan alamat lengkap, misal: Jl. Mawar No.10'
+						className='flex-1'
+						{...register('street_address')}
+					/>
+					<Button
+						type='button'
+						variant='outline'
+						disabled={geocoding}
+						onClick={handleGeocode}
+						className='flex-none mt-0 whitespace-nowrap'>
+						{geocoding ? 'Mencari...' : 'Cari di Peta'}
+					</Button>
+				</div>
 				<Hint>
-					Alamat lengkap termasuk nomor bangunan, nama jalan, dan detail
-					lainnya.
+					Ketik alamat lengkap lalu klik "Cari di Peta" agar titik lokasi
+					menyesuaikan dengan nama jalan yang dicantumkan.
 				</Hint>
+				{geocodeError && (
+					<span className='text-amber-500 text-sm'>{geocodeError}</span>
+				)}
 				{errors.street_address && (
 					<span className='text-red-500'>{errors.street_address.message}</span>
 				)}
@@ -252,7 +441,6 @@ const AddressForm = ({ initial, action, label }) => {
 				)}
 			</div>
 
-			{/* City */}
 			<div>
 				<Label htmlFor='city_id'>Kota / Kabupaten</Label>
 				<Controller
@@ -350,8 +538,8 @@ const AddressForm = ({ initial, action, label }) => {
 			<div className='col-span-full'>
 				<Label htmlFor='location'>Lokasi di Peta</Label>
 				<Hint className='mb-2'>
-					Peta otomatis menyesuaikan saat kecamatan dipilih. Anda juga bisa klik
-					peta langsung atau gunakan tombol "Gunakan lokasi saya" di bawah.
+					Klik "Cari di Peta" pada alamat jalan untuk menyesuaikan titik secara
+					otomatis, atau klik langsung di peta untuk menggeser penanda.
 				</Hint>
 				<Map
 					location={{ latitude: lat, longitude: lng }}
@@ -361,7 +549,68 @@ const AddressForm = ({ initial, action, label }) => {
 						setValue('longitude', location.longitude, { shouldDirty: true });
 					}}
 				/>
+
+				<div className='mt-3 rounded-md border p-3 text-sm space-y-1'>
+					{validating && (
+						<p className='text-gray-500'>Memeriksa konsistensi alamat di peta...</p>
+					)}
+					{!validating && validation && validation.displayAddress && (
+						<>
+							<p className='text-gray-700'>
+								<span className='font-medium'>Alamat menurut peta: </span>
+								{validation.displayAddress}
+							</p>
+							{validation.provinceMatch === false && (
+								<p className='text-red-600'>
+									Provinsi tidak cocok: peta menunjukkan "{validation.osmProvince}",
+									Anda memilih "{provinceName}". Submit akan diblokir sampai
+									diperbaiki.
+								</p>
+							)}
+							{validation.provinceMatch !== false && validation.cityMatch === false && (
+								<p className='text-amber-600'>
+									Kota/kabupaten mungkin tidak cocok: peta menunjukkan "
+									{validation.osmCity || '-'}", Anda memilih "{cityName}". Periksa
+									kembali sebelum menyimpan.
+								</p>
+							)}
+							{validation.provinceMatch !== false &&
+								validation.cityMatch !== false &&
+								validation.districtMatch === false && (
+									<p className='text-amber-600'>
+										Kecamatan mungkin tidak cocok: peta menunjukkan "
+										{validation.osmDistrict || '-'}", Anda memilih "{districtName}".
+									</p>
+								)}
+							{validation.osmPostcode &&
+								validation.zipcodeMatch === false && (
+									<p className='text-blue-600 flex items-center gap-2 flex-wrap'>
+										Peta menyarankan kode pos {validation.osmPostcode}.
+										<button
+											type='button'
+											className='underline'
+											onClick={() =>
+												setValue('zipcode', validation.osmPostcode, {
+													shouldDirty: true,
+												})
+											}>
+											Gunakan
+										</button>
+									</p>
+								)}
+						</>
+					)}
+					{!validating && validation && !validation.displayAddress && (
+						<p className='text-gray-500'>
+							Tidak dapat memverifikasi alamat dari peta saat ini.
+						</p>
+					)}
+				</div>
 			</div>
+
+			{submitError && (
+				<div className='col-span-full text-red-600 text-sm'>{submitError}</div>
+			)}
 
 			<div className='flex items-center gap-2 col-span-full'>
 				<Button>{label}</Button>
