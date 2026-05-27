@@ -2,6 +2,7 @@ const moment = require('moment');
 
 const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
+const LogService = require('../libs/log-service');
 const { Transaction, TransactionItem, sequelize } = require('../models');
 const DeliveryController = require('./delivery.controller');
 const { Op } = require('sequelize');
@@ -51,6 +52,21 @@ const TransactionController = {
 				}
 			);
 
+			await LogService.createLog(
+				'Membuat Transaksi Peminjaman',
+				req.user.id,
+				'transaction',
+				transaction.id,
+				`${req.user.name} membuat transaksi peminjaman #${transaction.id}`,
+				{
+					transaction_id: transaction.id,
+					book_count: books.length,
+					borrowed_date,
+					deadline_date,
+				},
+				req
+			);
+
 			return res.json(new ApiResponse('Books added successfully', transaction));
 		} catch (error) {
 			next(error);
@@ -79,6 +95,8 @@ const TransactionController = {
 
 			if (!transaction) throw new ApiError(404, 'Transaction not found');
 
+			const oldStatus = transaction.status;
+
 			const result = await sequelize.transaction(async (tx) => {
 				switch (status) {
 					case 'approved':
@@ -95,6 +113,20 @@ const TransactionController = {
 				await transaction.save();
 				return transaction;
 			});
+
+			await LogService.createLog(
+				'Mengubah Status Transaksi',
+				req.user.id,
+				'transaction',
+				transaction.id,
+				`${req.user.name} mengubah status transaksi #${transaction.id} dari ${oldStatus} ke ${status}`,
+				{
+					transaction_id: transaction.id,
+					old_status: oldStatus,
+					new_status: status,
+				},
+				req
+			);
 
 			const message = 'Transaction ' + status + ' successfully';
 			return res.json(new ApiResponse(message, result));
@@ -171,6 +203,16 @@ const TransactionController = {
 			await transaction.update(req.body);
 			await transaction.save();
 
+			await LogService.createLog(
+				'Mengupdate Transaksi',
+				req.user?.id,
+				'transaction',
+				transaction.id,
+				`${req.user?.name || 'System'} mengupdate transaksi #${transaction.id}`,
+				{ transaction_id: transaction.id, fields: Object.keys(req.body) },
+				req
+			);
+
 			return res.json(
 				new ApiResponse('Transaction updated successfully', transaction)
 			);
@@ -197,7 +239,18 @@ const TransactionController = {
 				);
 			}
 
+			const deleted = transaction.toJSON();
 			await transaction.destroy();
+
+			await LogService.createLog(
+				'Menghapus Transaksi',
+				req.user?.id,
+				'transaction',
+				deleted.id,
+				`${req.user?.name || 'System'} menghapus transaksi #${deleted.id}`,
+				{ transaction_id: deleted.id },
+				req
+			);
 
 			return res.json(
 				new ApiResponse('Transaction deleted successfully', transaction)

@@ -58,6 +58,8 @@ const BookDonationController = {
 	},
 
 	async store(req, res, next) {
+		const t = await sequelize.transaction();
+		let biteshipDraftId = null;
 		try {
 			const validated = bookDonationSchema.parse(req.body.transaction);
 
@@ -65,7 +67,10 @@ const BookDonationController = {
 
 			const address = await Address.scope({
 				method: ['authorize', req.user],
-			}).findOne({ where: { id: detail.address_id } });
+			}).findOne({
+				where: { id: detail.address_id },
+				transaction: t,
+			});
 
 			if (!address) throw new ApiError(404, 'Address not found');
 
@@ -99,12 +104,13 @@ const BookDonationController = {
 					book_donation_items: items,
 					status: PAYMENT_STATUS.PENDING,
 				},
-				{ include: ['book_donation_items'] }
+				{ include: ['book_donation_items'], transaction: t }
 			);
 
 			const donation = await BookDonation.findOne({
 				where: { id: created.id },
 				include: ['user', 'address', 'book_donation_items'],
+				transaction: t,
 			});
 
 			donation.method = method;
@@ -112,18 +118,22 @@ const BookDonationController = {
 			donation.dropoff_schedule = dropoffSchedule;
 
 			const { data: draft } = await DeliveryController.draft(donation);
+			biteshipDraftId = draft.id;
 
-			await donation.update({
-				order_id: draft.id,
-				shipping_fee: draft.price,
-			});
+			await donation.update(
+				{ order_id: draft.id, shipping_fee: draft.price },
+				{ transaction: t }
+			);
 
 			const { data: payment } = await PaymentController.midtrans(
 				donation,
 				req.user,
 				DONATION_TYPES.BOOK
 			);
-			await donation.update({ payment_url: payment.redirect_url });
+			await donation.update(
+				{ payment_url: payment.redirect_url },
+				{ transaction: t }
+			);
 
 			await LogService.createLog(
 				'book_donation_created',
@@ -144,16 +154,31 @@ const BookDonationController = {
 				req
 			);
 
-			await donation.save();
+			await t.commit();
 
 			return res.json(
 				new ApiResponse('Book donation submitted successfully', donation)
 			);
 		} catch (error) {
-			console.error(
-				'Book donation create error:',
-				JSON.stringify(error, null, 2)
-			);
+			if (!t.finished) await t.rollback();
+			if (biteshipDraftId) {
+				try {
+					await DeliveryController.cancel({ order_id: biteshipDraftId });
+				} catch (cleanupErr) {
+					console.error(
+						'Biteship draft cleanup failed:',
+						biteshipDraftId,
+						cleanupErr.response?.data || cleanupErr.message
+					);
+				}
+			}
+			console.error('Book donation create error:', {
+				message: error.message,
+				status: error.response?.status,
+				biteship_response: error.response?.data,
+				biteship_url: error.config?.url,
+				biteship_payload: error.config?.data,
+			});
 			if (error instanceof ApiError) return next(error);
 			if (error.name === 'ZodError') {
 				return next(

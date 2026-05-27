@@ -13,6 +13,13 @@ import { Hint } from '@/components/ui/hint';
 import { DEFAULT_LOCATION } from '@/libs/constant';
 import { useConfirm } from '@/hooks/use-confirm';
 import { useLocation } from '@/hooks/use-location';
+import {
+	geocodeAddress,
+	reverseGeocode,
+	haversineKm,
+} from '@/libs/geocoder';
+
+const MAX_DISTANCE_FROM_DISTRICT_KM = 15;
 
 const AddressSchema = z.object({
 	name: z.string().min(1, 'Nama alamat wajib diisi'),
@@ -26,58 +33,12 @@ const AddressSchema = z.object({
 	longitude: z.coerce.number(),
 	zipcode: z.string().regex(/^\d{5}$/, 'Kode pos harus 5 digit angka'),
 	note: z.string().optional(),
+	formatted_address: z.string().optional(),
+	location_source: z
+		.enum(['geocoded', 'manual_drag', 'centroid_fallback', 'user_location'])
+		.optional(),
+	is_location_confirmed: z.boolean().optional(),
 });
-
-const geocodeAddress = async (query) => {
-	try {
-		const params = new URLSearchParams({
-			q: query,
-			countrycodes: 'id',
-			format: 'json',
-			limit: '1',
-		});
-		const res = await fetch(
-			`https://nominatim.openstreetmap.org/search?${params}`,
-			{ headers: { 'Accept-Language': 'id' } }
-		);
-		const data = await res.json();
-		if (data.length > 0) {
-			return {
-				latitude: parseFloat(data[0].lat),
-				longitude: parseFloat(data[0].lon),
-				display_name: data[0].display_name,
-			};
-		}
-		return null;
-	} catch {
-		return null;
-	}
-};
-
-const reverseGeocode = async (lat, lng) => {
-	try {
-		const params = new URLSearchParams({
-			lat: String(lat),
-			lon: String(lng),
-			format: 'json',
-			'accept-language': 'id',
-			addressdetails: '1',
-			zoom: '18',
-		});
-		const res = await fetch(
-			`https://nominatim.openstreetmap.org/reverse?${params}`,
-			{ headers: { 'Accept-Language': 'id' } }
-		);
-		const data = await res.json();
-		if (!data || data.error) return null;
-		return {
-			display_name: data.display_name || '',
-			address: data.address || {},
-		};
-	} catch {
-		return null;
-	}
-};
 
 const normalizeAdminName = (name) =>
 	String(name || '')
@@ -91,6 +52,29 @@ const adminNameMatches = (a, b) => {
 	const nb = normalizeAdminName(b);
 	if (!na || !nb) return false;
 	return na === nb || na.includes(nb) || nb.includes(na);
+};
+
+const CITY_FIELDS = ['city', 'county', 'town', 'municipality', 'state_district'];
+const DISTRICT_FIELDS = [
+	'city_district',
+	'subdistrict',
+	'suburb',
+	'village',
+	'neighbourhood',
+	'hamlet',
+	'town',
+];
+
+const findMatchingOsmField = (addr, fields, targetName) => {
+	if (!targetName) return { matched: null, value: '' };
+	for (const f of fields) {
+		const v = addr[f];
+		if (v && adminNameMatches(v, targetName)) {
+			return { matched: true, value: v };
+		}
+	}
+	const firstValue = fields.map((f) => addr[f]).find(Boolean) || '';
+	return { matched: firstValue ? false : null, value: firstValue };
 };
 
 const AddressForm = ({ initial, action, label }) => {
@@ -135,9 +119,14 @@ const AddressForm = ({ initial, action, label }) => {
 			district_id: '',
 			zipcode: '',
 			note: '',
+			formatted_address: '',
+			location_source: undefined,
+			is_location_confirmed: false,
 			...DEFAULT_LOCATION,
 		},
 	});
+
+	const lastForwardResultRef = React.useRef(null);
 
 	const watchedDistrictId = watch('district_id');
 	const watchedCityId = watch('city_id');
@@ -163,14 +152,36 @@ const AddressForm = ({ initial, action, label }) => {
 		[districts, watchedDistrictId]
 	);
 
+	const districtCentroid = React.useMemo(() => {
+		const d = districts.find(
+			(x) => String(x.id) === String(watchedDistrictId)
+		);
+		if (!d || !d.latitude || !d.longitude) return null;
+		return { lat: d.latitude, lng: d.longitude };
+	}, [districts, watchedDistrictId]);
+
+	const distanceFromDistrictKm = React.useMemo(() => {
+		if (!districtCentroid || lat == null || lng == null) return null;
+		return haversineKm(lat, lng, districtCentroid.lat, districtCentroid.lng);
+	}, [districtCentroid, lat, lng]);
+
 	React.useEffect(() => {
 		if (!lat || !lng) {
 			setValidation(null);
 			return;
 		}
+
+		const cached = lastForwardResultRef.current;
+		const reuseForward =
+			cached &&
+			Math.abs(cached.lat - lat) < 1e-6 &&
+			Math.abs(cached.lng - lng) < 1e-6;
+
 		setValidating(true);
 		const handler = setTimeout(async () => {
-			const result = await reverseGeocode(lat, lng);
+			const result = reuseForward
+				? { display_name: cached.display_name, address: cached.address }
+				: await reverseGeocode(lat, lng);
 			setValidating(false);
 			if (!result) {
 				setValidation({ ok: null, displayAddress: '', mismatches: [] });
@@ -178,17 +189,21 @@ const AddressForm = ({ initial, action, label }) => {
 			}
 			const addr = result.address;
 			const osmProvince = addr.state || '';
-			const osmCity = addr.city || addr.county || addr.town || addr.municipality || '';
-			const osmDistrict = addr.suburb || addr.city_district || addr.village || addr.subdistrict || '';
+			const cityProbe = findMatchingOsmField(addr, CITY_FIELDS, cityName);
+			const districtProbe = findMatchingOsmField(
+				addr,
+				DISTRICT_FIELDS,
+				districtName
+			);
+			const osmCity = cityProbe.value;
+			const osmDistrict = districtProbe.value;
 			const osmPostcode = addr.postcode || '';
 
 			const provinceMatch = provinceName
 				? adminNameMatches(osmProvince, provinceName)
 				: null;
-			const cityMatch = cityName ? adminNameMatches(osmCity, cityName) : null;
-			const districtMatch = districtName
-				? adminNameMatches(osmDistrict, districtName)
-				: null;
+			const cityMatch = cityName ? cityProbe.matched : null;
+			const districtMatch = districtName ? districtProbe.matched : null;
 
 			setValidation({
 				displayAddress: result.display_name,
@@ -204,9 +219,12 @@ const AddressForm = ({ initial, action, label }) => {
 						? osmPostcode === watchedZipcode
 						: null,
 			});
-		}, 800);
+			setValue('formatted_address', result.display_name || '', {
+				shouldDirty: true,
+			});
+		}, reuseForward ? 0 : 800);
 		return () => clearTimeout(handler);
-	}, [lat, lng, provinceName, cityName, districtName, watchedZipcode]);
+	}, [lat, lng, provinceName, cityName, districtName, watchedZipcode, setValue]);
 
 	React.useEffect(() => {
 		if (!watchedDistrictId || !districts.length) return;
@@ -222,8 +240,11 @@ const AddressForm = ({ initial, action, label }) => {
 			found.latitude !== 0 &&
 			found.longitude !== 0
 		) {
+			lastForwardResultRef.current = null;
 			setValue('latitude', found.latitude, { shouldDirty: true });
 			setValue('longitude', found.longitude, { shouldDirty: true });
+			setValue('location_source', 'centroid_fallback', { shouldDirty: true });
+			setValue('is_location_confirmed', false, { shouldDirty: true });
 		}
 	}, [watchedDistrictId, districts, setValue]);
 
@@ -292,8 +313,19 @@ const AddressForm = ({ initial, action, label }) => {
 		setGeocoding(false);
 
 		if (result) {
+			lastForwardResultRef.current = {
+				lat: result.latitude,
+				lng: result.longitude,
+				display_name: result.display_name,
+				address: result.address || {},
+			};
 			setValue('latitude', result.latitude, { shouldDirty: true });
 			setValue('longitude', result.longitude, { shouldDirty: true });
+			setValue('formatted_address', result.display_name || '', {
+				shouldDirty: true,
+			});
+			setValue('location_source', 'geocoded', { shouldDirty: true });
+			setValue('is_location_confirmed', false, { shouldDirty: true });
 			setGeocodeError('');
 		} else {
 			setGeocodeError(
@@ -314,12 +346,17 @@ const AddressForm = ({ initial, action, label }) => {
 				}
 				navigator.geolocation.getCurrentPosition(
 					(position) => {
+						lastForwardResultRef.current = null;
 						setValue('latitude', position.coords.latitude, {
 							shouldDirty: true,
 						});
 						setValue('longitude', position.coords.longitude, {
 							shouldDirty: true,
 						});
+						setValue('location_source', 'user_location', {
+							shouldDirty: true,
+						});
+						setValue('is_location_confirmed', false, { shouldDirty: true });
 					},
 					() => {
 						alert(
@@ -334,6 +371,12 @@ const AddressForm = ({ initial, action, label }) => {
 
 	const guardedSubmit = (values) => {
 		setSubmitError('');
+		if (!values.is_location_confirmed) {
+			setSubmitError(
+				'Centang konfirmasi posisi marker di peta sebelum menyimpan.'
+			);
+			return;
+		}
 		if (validation && validation.provinceMatch === false) {
 			setSubmitError(
 				`Lokasi peta berada di provinsi "${validation.osmProvince}", tidak sesuai dengan provinsi "${provinceName}" yang dipilih. Geser penanda peta atau perbaiki pilihan provinsi sebelum menyimpan.`
@@ -545,8 +588,11 @@ const AddressForm = ({ initial, action, label }) => {
 					location={{ latitude: lat, longitude: lng }}
 					className='aspect-banner'
 					setLocation={(location) => {
+						lastForwardResultRef.current = null;
 						setValue('latitude', location.latitude, { shouldDirty: true });
 						setValue('longitude', location.longitude, { shouldDirty: true });
+						setValue('location_source', 'manual_drag', { shouldDirty: true });
+						setValue('is_location_confirmed', false, { shouldDirty: true });
 					}}
 				/>
 
@@ -605,6 +651,14 @@ const AddressForm = ({ initial, action, label }) => {
 							Tidak dapat memverifikasi alamat dari peta saat ini.
 						</p>
 					)}
+					{distanceFromDistrictKm != null &&
+						distanceFromDistrictKm > MAX_DISTANCE_FROM_DISTRICT_KM && (
+							<p className='text-amber-600'>
+								Marker berjarak {distanceFromDistrictKm.toFixed(1)} km dari
+								pusat kecamatan "{districtName}". Pastikan ini lokasi yang
+								benar.
+							</p>
+						)}
 				</div>
 			</div>
 
@@ -612,8 +666,27 @@ const AddressForm = ({ initial, action, label }) => {
 				<div className='col-span-full text-red-600 text-sm'>{submitError}</div>
 			)}
 
+			<div className='col-span-full'>
+				<label className='flex items-start gap-2 text-sm'>
+					<input
+						type='checkbox'
+						className='mt-1'
+						checked={!!watch('is_location_confirmed')}
+						onChange={(e) =>
+							setValue('is_location_confirmed', e.target.checked, {
+								shouldDirty: true,
+							})
+						}
+					/>
+					<span>
+						Saya sudah memeriksa posisi marker di peta dan memastikan lokasi
+						sudah benar.
+					</span>
+				</label>
+			</div>
+
 			<div className='flex items-center gap-2 col-span-full'>
-				<Button>{label}</Button>
+				<Button disabled={!watch('is_location_confirmed')}>{label}</Button>
 				<Button variant='outline' type='button' onClick={handleUseMyLocation}>
 					Gunakan lokasi saya
 				</Button>

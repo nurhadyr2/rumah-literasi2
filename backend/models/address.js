@@ -116,6 +116,29 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: true,
 				type: DataTypes.STRING,
 			},
+			formatted_address: {
+				allowNull: true,
+				type: DataTypes.TEXT,
+			},
+			location_source: {
+				allowNull: true,
+				type: DataTypes.STRING,
+				validate: {
+					isIn: [
+						[
+							'geocoded',
+							'manual_drag',
+							'centroid_fallback',
+							'user_location',
+						],
+					],
+				},
+			},
+			is_location_confirmed: {
+				allowNull: false,
+				type: DataTypes.BOOLEAN,
+				defaultValue: false,
+			},
 			is_default: {
 				allowNull: false,
 				type: DataTypes.BOOLEAN,

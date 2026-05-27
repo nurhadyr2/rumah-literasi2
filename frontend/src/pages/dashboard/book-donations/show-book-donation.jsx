@@ -176,11 +176,10 @@ const ShowBookDonation = () => {
 									))}
 								</div>
 
-								{allowed && (
-									<div className='border border-zinc-200 rounded-xl overflow-hidden'>
-										<div className='p-3 bg-zinc-50 border-b border-zinc-100'>
-											<p className='text-sm font-semibold'>Detail Item Buku</p>
-										</div>
+								<div className='border border-zinc-200 rounded-xl overflow-hidden'>
+									<div className='p-3 bg-zinc-50 border-b border-zinc-100'>
+										<p className='text-sm font-semibold'>Detail Item Buku</p>
+									</div>
 										<div className='overflow-x-auto'>
 											<table className='w-full text-sm'>
 												<thead className='bg-zinc-100'>
@@ -230,7 +229,6 @@ const ShowBookDonation = () => {
 											</table>
 										</div>
 									</div>
-								)}
 							</>
 						)}
 					</div>

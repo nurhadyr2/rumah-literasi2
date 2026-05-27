@@ -1,6 +1,7 @@
 const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
 const SearchService = require('../libs/search-service');
+const LogService = require('../libs/log-service');
 
 const { Address, sequelize } = require('../models');
 const { ROLES } = require('../libs/constant');
@@ -8,6 +9,36 @@ const { Op } = require('sequelize');
 const biteship = require('../libs/biteship');
 
 const searchService = new SearchService(sequelize);
+
+async function assertPostalCodeRegistered(zipcode) {
+	if (!zipcode) {
+		throw new ApiError(400, 'Kode pos wajib diisi');
+	}
+	try {
+		const { data } = await biteship.get('maps/areas', {
+			params: {
+				countries: 'ID',
+				input: String(zipcode),
+				type: 'single',
+			},
+		});
+		const areas = data?.areas || [];
+		if (areas.length === 0) {
+			throw new ApiError(
+				400,
+				`Kode pos ${zipcode} tidak terdaftar di layanan pengiriman. Gunakan kode pos yang valid.`
+			);
+		}
+	} catch (err) {
+		if (err instanceof ApiError) throw err;
+		throw new ApiError(
+			err.response?.status || 502,
+			err.response?.data?.error ||
+				err.response?.data?.message ||
+				'Gagal memverifikasi kode pos ke layanan pengiriman'
+		);
+	}
+}
 
 const AddressController = {
 	async index(req, res, next) {
@@ -66,6 +97,8 @@ const AddressController = {
 				);
 			}
 
+			await assertPostalCodeRegistered(req.body.zipcode);
+
 			const { data } = await biteship.post('/locations', {
 				name: req.body.name,
 				contact_name: req.body.contact_name,
@@ -90,6 +123,21 @@ const AddressController = {
 			);
 
 			await t.commit();
+
+			await LogService.createLog(
+				'Menambah Alamat Baru',
+				req.user.id,
+				'address',
+				address.id,
+				`${req.user.name} menambah alamat "${address.name}"`,
+				{
+					address_id: address.id,
+					area_id: address.area_id,
+					zipcode: address.zipcode,
+				},
+				req
+			);
+
 			return res.json(new ApiResponse('Address created successfully', address));
 		} catch (error) {
 			if (!t.finished) await t.rollback();
@@ -143,6 +191,16 @@ const AddressController = {
 			await address.update({ is_default: true });
 			await address.save();
 
+			await LogService.createLog(
+				'Mengubah Alamat Default',
+				req.user.id,
+				'address',
+				address.id,
+				`${req.user.name} menjadikan alamat "${address.name}" sebagai default`,
+				{ address_id: address.id },
+				req
+			);
+
 			return res.json(
 				new ApiResponse('Default address updated successfully', address)
 			);
@@ -187,6 +245,10 @@ const AddressController = {
 
 			if (!address) throw new ApiError(404, 'Address not found');
 
+			if (req.body.zipcode && req.body.zipcode !== address.zipcode) {
+				await assertPostalCodeRegistered(req.body.zipcode);
+			}
+
 			await address.update(req.body, { transaction: t });
 			await biteship.post('/locations/' + address.area_id, {
 				name: req.body.name,
@@ -200,6 +262,17 @@ const AddressController = {
 			});
 
 			await t.commit();
+
+			await LogService.createLog(
+				'Mengupdate Alamat',
+				req.user.id,
+				'address',
+				address.id,
+				`${req.user.name} mengupdate alamat "${address.name}"`,
+				{ address_id: address.id },
+				req
+			);
+
 			return res.json(new ApiResponse('Address updated successfully', address));
 		} catch (error) {
 			if (!t.finished) await t.rollback();
@@ -243,6 +316,17 @@ const AddressController = {
 			}
 
 			await t.commit();
+
+			await LogService.createLog(
+				'Menghapus Alamat',
+				req.user.id,
+				'address',
+				address.id,
+				`${req.user.name} menghapus alamat "${address.name}"`,
+				{ address_id: address.id, area_id: areaId },
+				req
+			);
+
 			return res.json(new ApiResponse('Address deleted successfully', address));
 		} catch (error) {
 			if (!t.finished) await t.rollback();

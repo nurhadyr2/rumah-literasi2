@@ -10,6 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Map } from '@/components/map';
 import { Hint } from '@/components/ui/hint';
 import { useConfirm } from '@/hooks/use-confirm';
+import { geocodeAddress } from '@/libs/geocoder';
+import { DEFAULT_LOCATION } from '@/libs/constant';
 
 const MerchantSchema = z.object({
 	name: z.string().min(3),
@@ -22,35 +24,81 @@ const MerchantSchema = z.object({
 	longitude: z.coerce.number(),
 });
 
-const geocodeAddress = async (query) => {
-	try {
-		const params = new URLSearchParams({
-			q: query,
-			countrycodes: 'id',
-			format: 'json',
-			limit: '1',
-		});
-		const res = await fetch(
-			`https://nominatim.openstreetmap.org/search?${params}`,
-			{ headers: { 'Accept-Language': 'id' } }
-		);
-		const data = await res.json();
-		if (data.length > 0) {
-			return {
-				latitude: parseFloat(data[0].lat),
-				longitude: parseFloat(data[0].lon),
-			};
-		}
-		return null;
-	} catch {
-		return null;
+const stripMerchantNamePrefix = (address, merchantName) => {
+	const addr = String(address || '').trim();
+	const name = String(merchantName || '').trim();
+	if (!addr || !name || name.length < 3) return addr;
+	const lowerAddr = addr.toLowerCase();
+	const lowerName = name.toLowerCase();
+	if (lowerAddr.startsWith(lowerName)) {
+		return addr
+			.slice(name.length)
+			.replace(/^[\s,.-]+/, '')
+			.trim();
 	}
+	return addr;
+};
+
+const stripBlockNumber = (s) =>
+	s
+		.replace(/\bno\.?\s*[a-z]?[-]?\d+[a-z0-9-]*/gi, '')
+		.replace(/\bblok\s*[a-z]?[-]?\d+[a-z0-9-]*/gi, '')
+		.replace(/\s+/g, ' ')
+		.replace(/\s*,\s*,+/g, ',')
+		.replace(/^[\s,]+|[\s,]+$/g, '')
+		.trim();
+
+const ADMIN_PREFIX_REGEX =
+	/\b(kec\.?|kecamatan|kab\.?|kabupaten|kota|kotamadya|provinsi|prov\.?)\s+/gi;
+
+const cleanAddressSegments = (address) => {
+	let s = stripBlockNumber(address);
+	s = s.replace(ADMIN_PREFIX_REGEX, '');
+	s = s.replace(/\b\d{5}\b/g, '');
+	s = s.replace(/\s+/g, ' ');
+
+	const segments = s
+		.split(',')
+		.map((x) => x.trim())
+		.filter(Boolean);
+
+	const deduped = [];
+	for (const seg of segments) {
+		const last = deduped[deduped.length - 1];
+		if (!last || last.toLowerCase() !== seg.toLowerCase()) {
+			deduped.push(seg);
+		}
+	}
+	return deduped;
+};
+
+const buildFallbackQueries = (address, zipcode) => {
+	const variants = new Set();
+	const wrap = (s) => [s, zipcode, 'Indonesia'].filter(Boolean).join(', ');
+	const add = (s) => {
+		const t = String(s || '').trim();
+		if (t.length >= 3) variants.add(wrap(t));
+	};
+
+	add(address);
+
+	const segments = cleanAddressSegments(address);
+	if (segments.length > 0) {
+		add(segments.join(', '));
+		for (let n = segments.length - 1; n >= 1; n--) {
+			add(segments.slice(-n).join(', '));
+		}
+	}
+
+	return Array.from(variants);
 };
 
 const MerchantForm = ({ initial, action, label }) => {
 	const { confirm } = useConfirm();
 	const [geocoding, setGeocoding] = React.useState(false);
 	const [geocodeError, setGeocodeError] = React.useState('');
+	const [locationConfirmed, setLocationConfirmed] = React.useState(false);
+	const [submitError, setSubmitError] = React.useState('');
 
 	const {
 		register,
@@ -67,8 +115,7 @@ const MerchantForm = ({ initial, action, label }) => {
 			address: '',
 			zipcode: '',
 			area_id: '',
-			latitude: '',
-			longitude: '',
+			...DEFAULT_LOCATION,
 		},
 	});
 
@@ -78,24 +125,41 @@ const MerchantForm = ({ initial, action, label }) => {
 	const handleGeocode = async () => {
 		const address = watch('address');
 		const zipcode = watch('zipcode');
+		const merchantName = watch('name');
 
 		if (!address || address.length < 5) {
 			setGeocodeError('Masukkan alamat terlebih dahulu.');
 			return;
 		}
 
-		const query = [address, zipcode, 'Indonesia'].filter(Boolean).join(', ');
+		const cleanedAddress = stripMerchantNamePrefix(address, merchantName);
+		const queries = buildFallbackQueries(cleanedAddress, zipcode);
 
 		setGeocoding(true);
 		setGeocodeError('');
 
-		const result = await geocodeAddress(query);
+		let result = null;
+		let attemptIndex = -1;
+		for (let i = 0; i < queries.length; i++) {
+			result = await geocodeAddress(queries[i]);
+			if (result) {
+				attemptIndex = i;
+				break;
+			}
+		}
 		setGeocoding(false);
 
 		if (result) {
 			setValue('latitude', result.latitude, { shouldDirty: true });
 			setValue('longitude', result.longitude, { shouldDirty: true });
-			setGeocodeError('');
+			setLocationConfirmed(false);
+			if (attemptIndex <= 1) {
+				setGeocodeError('');
+			} else {
+				setGeocodeError(
+					'Detail blok/nomor tidak ditemukan di peta. Marker diarahkan ke area kelurahan/kecamatan terdekat — silakan geser ke posisi rumah/toko Anda.'
+				);
+			}
 		} else {
 			setGeocodeError(
 				'Alamat tidak ditemukan. Coba perjelas alamat atau klik langsung di peta.'
@@ -115,6 +179,7 @@ const MerchantForm = ({ initial, action, label }) => {
 							const { latitude, longitude } = position.coords;
 							setValue('latitude', latitude);
 							setValue('longitude', longitude);
+							setLocationConfirmed(false);
 						},
 						(error) => {
 							console.error('Error mendapatkan lokasi:', error);
@@ -129,8 +194,21 @@ const MerchantForm = ({ initial, action, label }) => {
 			.catch(() => {});
 	};
 
+	const guardedSubmit = (values) => {
+		setSubmitError('');
+		if (!locationConfirmed) {
+			setSubmitError(
+				'Centang konfirmasi posisi marker di peta sebelum menyimpan.'
+			);
+			return;
+		}
+		return action(values);
+	};
+
 	return (
-		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
+		<form
+			onSubmit={handleSubmit(guardedSubmit)}
+			className='grid gap-6 lg:grid-cols-2'>
 			<div className='col-span-full'>
 				<Label htmlFor='name'>Nama</Label>
 				<Input
@@ -184,7 +262,7 @@ const MerchantForm = ({ initial, action, label }) => {
 						disabled={geocoding}
 						onClick={handleGeocode}
 						className='flex-none whitespace-nowrap'>
-						{geocoding ? 'Mencari...' : '📍 Cari di Peta'}
+						{geocoding ? 'Mencari...' : 'Cari di Peta'}
 					</Button>
 				</div>
 				<Hint>
@@ -232,20 +310,37 @@ const MerchantForm = ({ initial, action, label }) => {
 					otomatis, atau klik langsung di peta untuk menggeser penanda.
 				</Hint>
 				<Map
-					location={{
-						latitude: lat || 0,
-						longitude: lng || 0,
-					}}
+					location={{ latitude: lat, longitude: lng }}
 					className='aspect-banner'
 					setLocation={(location) => {
 						setValue('latitude', location.latitude, { shouldDirty: true });
 						setValue('longitude', location.longitude, { shouldDirty: true });
+						setLocationConfirmed(false);
 					}}
 				/>
 			</div>
 
+			{submitError && (
+				<div className='col-span-full text-red-600 text-sm'>{submitError}</div>
+			)}
+
+			<div className='col-span-full'>
+				<label className='flex items-start gap-2 text-sm'>
+					<input
+						type='checkbox'
+						className='mt-1'
+						checked={locationConfirmed}
+						onChange={(e) => setLocationConfirmed(e.target.checked)}
+					/>
+					<span>
+						Saya sudah memeriksa posisi marker di peta dan memastikan lokasi
+						sudah benar.
+					</span>
+				</label>
+			</div>
+
 			<div className='flex items-center gap-2 col-span-full'>
-				<Button>{label}</Button>
+				<Button disabled={!locationConfirmed}>{label}</Button>
 				<Button variant='outline' type='button' onClick={handleUseMyLocation}>
 					Gunakan lokasi saya
 				</Button>

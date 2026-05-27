@@ -1,5 +1,6 @@
 const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
+const LogService = require('../libs/log-service');
 
 const { Donation } = require('../models');
 const { ROLES } = require('../libs/constant');
@@ -33,6 +34,16 @@ const DonationController = {
 			donation.payment_url = data.redirect_url;
 			donation.status = 'pending';
 			await donation.save();
+
+			await LogService.createLog(
+				'Membuat Donasi Baru',
+				req.user.id,
+				'donation',
+				donation.id,
+				`${req.user.name} membuat donasi #${donation.id}`,
+				{ donation_id: donation.id, amount: donation.amount },
+				req
+			);
 
 			return res.json(
 				new ApiResponse('Donation created successfully', donation)
@@ -75,8 +86,23 @@ const DonationController = {
 			});
 
 			if (!donation) throw new ApiError(404, 'Donation not found');
+			const oldStatus = donation.status;
 			await donation.update(req.body);
 			await donation.save();
+
+			await LogService.createLog(
+				'Mengupdate Donasi',
+				req.user.id,
+				'donation',
+				donation.id,
+				`${req.user.name} mengupdate donasi #${donation.id}`,
+				{
+					donation_id: donation.id,
+					old_status: oldStatus,
+					new_status: donation.status,
+				},
+				req
+			);
 
 			return res.json(
 				new ApiResponse('Donation updated successfully', donation)
@@ -106,7 +132,19 @@ const DonationController = {
 				);
 			}
 
+			const deleted = donation.toJSON();
 			await donation.destroy();
+
+			await LogService.createLog(
+				'Menghapus Donasi',
+				req.user.id,
+				'donation',
+				deleted.id,
+				`${req.user.name} menghapus donasi #${deleted.id}`,
+				{ donation_id: deleted.id },
+				req
+			);
+
 			return res.json(
 				new ApiResponse('Donation deleted successfully', donation)
 			);

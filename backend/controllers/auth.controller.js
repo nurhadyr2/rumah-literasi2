@@ -4,9 +4,13 @@ const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
 const OneTimePassword = require('../libs/otp');
 const EmailController = require('./email.controller');
+const LogService = require('../libs/log-service');
 
 const { User } = require('../models');
 const Encoder = require('../libs/encrpyt');
+const { ROLES } = require('../libs/constant');
+
+const LOGGED_AUTH_ROLES = new Set([ROLES.ADMIN, ROLES.SUPERADMIN]);
 
 const AuthController = {
 	async signin(req, res, next) {
@@ -117,6 +121,19 @@ const AuthController = {
 			}
 
 			req.session.userId = user.uuid;
+
+			if (LOGGED_AUTH_ROLES.has(user.role)) {
+				await LogService.createLog(
+					'Login',
+					user.id,
+					'user',
+					user.id,
+					`${user.name} (${user.role}) berhasil login`,
+					{ user_id: user.id, role: user.role, email: user.email },
+					req
+				);
+			}
+
 			return res.json(new ApiResponse('User logged in successfully', user));
 		} catch (error) {
 			next(error);
@@ -125,6 +142,18 @@ const AuthController = {
 
 	async signout(req, res, next) {
 		try {
+			const user = req.user;
+			if (user && LOGGED_AUTH_ROLES.has(user.role)) {
+				await LogService.createLog(
+					'Logout',
+					user.id,
+					'user',
+					user.id,
+					`${user.name} (${user.role}) logout`,
+					{ user_id: user.id, role: user.role },
+					req
+				);
+			}
 			req.session.destroy();
 			return res.json(new ApiResponse('User logged out successfully'));
 		} catch (error) {

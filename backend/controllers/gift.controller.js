@@ -1,5 +1,6 @@
 const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
+const LogService = require('../libs/log-service');
 
 const { Gift } = require('../models');
 const { ROLES } = require('../libs/constant');
@@ -24,6 +25,16 @@ const GiftController = {
 				...req.body,
 				user_id: req.user.id,
 			});
+
+			await LogService.createLog(
+				'Menambah Gift Baru',
+				req.user.id,
+				'gift',
+				gift.id,
+				`${req.user.name} menambah gift "${gift.name || gift.id}"`,
+				{ gift_id: gift.id },
+				req
+			);
 
 			return res.json(new ApiResponse('Gift created successfully', gift));
 		} catch (error) {
@@ -62,8 +73,24 @@ const GiftController = {
 			});
 
 			if (!gift) throw new ApiError(404, 'Gift not found');
+			const oldStatus = gift.status;
 			await gift.update(req.body);
 			await gift.save();
+
+			await LogService.createLog(
+				'Mengupdate Gift',
+				req.user.id,
+				'gift',
+				gift.id,
+				`${req.user.name} mengupdate gift #${gift.id}`,
+				{
+					gift_id: gift.id,
+					old_status: oldStatus,
+					new_status: gift.status,
+					fields: Object.keys(req.body),
+				},
+				req
+			);
 
 			return res.json(new ApiResponse('Gift updated successfully', gift));
 		} catch (error) {
@@ -91,7 +118,19 @@ const GiftController = {
 				);
 			}
 
+			const deleted = gift.toJSON();
 			await gift.destroy();
+
+			await LogService.createLog(
+				'Menghapus Gift',
+				req.user.id,
+				'gift',
+				deleted.id,
+				`${req.user.name} menghapus gift #${deleted.id}`,
+				{ gift_id: deleted.id },
+				req
+			);
+
 			return res.json(new ApiResponse('Gift deleted successfully', gift));
 		} catch (error) {
 			next(error);

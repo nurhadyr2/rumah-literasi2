@@ -1,5 +1,6 @@
 const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
+const LogService = require('../libs/log-service');
 
 const { Merchant, sequelize } = require('../models');
 const biteship = require('../libs/biteship');
@@ -39,6 +40,17 @@ const MerchantController = {
 			});
 
 			await t.commit();
+
+			await LogService.createLog(
+				'Mengupdate Data Merchant',
+				req.user?.id,
+				'merchant',
+				merchant.id,
+				`${req.user?.name || 'System'} mengupdate data merchant "${merchant.name}"`,
+				{ merchant_id: merchant.id, fields: Object.keys(req.body) },
+				req
+			);
+
 			return res.json(
 				new ApiResponse('Merchant updated successfully', merchant)
 			);

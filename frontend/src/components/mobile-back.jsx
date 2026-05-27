@@ -14,6 +14,8 @@ const ROUTE_TITLES = {
 	'/dashboard/financial-donations': 'Donasi Finansial',
 	'/dashboard/financial-donations/create': 'Buat Donasi',
 	'/dashboard/all-donations': 'Semua Donasi',
+	'/dashboard/all-donations/financial': 'Semua Donasi Finansial',
+	'/dashboard/all-donations/book': 'Semua Donasi Buku',
 	'/dashboard/addresses': 'Alamat',
 	'/dashboard/addresses/create': 'Tambah Alamat',
 	'/dashboard/merchant': 'Merchant',

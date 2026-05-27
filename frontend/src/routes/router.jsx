@@ -97,6 +97,13 @@ const ShowLog = load(
 const AllDonations = load(
 	() => import('@/pages/dashboard/all-donations/all-donations')
 );
+const FinancialDonationsExport = load(
+	() =>
+		import('@/pages/dashboard/all-donations/financial-donations-export')
+);
+const BookDonationsExport = load(
+	() => import('@/pages/dashboard/all-donations/book-donations-export')
+);
 
 const Router = () => {
 	return (
@@ -182,6 +189,8 @@ const Router = () => {
 						path='all-donations'
 						element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
 						<Route index element={<AllDonations />} />
+						<Route path='financial' element={<FinancialDonationsExport />} />
+						<Route path='book' element={<BookDonationsExport />} />
 					</Route>
 
 					<Route path='profile' element={<ProfileDetail />} />

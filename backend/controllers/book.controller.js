@@ -1,5 +1,6 @@
 const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
+const LogService = require('../libs/log-service');
 
 const { Book } = require('../models');
 
@@ -19,6 +20,16 @@ const BookController = {
 				...req.body,
 				cover: req.file.path,
 			});
+
+			await LogService.createLog(
+				'Menambah Buku Baru',
+				req.user?.id,
+				'book',
+				book.id,
+				`${req.user?.name || 'System'} menambah buku "${book.title}"`,
+				{ book_id: book.id, title: book.title, author: book.author },
+				req
+			);
 
 			return res.json(new ApiResponse('Book created successfully', book));
 		} catch (error) {
@@ -58,6 +69,16 @@ const BookController = {
 			});
 			await book.save();
 
+			await LogService.createLog(
+				'Mengupdate Buku',
+				req.user?.id,
+				'book',
+				book.id,
+				`${req.user?.name || 'System'} mengupdate buku "${book.title}"`,
+				{ book_id: book.id, title: book.title },
+				req
+			);
+
 			return res.json(new ApiResponse('Book updated successfully', book));
 		} catch (error) {
 			next(error);
@@ -75,7 +96,19 @@ const BookController = {
 
 			if (!book) throw new ApiError(404, 'Book not found');
 
+			const deleted = book.toJSON();
 			await book.destroy();
+
+			await LogService.createLog(
+				'Menghapus Buku',
+				req.user?.id,
+				'book',
+				deleted.id,
+				`${req.user?.name || 'System'} menghapus buku "${deleted.title}"`,
+				{ book_id: deleted.id, title: deleted.title },
+				req
+			);
+
 			return res.json(new ApiResponse('Book deleted successfully', book));
 		} catch (error) {
 			next(error);

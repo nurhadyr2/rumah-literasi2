@@ -17,8 +17,16 @@ const DonationItem = React.forwardRef(({ item, className, ...props }, ref) => {
 				</div>
 
 				<div className='absolute w-full px-6 py-6 -translate-y-1/2 top-1/2 bg-white/50'>
-					<h5 className='font-semibold truncate'>{item.title}</h5>
-					<p className='text-sm line-clamp-1 opacity-80'>{item.author}</p>
+					<h5
+						className='font-semibold line-clamp-2 leading-tight'
+						title={item.title}>
+						{item.title}
+					</h5>
+					<p
+						className='text-sm line-clamp-1 opacity-80 mt-1'
+						title={item.author}>
+						{item.author}
+					</p>
 				</div>
 
 				<img
