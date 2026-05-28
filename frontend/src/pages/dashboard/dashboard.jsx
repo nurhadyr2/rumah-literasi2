@@ -4,7 +4,7 @@ import {
 	HeadingDescription,
 	HeadingTitle,
 } from '@/components/ui/heading';
-import { HeartHandshake, Gift, ClipboardList } from 'lucide-react';
+import { HeartHandshake, Gift } from 'lucide-react';
 import { Link } from 'react-router';
 
 const Dashboard = () => {
@@ -23,12 +23,6 @@ const Dashboard = () => {
 			description:
 				'Pantau donasi buku, verifikasi data, dan kelola distribusinya.',
 		},
-		{
-			href: '/dashboard/all-donations',
-			title: 'Semua Donasi',
-			icon: ClipboardList,
-			description: 'Pantau semua aktivitas Donasi dan kelola datanya.',
-		},
 	];
 
 	return (
@@ -41,7 +35,7 @@ const Dashboard = () => {
 				</HeadingDescription>
 			</Heading>
 
-			<div className='grid gap-6 lg:grid-cols-3'>
+			<div className='grid gap-6 lg:grid-cols-2'>
 				{menus.map((menu) => {
 					return (
 						<Link key={menu.href} to={menu.href}>
