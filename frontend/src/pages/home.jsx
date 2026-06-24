@@ -63,7 +63,7 @@ const Home = () => {
 					<FadeIn direction='right' duration={700} delay={150}>
 						<div className='relative mx-auto w-full max-w-lg p-1 sm:p-2 rounded-xl'>
 							<LazyImage
-								src='/hero.jpg'
+								src='/hero1.jpg'
 								alt='beranda'
 								className='w-full rounded-xl aspect-video object-cover order-first lg:order-last'
 							/>
