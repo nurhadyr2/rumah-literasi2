@@ -45,7 +45,9 @@ export const animate = () => {
 export const assetUrl = (path) => {
 	if (!path) return '';
 	if (/^https?:\/\//i.test(path)) return path;
-	const base = (import.meta.env.VITE_BASE_URL || '').replace(/\/+$/, '');
+	const base = (import.meta.env.VITE_BASE_URL || '')
+		.replace(/\/+$/, '')
+		.replace(/\/api$/, '');
 	return `${base}/${String(path).replace(/^\/+/, '')}`;
 };
 
