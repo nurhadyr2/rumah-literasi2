@@ -42,6 +42,13 @@ export const animate = () => {
 	}, 250);
 };
 
+export const assetUrl = (path) => {
+	if (!path) return '';
+	if (/^https?:\/\//i.test(path)) return path;
+	const base = (import.meta.env.VITE_BASE_URL || '').replace(/\/+$/, '');
+	return `${base}/${String(path).replace(/^\/+/, '')}`;
+};
+
 export const formatByte = (size) => {
 	return Intl.NumberFormat('en', {
 		notation: 'compact',

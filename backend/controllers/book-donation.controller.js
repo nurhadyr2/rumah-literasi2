@@ -4,12 +4,11 @@ const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
 const SearchService = require('../libs/search-service');
 const { bookDonationSchema } = require('../libs/schemas');
-const { ROLES, PAYMENT_STATUS, DONATION_TYPES } = require('../libs/constant');
+const { ROLES, PAYMENT_STATUS } = require('../libs/constant');
 const LogService = require('../libs/log-service');
 
-const PaymentController = require('./payment.controller');
 const DeliveryController = require('./delivery.controller');
-const { BookDonation, Address, sequelize } = require('../models');
+const { BookDonation, Address, PaymentChannel, sequelize } = require('../models');
 
 const searchService = new SearchService(sequelize);
 
@@ -125,16 +124,6 @@ const BookDonationController = {
 				{ transaction: t }
 			);
 
-			const { data: payment } = await PaymentController.midtrans(
-				donation,
-				req.user,
-				DONATION_TYPES.BOOK
-			);
-			await donation.update(
-				{ payment_url: payment.redirect_url },
-				{ transaction: t }
-			);
-
 			await LogService.createLog(
 				'book_donation_created',
 				req.user.id,
@@ -198,6 +187,167 @@ const BookDonationController = {
 		}
 	},
 
+	async pay(req, res, next) {
+		try {
+			const id = req.params.id;
+			if (!id) throw new ApiError(400, 'ID is required');
+
+			const donation = await BookDonation.scope({
+				method: ['authorize', req.user],
+			}).findOne({ where: { id } });
+
+			if (!donation) throw new ApiError(404, 'Book donation not found');
+			if (donation.status !== PAYMENT_STATUS.PENDING) {
+				throw new ApiError(400, 'Donation is not awaiting payment');
+			}
+			if (!req.file) throw new ApiError(400, 'Payment proof is required');
+
+			const channel = await PaymentChannel.findOne({
+				where: { id: req.body.payment_channel_id, is_active: true },
+			});
+			if (!channel) throw new ApiError(400, 'Invalid payment channel');
+
+			await donation.update({
+				payment_channel_id: channel.id,
+				payment_proof: req.file.path,
+				paid_at: new Date(),
+				status: PAYMENT_STATUS.WAITING_VERIFICATION,
+			});
+
+			await LogService.createLog(
+				'book_donation_payment_uploaded',
+				req.user.id,
+				'book_donation',
+				donation.id,
+				`${req.user.name} mengunggah bukti pembayaran ongkir via ${channel.name}`,
+				{
+					donation_id: donation.id,
+					payment_channel_id: channel.id,
+					channel_name: channel.name,
+				},
+				req
+			);
+
+			return res.json(
+				new ApiResponse('Payment proof uploaded successfully', donation)
+			);
+		} catch (error) {
+			next(error);
+		}
+	},
+
+	async verify(req, res, next) {
+		try {
+			const id = req.params.id;
+			if (!id) throw new ApiError(400, 'ID is required');
+
+			const approve = req.body.approve === true || req.body.approve === 'true';
+
+			const donation = await BookDonation.scope({
+				method: ['authorize', req.user, [ROLES.ADMIN]],
+			}).findOne({
+				where: { id },
+				include: ['user', 'address', 'book_donation_items'],
+			});
+
+			if (!donation) throw new ApiError(404, 'Book donation not found');
+			if (donation.status !== PAYMENT_STATUS.WAITING_VERIFICATION) {
+				throw new ApiError(400, 'Donation is not awaiting verification');
+			}
+
+			const oldStatus = donation.status;
+
+			if (approve) {
+				let order;
+				try {
+					const result = await DeliveryController.confirm(donation);
+					order = result.data;
+				} catch (err) {
+					console.error(
+						'Biteship confirm failed on approval:',
+						donation.id,
+						err.response?.data || err.message
+					);
+					throw new ApiError(
+						502,
+						'Gagal mengonfirmasi pengiriman ke Biteship. Status pembayaran tidak diubah.',
+						err.response?.data
+					);
+				}
+
+				await donation.update({
+					order_id: order.id,
+					tracking_id: order.courier?.tracking_id || null,
+					status: PAYMENT_STATUS.SUCCESS,
+					verified_at: new Date(),
+					verified_by: req.user.id,
+					acceptance_notes:
+						req.body.acceptance_notes ?? donation.acceptance_notes,
+				});
+
+				await LogService.createLog(
+					'book_donation_payment_approved',
+					req.user.id,
+					'book_donation',
+					donation.id,
+					`${req.user.name} menyetujui pembayaran & mengonfirmasi pengiriman donasi #${donation.id}`,
+					{
+						donation_id: donation.id,
+						old_status: oldStatus,
+						new_status: PAYMENT_STATUS.SUCCESS,
+						order_id: order.id,
+						tracking_id: donation.tracking_id,
+					},
+					req
+				);
+			} else {
+				if (donation.order_id) {
+					try {
+						await DeliveryController.cancel(donation);
+					} catch (err) {
+						console.error(
+							'Biteship cancel failed on rejection:',
+							donation.id,
+							err.response?.data || err.message
+						);
+					}
+				}
+
+				await donation.update({
+					status: PAYMENT_STATUS.FAILED,
+					verified_at: new Date(),
+					verified_by: req.user.id,
+					acceptance_notes:
+						req.body.acceptance_notes ?? donation.acceptance_notes,
+				});
+
+				await LogService.createLog(
+					'book_donation_payment_rejected',
+					req.user.id,
+					'book_donation',
+					donation.id,
+					`${req.user.name} menolak pembayaran donasi #${donation.id}`,
+					{
+						donation_id: donation.id,
+						old_status: oldStatus,
+						new_status: PAYMENT_STATUS.FAILED,
+					},
+					req
+				);
+			}
+
+			return res.json(
+				new ApiResponse(
+					`Donation ${approve ? 'approved' : 'rejected'} successfully`,
+					donation
+				)
+			);
+		} catch (error) {
+			if (error instanceof ApiError) return next(error);
+			next(error);
+		}
+	},
+
 	async show(req, res, next) {
 		try {
 			const id = req.params.id;
@@ -207,7 +357,7 @@ const BookDonationController = {
 				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findOne({
 				where: { id },
-				include: ['user', 'address', 'book_donation_items'],
+				include: ['user', 'address', 'book_donation_items', 'payment_channel'],
 			});
 
 			if (!donation) throw new ApiError(404, 'Book donation not found');

@@ -12,7 +12,8 @@ import {
 
 import { currency } from '@/libs/utils';
 import { useAuth } from '@/hooks/use-auth';
-import { ROLES } from '@/libs/constant';
+import { ROLES, PAYMENT_STATUS, PAYMENT_STATUS_LABELS } from '@/libs/constant';
+import PaymentProofActions from '@/components/payments/payment-proof-actions';
 
 import {
 	Heading,
@@ -127,12 +128,15 @@ const ShowBookDonation = () => {
 		error,
 		data: result,
 		isLoading: fetching,
+		mutate,
 	} = useSWR('/book-donations/' + id);
 
 	const allowed = React.useMemo(() => {
 		if (loading) return false;
 		return [ROLES.ADMIN, ROLES.SUPERADMIN].includes(user.role);
 	}, [user, loading]);
+
+	const isOwner = !loading && user?.id === result?.data?.user_id;
 
 	return (
 		<div className='grid gap-8'>
@@ -150,7 +154,7 @@ const ShowBookDonation = () => {
 				<>
 					<div className='flex items-center gap-3'>
 						<Badge variant={statusVariant(result.data.status)}>
-							{result.data.status}
+							{PAYMENT_STATUS_LABELS[result.data.status] || result.data.status}
 						</Badge>
 						{result.data.tracking_id && (
 							<a
@@ -351,7 +355,13 @@ const ShowBookDonation = () => {
 						<div className='grid gap-4'>
 							<div>
 								<Label>Status Saat Ini</Label>
-								<Input disabled defaultValue={result.data.status} />
+								<Input
+									disabled
+									defaultValue={
+										PAYMENT_STATUS_LABELS[result.data.status] ||
+										result.data.status
+									}
+								/>
 							</div>
 							{result.data.acceptance_notes && (
 								<div>
@@ -362,6 +372,13 @@ const ShowBookDonation = () => {
 									/>
 								</div>
 							)}
+
+							<PaymentProofActions
+								type='book'
+								donation={result.data}
+								isAdmin={allowed}
+								onDone={mutate}
+							/>
 						</div>
 					</div>
 
@@ -373,13 +390,10 @@ const ShowBookDonation = () => {
 							</Button>
 						</Link>
 
-						{result.data.status === 'Pending' && result.data.payment_url && (
-							<a
-								href={result.data.payment_url}
-								target='_blank'
-								rel='noreferrer'>
+						{isOwner && result.data.status === PAYMENT_STATUS.PENDING && (
+							<Link to={'/dashboard/book-donations/' + result.data.id + '/pay'}>
 								<Button>Selesaikan Pembayaran</Button>
-							</a>
+							</Link>
 						)}
 
 						{allowed && (

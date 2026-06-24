@@ -19,7 +19,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
-import { ROLES } from '@/libs/constant';
+import { ROLES, PAYMENT_STATUS, PAYMENT_STATUS_LABELS } from '@/libs/constant';
+import PaymentProofActions from '@/components/payments/payment-proof-actions';
 
 const ShowDonation = () => {
 	const { id } = useParams();
@@ -29,12 +30,15 @@ const ShowDonation = () => {
 		error,
 		data: result,
 		isLoading: fetching,
+		mutate,
 	} = useSWR('/financial-donations/' + id);
 
 	const allowed = React.useMemo(() => {
 		if (loading) return false;
 		return [ROLES.ADMIN, ROLES.SUPERADMIN].includes(user.role);
 	}, [user, loading]);
+
+	const isOwner = !loading && user?.id === result?.data?.user_id;
 
 	return (
 		<div className='grid gap-8'>
@@ -62,7 +66,13 @@ const ShowDonation = () => {
 
 					<div>
 						<Label htmlFor='status'>Status</Label>
-						<Input disabled type='text' defaultValue={result.data.status} />
+						<Input
+							disabled
+							type='text'
+							defaultValue={
+								PAYMENT_STATUS_LABELS[result.data.status] || result.data.status
+							}
+						/>
 					</div>
 
 					<div className='col-span-full'>
@@ -73,6 +83,13 @@ const ShowDonation = () => {
 						/>
 					</div>
 
+					<PaymentProofActions
+						type='financial'
+						donation={result.data}
+						isAdmin={allowed}
+						onDone={mutate}
+					/>
+
 					<div className='col-span-full'>
 						<div className='flex flex-wrap items-center gap-2'>
 							<Link to='/dashboard/financial-donations'>
@@ -82,11 +99,8 @@ const ShowDonation = () => {
 								</Button>
 							</Link>
 
-							{result.data.status === 'pending ' && (
-								<Link
-									to={result.data.payment_url}
-									target='_blank'
-									rel='noreferrer'>
+							{isOwner && result.data.status === PAYMENT_STATUS.PENDING && (
+								<Link to={'/dashboard/financial-donations/' + result.data.id + '/pay'}>
 									<Button variant='primary'>Selesaikan Pembayaran</Button>
 								</Link>
 							)}

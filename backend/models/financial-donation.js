@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
 				foreignKey: 'user_id',
 				as: 'user',
 			});
+			this.belongsTo(models.PaymentChannel, {
+				foreignKey: 'payment_channel_id',
+				as: 'payment_channel',
+			});
 		}
 	}
 	FinancialDonation.init(
@@ -39,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.ENUM,
 				values: [
 					PAYMENT_STATUS.PENDING,
+					PAYMENT_STATUS.WAITING_VERIFICATION,
 					PAYMENT_STATUS.SUCCESS,
 					PAYMENT_STATUS.FAILED,
 				],
@@ -69,6 +74,26 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: true,
 				type: DataTypes.STRING,
 				defaultValue: '',
+			},
+			payment_channel_id: {
+				allowNull: true,
+				type: DataTypes.INTEGER,
+			},
+			payment_proof: {
+				allowNull: true,
+				type: DataTypes.STRING,
+			},
+			paid_at: {
+				allowNull: true,
+				type: DataTypes.DATE,
+			},
+			verified_at: {
+				allowNull: true,
+				type: DataTypes.DATE,
+			},
+			verified_by: {
+				allowNull: true,
+				type: DataTypes.INTEGER,
 			},
 		},
 		{

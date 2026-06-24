@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router';
 import { ArrowLeft, Truck, MapPin, CalendarDays, Clock } from 'lucide-react';
 
 import axios from '@/libs/axios';
-import { animate, currency } from '@/libs/utils';
+import { currency } from '@/libs/utils';
 import { bookDonationSchema } from '@/libs/schemas';
 import { useDonation, STEPS, DELIVERY_METHODS } from '@/stores/use-donation';
 import { useConfirm } from '@/hooks/use-confirm';
@@ -68,15 +68,13 @@ const ReviewBookDonation = () => {
 						transaction: { items, detail, courier, method, schedule },
 					});
 
-					toast.success('Donasi buku berhasil dikirim');
+					toast.success('Donasi buku berhasil dibuat', {
+						description: 'Lanjutkan dengan pembayaran ongkir.',
+					});
 
 					reset();
-					if (result.data.payment_url) {
-						window.open(result.data.payment_url, '_blank');
-					}
-					animate();
 					mutate('/book-donations');
-					navigate('/dashboard/book-donations');
+					navigate('/dashboard/book-donations/' + result.data.id + '/pay');
 				} catch (error) {
 					toast.error('Gagal mengirim donasi', {
 						description: error.response?.data?.message || error.message,

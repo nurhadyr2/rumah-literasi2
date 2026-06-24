@@ -1,4 +1,4 @@
-import { ClipboardList, Store } from 'lucide-react';
+import { ClipboardList, Store, Landmark } from 'lucide-react';
 
 import {
 	Gift,
@@ -90,6 +90,12 @@ export const SIDEBAR_MENUS = [
 				roles: [ROLES.ADMIN, ROLES.SUPERADMIN],
 			},
 			{
+				href: '/dashboard/payment-channels',
+				label: 'Channel Pembayaran',
+				icon: Landmark,
+				roles: [ROLES.SUPERADMIN],
+			},
+			{
 				href: '/dashboard/logs',
 				label: 'Log Sistem',
 				icon: Bolt,
@@ -160,8 +166,16 @@ export const ERROR_MESSAGES = {
 
 export const PAYMENT_STATUS = {
 	PENDING: 'Pending',
+	WAITING_VERIFICATION: 'WaitingVerification',
 	SUCCESS: 'Success',
 	FAILED: 'Failed',
+};
+
+export const PAYMENT_STATUS_LABELS = {
+	Pending: 'Menunggu Pembayaran',
+	WaitingVerification: 'Menunggu Verifikasi',
+	Success: 'Berhasil',
+	Failed: 'Gagal',
 };
 
 export const DEFAULT_LOCATION = {

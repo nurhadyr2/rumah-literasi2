@@ -87,6 +87,21 @@ const ShowAddress = load(() => import('~/addresses/show-address'));
 const ShowMerchant = load(() => import('~/merchant/show-merchant'));
 const EditMerchant = load(() => import('~/merchant/edit-merchant'));
 
+const PayFinancialDonation = load(
+	() => import('~/payments/pay-financial-donation')
+);
+const PayBookDonation = load(() => import('~/payments/pay-book-donation'));
+
+const ListPaymentChannels = load(
+	() => import('~/payment-channels/list-payment-channels')
+);
+const CreatePaymentChannel = load(
+	() => import('~/payment-channels/create-payment-channel')
+);
+const EditPaymentChannel = load(
+	() => import('~/payment-channels/edit-payment-channel')
+);
+
 const ListLogs = load(
 	() => import('@/pages/dashboard/transaction-log/list-logs')
 );
@@ -159,6 +174,7 @@ const Router = () => {
 						</Route>
 						<Route element={<AuthorizeLayout allowed={[ROLES.DONATUR]} />}>
 							<Route path='create' element={<AddDonation />} />
+							<Route path=':id/pay' element={<PayFinancialDonation />} />
 						</Route>
 						<Route element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
 							<Route path=':id/edit' element={<EditDonation />} />
@@ -178,6 +194,7 @@ const Router = () => {
 							<Route path='create' element={<CreateBookDonation />} />
 							<Route path='create/append' element={<AppendBookDonation />} />
 							<Route path='create/:id/edit' element={<UpdateBookDonation />} />
+							<Route path=':id/pay' element={<PayBookDonation />} />
 						</Route>
 
 						<Route element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
@@ -213,6 +230,14 @@ const Router = () => {
 						<Route path='edit' element={<AuthorizeLayout />}>
 							<Route index element={<EditMerchant />} />
 						</Route>
+					</Route>
+
+					<Route
+						path='payment-channels'
+						element={<AuthorizeLayout allowed={[ROLES.SUPERADMIN]} />}>
+						<Route index element={<ListPaymentChannels />} />
+						<Route path='create' element={<CreatePaymentChannel />} />
+						<Route path=':id/edit' element={<EditPaymentChannel />} />
 					</Route>
 
 					<Route

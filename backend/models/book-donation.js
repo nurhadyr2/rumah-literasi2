@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
 				foreignKey: 'book_donation_id',
 				as: 'book_donation_items',
 			});
+			this.belongsTo(models.PaymentChannel, {
+				foreignKey: 'payment_channel_id',
+				as: 'payment_channel',
+			});
 		}
 	}
 
@@ -31,6 +35,7 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.ENUM,
 				values: [
 					PAYMENT_STATUS.PENDING,
+					PAYMENT_STATUS.WAITING_VERIFICATION,
 					PAYMENT_STATUS.SUCCESS,
 					PAYMENT_STATUS.FAILED,
 				],
@@ -72,6 +77,11 @@ module.exports = (sequelize, DataTypes) => {
 			},
 
 			payment_url: { allowNull: true, type: DataTypes.STRING },
+			payment_channel_id: { allowNull: true, type: DataTypes.INTEGER },
+			payment_proof: { allowNull: true, type: DataTypes.STRING },
+			paid_at: { allowNull: true, type: DataTypes.DATE },
+			verified_at: { allowNull: true, type: DataTypes.DATE },
+			verified_by: { allowNull: true, type: DataTypes.INTEGER },
 			user_id: { allowNull: false, type: DataTypes.INTEGER },
 			address_id: { allowNull: false, type: DataTypes.INTEGER },
 			estimated_value: { allowNull: false, type: DataTypes.INTEGER },

@@ -6,6 +6,7 @@ const ROLES = {
 
 const PAYMENT_STATUS = {
 	PENDING: 'Pending',
+	WAITING_VERIFICATION: 'WaitingVerification',
 	SUCCESS: 'Success',
 	FAILED: 'Failed',
 	EXPIRED: 'EXPIRED',

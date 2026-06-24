@@ -12,7 +12,6 @@ import {
 
 import FinancialDonationForm from '@/components/financial-donations/form-financial-donation';
 import { useNavigate } from 'react-router';
-import { animate } from '@/libs/utils';
 
 const CreateDonation = () => {
 	const { mutate } = useSWRConfig();
@@ -21,14 +20,12 @@ const CreateDonation = () => {
 	const onSubmit = async (data) => {
 		try {
 			const { data: result } = await axios.post('/financial-donations', data);
-			toast('Financial donation created', {
-				description: 'Successfully created donation',
+			toast('Donasi finansial dibuat', {
+				description: 'Lanjutkan dengan memilih metode pembayaran.',
 			});
 
-			window.open(result.data.payment_url, '_blank');
-			animate();
 			mutate('/financial-donations');
-			navigate('/dashboard/financial-donations');
+			navigate('/dashboard/financial-donations/' + result.data.id + '/pay');
 		} catch (error) {
 			toast.error('Failed to create donation', {
 				description: error.response?.data?.message || error.message,

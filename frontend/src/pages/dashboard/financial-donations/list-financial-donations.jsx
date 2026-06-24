@@ -30,7 +30,7 @@ import { Loading } from '@/components/loading';
 import { Empty } from '@/components/empty';
 import { Error } from '@/components/error';
 import { currency, formatDate } from '@/libs/utils';
-import { PAYMENT_STATUS } from '@/libs/constant';
+import { PAYMENT_STATUS, PAYMENT_STATUS_LABELS } from '@/libs/constant';
 import { useResultState } from '@/hooks/use-result-state';
 import { Pagination } from '@/components/pagination';
 import { Select } from '@/components/ui/select';
@@ -110,7 +110,7 @@ const ListDonations = () => {
 						<option value=''>Pilih status</option>
 						{Object.values(PAYMENT_STATUS).map((status) => (
 							<option key={status} value={status}>
-								{status}
+								{PAYMENT_STATUS_LABELS[status] || status}
 							</option>
 						))}
 					</Select>
@@ -146,7 +146,9 @@ const ListDonations = () => {
 								<TableCell>{currency(donation.amount)}</TableCell>
 
 								<TableCell>
-									<Badge>{donation.status}</Badge>
+									<Badge>
+										{PAYMENT_STATUS_LABELS[donation.status] || donation.status}
+									</Badge>
 								</TableCell>
 
 								<TableCell>{formatDate(donation.createdAt)}</TableCell>
@@ -154,14 +156,12 @@ const ListDonations = () => {
 								<TableCell>
 									<div className='flex items-center gap-2'>
 										{donation.status === PAYMENT_STATUS.PENDING && (
-											<a
-												href={donation.payment_url}
-												target='_blank'
-												rel='noreferrer'>
+											<Link
+												to={'/dashboard/financial-donations/' + donation.id + '/pay'}>
 												<button className='bg-transparent hover:text-blue-500'>
 													Selesaikan Pembayaran
 												</button>
-											</a>
+											</Link>
 										)}
 
 										<Link to={'/dashboard/financial-donations/' + donation.id}>
