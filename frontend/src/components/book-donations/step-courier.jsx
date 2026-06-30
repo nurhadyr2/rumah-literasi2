@@ -78,6 +78,7 @@ const StepCourier = () => {
 			shipping_fee: selected.price,
 			duration: selected.duration,
 			type: selected.courier_service_name,
+			service_type: selected.service_type,
 		});
 		route(STEPS.SCHEDULE);
 	};

@@ -5,14 +5,30 @@ const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
 const { Merchant, Address } = require('../models');
 
+// Pengiriman terjadwal (delivery_type: 'scheduled') di Biteship hanya didukung
+// oleh kurir instan/same-day. Kurir ekspedisi reguler hanya mendukung 'now',
+// dan akan menolak saat confirm jika dipaksa 'scheduled' (error 40002007).
+const SCHEDULED_SERVICE_TYPES = ['instant', 'same_day'];
+
+const supportsScheduledDelivery = (serviceType) =>
+	SCHEDULED_SERVICE_TYPES.includes(String(serviceType || '').toLowerCase());
+
 const DeliveryController = {
+	supportsScheduledDelivery,
+
 	async draft(donation) {
 		const merchant = await Merchant.findOne();
 		if (!merchant) throw new Error('Merchant data not found in database');
 
 		const isPickup = donation.method === 'pickup';
+		// Hanya gunakan 'scheduled' bila kurir benar-benar mendukungnya,
+		// supaya draft tidak gagal saat confirm (error 40002007).
 		const deliveryType =
-			isPickup && donation.pickup_schedule ? 'scheduled' : 'now';
+			isPickup &&
+			donation.pickup_schedule &&
+			supportsScheduledDelivery(donation.service_type)
+				? 'scheduled'
+				: 'now';
 
 		const body = {
 			origin_contact_name: donation.address.contact_name,

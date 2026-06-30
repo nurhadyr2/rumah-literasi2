@@ -115,6 +115,7 @@ const BookDonationController = {
 			donation.method = method;
 			donation.pickup_schedule = pickupSchedule;
 			donation.dropoff_schedule = dropoffSchedule;
+			donation.service_type = courier.service_type;
 
 			const { data: draft } = await DeliveryController.draft(donation);
 			biteshipDraftId = draft.id;
@@ -237,69 +238,105 @@ const BookDonationController = {
 	},
 
 	async verify(req, res, next) {
+		const t = await sequelize.transaction();
+		// Disiapkan untuk logging setelah commit (agar tidak ada log untuk aksi
+		// yang ter-rollback). Diisi di dalam transaksi.
+		let logPayload = null;
 		try {
 			const id = req.params.id;
 			if (!id) throw new ApiError(400, 'ID is required');
 
 			const approve = req.body.approve === true || req.body.approve === 'true';
 
-			const donation = await BookDonation.scope({
+			// Kunci baris donasi agar approve tidak bisa berjalan paralel.
+			// Tanpa include supaya row lock aman di semua DB; relasi dimuat ulang.
+			const locked = await BookDonation.scope({
 				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findOne({
 				where: { id },
-				include: ['user', 'address', 'book_donation_items'],
+				lock: t.LOCK.UPDATE,
+				transaction: t,
 			});
 
-			if (!donation) throw new ApiError(404, 'Book donation not found');
-			if (donation.status !== PAYMENT_STATUS.WAITING_VERIFICATION) {
+			if (!locked) throw new ApiError(404, 'Book donation not found');
+			if (locked.status !== PAYMENT_STATUS.WAITING_VERIFICATION) {
+				// Sudah diproses transaksi lain (atau klik ganda) — cegah double-charge.
 				throw new ApiError(400, 'Donation is not awaiting verification');
 			}
+
+			const donation = await BookDonation.findOne({
+				where: { id },
+				include: ['user', 'address', 'book_donation_items'],
+				transaction: t,
+			});
 
 			const oldStatus = donation.status;
 
 			if (approve) {
+				// Idempotensi: jika order sudah pernah ter-confirm, jangan confirm
+				// (charge) ulang — cukup pakai data yang ada.
 				let order;
-				try {
-					const result = await DeliveryController.confirm(donation);
-					order = result.data;
-				} catch (err) {
-					console.error(
-						'Biteship confirm failed on approval:',
-						donation.id,
-						err.response?.data || err.message
-					);
-					throw new ApiError(
-						502,
-						'Gagal mengonfirmasi pengiriman ke Biteship. Status pembayaran tidak diubah.',
-						err.response?.data
-					);
+				if (donation.tracking_id) {
+					order = {
+						id: donation.order_id,
+						price: donation.shipping_fee,
+						courier: { tracking_id: donation.tracking_id },
+					};
+				} else {
+					try {
+						const result = await DeliveryController.confirm(donation);
+						order = result.data;
+					} catch (err) {
+						console.error(
+							'Biteship confirm failed on approval:',
+							donation.id,
+							err.response?.data || err.message
+						);
+						throw new ApiError(
+							502,
+							'Gagal mengonfirmasi pengiriman ke Biteship. Status pembayaran tidak diubah.',
+							err.response?.data
+						);
+					}
 				}
 
-				await donation.update({
-					order_id: order.id,
-					tracking_id: order.courier?.tracking_id || null,
-					status: PAYMENT_STATUS.SUCCESS,
-					verified_at: new Date(),
-					verified_by: req.user.id,
-					acceptance_notes:
-						req.body.acceptance_notes ?? donation.acceptance_notes,
-				});
+				// Rekonsiliasi ongkir: bandingkan harga yang benar-benar di-charge
+				// Biteship dengan yang tersimpan (dibayar donatur).
+				const confirmedFee = Number(order.price);
+				const hasConfirmedFee = Number.isFinite(confirmedFee);
+				const feeMismatch =
+					hasConfirmedFee && confirmedFee !== Number(donation.shipping_fee);
 
-				await LogService.createLog(
-					'book_donation_payment_approved',
-					req.user.id,
-					'book_donation',
-					donation.id,
-					`${req.user.name} menyetujui pembayaran & mengonfirmasi pengiriman donasi #${donation.id}`,
+				await donation.update(
 					{
+						order_id: order.id,
+						tracking_id:
+							order.courier?.tracking_id || donation.tracking_id || null,
+						shipping_fee: hasConfirmedFee
+							? confirmedFee
+							: donation.shipping_fee,
+						status: PAYMENT_STATUS.SUCCESS,
+						verified_at: new Date(),
+						verified_by: req.user.id,
+						acceptance_notes:
+							req.body.acceptance_notes ?? donation.acceptance_notes,
+					},
+					{ transaction: t }
+				);
+
+				logPayload = {
+					action: 'book_donation_payment_approved',
+					message: `${req.user.name} menyetujui pembayaran & mengonfirmasi pengiriman donasi #${donation.id}`,
+					metadata: {
 						donation_id: donation.id,
 						old_status: oldStatus,
 						new_status: PAYMENT_STATUS.SUCCESS,
 						order_id: order.id,
 						tracking_id: donation.tracking_id,
+						shipping_fee_charged: hasConfirmedFee ? confirmedFee : null,
+						shipping_fee_mismatch: feeMismatch,
 					},
-					req
-				);
+				};
 			} else {
 				if (donation.order_id) {
 					try {
@@ -313,25 +350,38 @@ const BookDonationController = {
 					}
 				}
 
-				await donation.update({
-					status: PAYMENT_STATUS.FAILED,
-					verified_at: new Date(),
-					verified_by: req.user.id,
-					acceptance_notes:
-						req.body.acceptance_notes ?? donation.acceptance_notes,
-				});
-
-				await LogService.createLog(
-					'book_donation_payment_rejected',
-					req.user.id,
-					'book_donation',
-					donation.id,
-					`${req.user.name} menolak pembayaran donasi #${donation.id}`,
+				await donation.update(
 					{
+						status: PAYMENT_STATUS.FAILED,
+						verified_at: new Date(),
+						verified_by: req.user.id,
+						acceptance_notes:
+							req.body.acceptance_notes ?? donation.acceptance_notes,
+					},
+					{ transaction: t }
+				);
+
+				logPayload = {
+					action: 'book_donation_payment_rejected',
+					message: `${req.user.name} menolak pembayaran donasi #${donation.id}`,
+					metadata: {
 						donation_id: donation.id,
 						old_status: oldStatus,
 						new_status: PAYMENT_STATUS.FAILED,
 					},
+				};
+			}
+
+			await t.commit();
+
+			if (logPayload) {
+				await LogService.createLog(
+					logPayload.action,
+					req.user.id,
+					'book_donation',
+					donation.id,
+					logPayload.message,
+					logPayload.metadata,
 					req
 				);
 			}
@@ -343,6 +393,7 @@ const BookDonationController = {
 				)
 			);
 		} catch (error) {
+			if (!t.finished) await t.rollback();
 			if (error instanceof ApiError) return next(error);
 			next(error);
 		}
@@ -381,10 +432,18 @@ const BookDonationController = {
 
 			if (!donation) throw new ApiError(404, 'Book donation not found');
 
-			const oldStatus = donation.status;
-			await donation.update(req.body);
+			// Whitelist: cegah penimpaan field revenue/order (order_id,
+			// shipping_fee, tracking_id, verified_by, dll) lewat body mentah.
+			const ALLOWED_UPDATE_FIELDS = ['status', 'acceptance_notes'];
+			const payload = {};
+			for (const field of ALLOWED_UPDATE_FIELDS) {
+				if (req.body[field] !== undefined) payload[field] = req.body[field];
+			}
 
-			if (req.body.status && req.body.status !== oldStatus) {
+			const oldStatus = donation.status;
+			await donation.update(payload);
+
+			if (payload.status && payload.status !== oldStatus) {
 				await LogService.createLog(
 					'book_donation_status_updated',
 					req.user.id,

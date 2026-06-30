@@ -21,6 +21,7 @@ const CourierBookDonation = () => {
 			shipping_fee: courier.shipping_fee,
 			duration: courier.duration,
 			type: courier.type,
+			service_type: courier.service_type,
 		});
 		navigate('/dashboard/book-donations/create/review');
 	};

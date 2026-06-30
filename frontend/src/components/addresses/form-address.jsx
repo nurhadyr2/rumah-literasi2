@@ -51,9 +51,14 @@ const adminNameMatches = (a, b) => {
 	const na = normalizeAdminName(a);
 	const nb = normalizeAdminName(b);
 	if (!na || !nb) return false;
-	return na === nb || na.includes(nb) || nb.includes(na);
+	if (na === nb || na.includes(nb) || nb.includes(na)) return true;
+	// Abaikan perbedaan spasi, mis. "Setia Budi" (DB) vs "Setiabudi" (OSM).
+	const ca = na.replace(/\s+/g, '');
+	const cb = nb.replace(/\s+/g, '');
+	return ca === cb || ca.includes(cb) || cb.includes(ca);
 };
 
+const PROVINCE_FIELDS = ['state', 'province', 'region', 'city', 'county'];
 const CITY_FIELDS = ['city', 'county', 'town', 'municipality', 'state_district'];
 const DISTRICT_FIELDS = [
 	'city_district',
@@ -65,16 +70,32 @@ const DISTRICT_FIELDS = [
 	'town',
 ];
 
-const findMatchingOsmField = (addr, fields, targetName) => {
+// Pencocok wilayah administratif yang tahan terhadap inkonsistensi Nominatim.
+// Nama wilayah (provinsi/kota/kecamatan) kadang tidak ada sebagai nilai di
+// objek `address`, dan hanya muncul di `display_name`. Maka kita cek:
+//   1) field-field prioritas di objek address, lalu
+//   2) tiap segmen pada display_name.
+// `value` = nilai untuk ditampilkan (segmen yang cocok bila ketemu, atau
+// field prioritas pertama yang terisi bila tidak ada yang cocok).
+const probeAdmin = (addr, displayName, fields, targetName) => {
 	if (!targetName) return { matched: null, value: '' };
+
 	for (const f of fields) {
 		const v = addr[f];
 		if (v && adminNameMatches(v, targetName)) {
 			return { matched: true, value: v };
 		}
 	}
-	const firstValue = fields.map((f) => addr[f]).find(Boolean) || '';
-	return { matched: firstValue ? false : null, value: firstValue };
+
+	const segments = String(displayName || '')
+		.split(',')
+		.map((s) => s.trim())
+		.filter(Boolean);
+	const segmentHit = segments.find((s) => adminNameMatches(s, targetName));
+	if (segmentHit) return { matched: true, value: segmentHit };
+
+	const fallback = fields.map((f) => addr[f]).find(Boolean) || '';
+	return { matched: fallback ? false : null, value: fallback };
 };
 
 const AddressForm = ({ initial, action, label }) => {
@@ -188,20 +209,16 @@ const AddressForm = ({ initial, action, label }) => {
 				return;
 			}
 			const addr = result.address;
-			const osmProvince = addr.state || '';
-			const cityProbe = findMatchingOsmField(addr, CITY_FIELDS, cityName);
-			const districtProbe = findMatchingOsmField(
-				addr,
-				DISTRICT_FIELDS,
-				districtName
-			);
+			const dn = result.display_name;
+			const provinceProbe = probeAdmin(addr, dn, PROVINCE_FIELDS, provinceName);
+			const osmProvince = provinceProbe.value;
+			const cityProbe = probeAdmin(addr, dn, CITY_FIELDS, cityName);
+			const districtProbe = probeAdmin(addr, dn, DISTRICT_FIELDS, districtName);
 			const osmCity = cityProbe.value;
 			const osmDistrict = districtProbe.value;
 			const osmPostcode = addr.postcode || '';
 
-			const provinceMatch = provinceName
-				? adminNameMatches(osmProvince, provinceName)
-				: null;
+			const provinceMatch = provinceName ? provinceProbe.matched : null;
 			const cityMatch = cityName ? cityProbe.matched : null;
 			const districtMatch = districtName ? districtProbe.matched : null;
 

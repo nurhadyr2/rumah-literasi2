@@ -25,6 +25,7 @@ export const courierSchema = z.object({
 	shipping_fee: z.number(),
 	duration: z.string().nonempty(),
 	type: z.string().nonempty(),
+	service_type: z.string().optional(),
 });
 
 export const pickupScheduleSchema = z.object({

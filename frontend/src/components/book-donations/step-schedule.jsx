@@ -17,6 +17,11 @@ import { Loading } from '@/components/loading';
 import { Error } from '@/components/error';
 import { cn } from '@/libs/utils';
 
+// Penjadwalan waktu pickup hanya didukung kurir instan/same-day di Biteship.
+const SCHEDULED_SERVICE_TYPES = ['instant', 'same_day'];
+const supportsScheduledDelivery = (serviceType) =>
+	SCHEDULED_SERVICE_TYPES.includes(String(serviceType || '').toLowerCase());
+
 const TIME_SLOTS = [
 	{ value: '08:00-10:00', label: '08.00 – 10.00' },
 	{ value: '10:00-12:00', label: '10.00 – 12.00' },
@@ -31,7 +36,7 @@ const minDate = () => {
 	return d.toISOString().split('T')[0];
 };
 
-const PickupForm = ({ onSubmit, onBack, defaultValues }) => {
+const PickupForm = ({ onSubmit, onBack, defaultValues, schedulable }) => {
 	const {
 		register,
 		handleSubmit,
@@ -53,6 +58,18 @@ const PickupForm = ({ onSubmit, onBack, defaultValues }) => {
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} className='grid gap-6'>
 			<input type='hidden' {...register('type')} value='pickup' />
+
+			{!schedulable && (
+				<div className='flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800'>
+					<AlertCircle className='size-4 flex-none mt-0.5' />
+					<p>
+						Kurir yang Anda pilih tidak mendukung penjadwalan waktu pickup.
+						Tanggal & jam di bawah hanya menjadi preferensi — kurir akan
+						memproses penjemputan sesegera mungkin tanpa jaminan slot waktu.
+						Untuk pickup terjadwal, pilih kurir instan/same-day.
+					</p>
+				</div>
+			)}
 
 			<div>
 				<Label>Tanggal Pickup</Label>
@@ -237,6 +254,7 @@ const StepSchedule = () => {
 	const {
 		method,
 		detail,
+		courier,
 		schedule: savedSchedule,
 		setSchedule,
 		route,
@@ -277,6 +295,7 @@ const StepSchedule = () => {
 				<PickupForm
 					onSubmit={handleSubmit}
 					onBack={handleBack}
+					schedulable={supportsScheduledDelivery(courier?.service_type)}
 					defaultValues={
 						savedSchedule?.type === 'pickup' ? savedSchedule : null
 					}
