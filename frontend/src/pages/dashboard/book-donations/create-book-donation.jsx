@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { toast } from 'sonner';
 import { X, CheckCircle2 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSWRConfig } from 'swr';
 
 import axios from '@/libs/axios';
@@ -193,9 +193,45 @@ const STEP_TITLES = {
 	},
 };
 
+// const CreateBookDonation = () => {
+// 	const { step } = useDonation();
+// 	const { title, desc } = STEP_TITLES[step] || STEP_TITLES[STEPS.ITEMS];
+
+// 	return (
+// 		<div className='grid gap-8'>
+// 			<div className='grid gap-4'>
+// 				<Heading>
+// 					<HeadingTitle>{title}</HeadingTitle>
+// 					<HeadingDescription>{desc}</HeadingDescription>
+// 				</Heading>
+// 				<StepIndicator currentStep={step} />
+// 			</div>
+
+// 			{step === STEPS.ITEMS && <StepItems />}
+// 			{step === STEPS.METHOD && <StepMethod />}
+// 			{step === STEPS.DETAIL && <StepDetail />}
+// 			{step === STEPS.COURIER && <StepCourier />}
+// 			{step === STEPS.SCHEDULE && <StepSchedule />}
+// 			{step === STEPS.REVIEW && <ReviewBookDonation />}
+// 		</div>
+// 	);
+// };
+
+// export default CreateBookDonation;
+
+const VALID_STEPS = Object.values(STEPS);
+
 const CreateBookDonation = () => {
-	const { step } = useDonation();
-	const { title, desc } = STEP_TITLES[step] || STEP_TITLES[STEPS.ITEMS];
+	const { step, route } = useDonation();
+	const safeStep = VALID_STEPS.includes(step) ? step : STEPS.ITEMS;
+
+	React.useEffect(() => {
+		if (step !== safeStep) {
+			route(safeStep);
+		}
+	}, [step, safeStep, route]);
+
+	const { title, desc } = STEP_TITLES[safeStep] || STEP_TITLES[STEPS.ITEMS];
 
 	return (
 		<div className='grid gap-8'>
@@ -204,15 +240,15 @@ const CreateBookDonation = () => {
 					<HeadingTitle>{title}</HeadingTitle>
 					<HeadingDescription>{desc}</HeadingDescription>
 				</Heading>
-				<StepIndicator currentStep={step} />
+				<StepIndicator currentStep={safeStep} />
 			</div>
 
-			{step === STEPS.ITEMS && <StepItems />}
-			{step === STEPS.METHOD && <StepMethod />}
-			{step === STEPS.DETAIL && <StepDetail />}
-			{step === STEPS.COURIER && <StepCourier />}
-			{step === STEPS.SCHEDULE && <StepSchedule />}
-			{step === STEPS.REVIEW && <ReviewBookDonation />}
+			{safeStep === STEPS.ITEMS && <StepItems />}
+			{safeStep === STEPS.METHOD && <StepMethod />}
+			{safeStep === STEPS.DETAIL && <StepDetail />}
+			{safeStep === STEPS.COURIER && <StepCourier />}
+			{safeStep === STEPS.SCHEDULE && <StepSchedule />}
+			{safeStep === STEPS.REVIEW && <ReviewBookDonation />}
 		</div>
 	);
 };
