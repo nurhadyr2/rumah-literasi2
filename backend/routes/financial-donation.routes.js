@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const FinancialDonationController = require('../controllers/financial-donation.controller');
 
+const DokuPaymentController = require('../controllers/doku-payment.controller');
+
 const { ROLES } = require('../libs/constant');
 const { authorize, authorizeStrict } = require('../middleware/authorize');
 const { upload: local } = require('../middleware/local-upload');
@@ -23,6 +25,16 @@ router.post(
 	guestOnly,
 	upload.single('payment_proof'),
 	FinancialDonationController.pay
+);
+router.post(
+	'/:id/checkout',
+	guestOnly,
+	DokuPaymentController.checkout('financial')
+);
+router.get(
+	'/:id/payment-status',
+	guestOnly,
+	DokuPaymentController.status('financial')
 );
 router.put('/:id', guestOnly, FinancialDonationController.update);
 router.delete(

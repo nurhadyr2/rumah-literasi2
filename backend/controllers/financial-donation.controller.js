@@ -228,9 +228,17 @@ const FinancialDonationController = {
 				);
 			}
 
+			const amount = req.body.amount ?? financialDonation.amount;
+			const amountChanged =
+				Number(amount) !== Number(financialDonation.amount);
+
 			await financialDonation.update({
-				amount: req.body.amount ?? financialDonation.amount,
+				amount,
 				notes: req.body.notes ?? financialDonation.notes,
+				...(amountChanged && {
+					payment_url: null,
+					payment_expired_at: null,
+				}),
 			});
 
 			return res.json(

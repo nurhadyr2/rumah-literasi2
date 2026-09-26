@@ -1,28 +1,52 @@
 import * as React from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { toast } from 'sonner';
-import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, UploadCloud } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router';
+import { ArrowLeft, CheckCircle2, Clock, CreditCard, RefreshCw } from 'lucide-react';
 
 import axios from '@/libs/axios';
-import { currency, animate, whatsappUrl } from '@/libs/utils';
-import { WHATSAPP_ADMIN_NUMBER } from '@/libs/constant';
-import { useAuth } from '@/hooks/use-auth';
+import { currency, animate } from '@/libs/utils';
+import { PAYMENT_STATUS } from '@/libs/constant';
 
 import {
 	Heading,
 	HeadingDescription,
 	HeadingTitle,
 } from '@/components/ui/heading';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Hint } from '@/components/ui/hint';
 import { Loading } from '@/components/loading';
+import ShippingFeeNote from '@/components/book-donations/shipping-fee-note';
 import { Error } from '@/components/error';
-import PaymentChannelPicker from '@/components/payments/payment-channel-picker';
+
+const DOKU_CHECKOUT_JS = import.meta.env.VITE_DOKU_CHECKOUT_JS;
+
+let checkoutScript;
+const loadCheckoutScript = () => {
+	if (!DOKU_CHECKOUT_JS) return Promise.resolve(false);
+	if (window.loadJokulCheckout) return Promise.resolve(true);
+
+	checkoutScript ??= new Promise((resolve) => {
+		const script = document.createElement('script');
+		script.src = DOKU_CHECKOUT_JS;
+		script.async = true;
+		script.onload = () => resolve(Boolean(window.loadJokulCheckout));
+		script.onerror = () => {
+			checkoutScript = undefined;
+			resolve(false);
+		};
+		document.body.appendChild(script);
+	});
+	return checkoutScript;
+};
+
+const openCheckout = async (url) => {
+	const popup = await loadCheckoutScript();
+	if (popup) return window.loadJokulCheckout(url);
+	window.location.assign(url);
+};
 
 const PayDonation = ({ type }) => {
-	const { user } = useAuth();
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const { mutate } = useSWRConfig();
@@ -38,71 +62,76 @@ const PayDonation = ({ type }) => {
 
 	const { data, error, isLoading } = useSWR(endpoint + id);
 
-	const [channelId, setChannelId] = React.useState(null);
-	const [proof, setProof] = React.useState(null);
 	const [submitting, setSubmitting] = React.useState(false);
+	const [checking, setChecking] = React.useState(false);
 
 	const donation = data?.data;
-	const amount =
-		type === 'book' ? donation?.shipping_fee : donation?.amount;
+	const amount = type === 'book' ? donation?.shipping_fee : donation?.amount;
 	const hasValidAmount = Number.isFinite(Number(amount)) && Number(amount) > 0;
+	const isPending = donation?.status === PAYMENT_STATUS.PENDING;
 
-	const createWhatsappConfirmation = () => {
-		const donorName = donation?.user?.name || user?.name || 'Donatur';
-		const donationType = type === 'book' ? 'Donasi Buku' : 'Donasi Finansial';
-		const lines = [
-			'Halo Admin Mraen Mimpi, saya ingin mengonfirmasi donasi berikut:',
-			'',
-			`Nama donatur: ${donorName}`,
-			`Jenis donasi: ${donationType}`,
-			`ID donasi: ${donation?.id || id}`,
-		];
+	const refresh = React.useCallback(() => {
+		mutate(listEndpoint);
+		return mutate(endpoint + id);
+	}, [mutate, listEndpoint, endpoint, id]);
 
-		if (type === 'financial') {
-			lines.push(`Nominal transaksi: ${currency(Number(amount))}`);
-		} else if (donation?.book_donation_items?.length) {
-			const totalBooks = donation.book_donation_items.reduce(
-				(total, item) => total + Number(item.amount || 0),
-				0
-			);
-			lines.push(`Jumlah buku: ${totalBooks} buku`);
+	const checkStatus = React.useCallback(
+		async ({ silent = false } = {}) => {
+			try {
+				setChecking(true);
+				const result = await axios.get(endpoint + id + '/payment-status');
+				const status = result.data?.data?.status;
+				await refresh();
+
+				if (status && status !== PAYMENT_STATUS.PENDING) {
+					animate();
+					toast('Pembayaran berhasil diterima');
+				} else if (!silent) {
+					toast('Pembayaran belum diterima', {
+						description:
+							'Jika Anda sudah membayar, tunggu sebentar lalu cek kembali.',
+					});
+				}
+			} catch (err) {
+				if (!silent) {
+					toast.error('Gagal mengecek status pembayaran', {
+						description: err.response?.data?.message || err.message,
+					});
+				}
+			} finally {
+				setChecking(false);
+			}
+		},
+		[endpoint, id, refresh]
+	);
+
+	const synced = React.useRef(false);
+	React.useEffect(() => {
+		if (synced.current || !donation) return;
+		if (isPending && donation.invoice_number) {
+			synced.current = true;
+			checkStatus({ silent: true });
 		}
+	}, [donation, isPending, checkStatus]);
 
-		lines.push('', 'Bukti pembayaran sudah saya unggah. Mohon dicek, terima kasih.');
-		return whatsappUrl(WHATSAPP_ADMIN_NUMBER, lines.join('\n'));
-	};
-
-	const onSubmit = async (e) => {
-		e.preventDefault();
+	const onPay = async () => {
 		if (!hasValidAmount) {
 			return toast.error(
 				type === 'book'
-					? 'Ongkir belum tersedia. Jangan lakukan pembayaran dan hubungi admin.'
+					? 'Ongkir belum tersedia. Silakan hubungi admin.'
 					: 'Nominal pembayaran tidak valid.'
 			);
 		}
-		if (!channelId) return toast.error('Pilih metode pembayaran terlebih dahulu');
-		if (!proof) return toast.error('Unggah bukti pembayaran terlebih dahulu');
-
-		const form = new FormData();
-		form.append('payment_channel_id', channelId);
-		form.append('payment_proof', proof);
 
 		try {
 			setSubmitting(true);
-			await axios.post(endpoint + id + '/pay', form, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-			});
-			mutate(listEndpoint);
-			mutate(endpoint + id);
-			toast('Bukti pembayaran terkirim', {
-				description:
-					'Status menjadi "Menunggu Verifikasi". Admin akan memverifikasi dalam 1×24 jam.',
-			});
-			animate();
-			window.location.assign(createWhatsappConfirmation());
+			const result = await axios.post(endpoint + id + '/checkout');
+			const url = result.data?.data?.payment_url;
+			if (!url) throw new globalThis.Error('URL pembayaran tidak tersedia');
+
+			await openCheckout(url);
 		} catch (err) {
-			toast.error('Gagal mengirim bukti pembayaran', {
+			toast.error('Gagal membuat pembayaran', {
 				description: err.response?.data?.message || err.message,
 			});
 		} finally {
@@ -115,8 +144,8 @@ const PayDonation = ({ type }) => {
 			<Heading>
 				<HeadingTitle>Pembayaran Donasi</HeadingTitle>
 				<HeadingDescription>
-					Pilih metode pembayaran, lakukan transfer, lalu unggah bukti
-					pembayaran. Admin akan memverifikasi pembayaran Anda.
+					Pembayaran diproses otomatis melalui DOKU. Anda bisa membayar dengan
+					Virtual Account, QRIS, e-wallet, atau metode lain yang tersedia.
 				</HeadingDescription>
 			</Heading>
 
@@ -124,7 +153,7 @@ const PayDonation = ({ type }) => {
 			<Loading loading={isLoading} />
 
 			{donation && (
-				<form onSubmit={onSubmit} className='grid gap-6'>
+				<div className='grid gap-6'>
 					<div className='rounded-xl border border-zinc-200 p-4'>
 						<span className='text-sm text-zinc-500'>
 							{type === 'book' ? 'Total Ongkir' : 'Total Donasi'}
@@ -134,36 +163,47 @@ const PayDonation = ({ type }) => {
 						</p>
 					</div>
 
-					{!hasValidAmount && (
+					{type === 'book' && isPending && hasValidAmount && <ShippingFeeNote />}
+
+					{isPending && !hasValidAmount && (
 						<div className='rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700'>
 							{type === 'book'
-								? 'Data ongkir tidak valid. Jangan transfer atau unggah bukti pembayaran. Silakan hubungi admin.'
+								? 'Data ongkir tidak valid. Silakan hubungi admin.'
 								: 'Nominal pembayaran tidak valid. Silakan hubungi admin.'}
 						</div>
 					)}
 
-					<div className='grid gap-2'>
-						<Label>Metode Pembayaran</Label>
-						<PaymentChannelPicker value={channelId} onChange={setChannelId} />
-					</div>
+					{donation.status === PAYMENT_STATUS.SUCCESS && (
+						<div className='flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700'>
+							<CheckCircle2 className='size-5 flex-none' />
+							<span>Pembayaran berhasil. Terima kasih atas donasi Anda!</span>
+						</div>
+					)}
 
-					<div className='grid gap-2'>
-						<Label htmlFor='payment_proof'>Bukti Pembayaran</Label>
-						<label className='flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-zinc-300 p-4 hover:border-amber-400'>
-							<UploadCloud className='size-5 text-zinc-400' />
-							<span className='text-sm text-zinc-500'>
-								{proof ? proof.name : 'Klik untuk mengunggah bukti transfer'}
+					{donation.status === PAYMENT_STATUS.WAITING_VERIFICATION && (
+						<div className='flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700'>
+							<Clock className='size-5 flex-none' />
+							<span>
+								{donation.payment_proof
+									? 'Bukti pembayaran sedang diverifikasi admin.'
+									: 'Pembayaran diterima. Admin akan segera mengonfirmasi pengiriman.'}
 							</span>
-							<input
-								id='payment_proof'
-								type='file'
-								accept='image/*,application/pdf'
-								className='hidden'
-								onChange={(e) => setProof(e.target.files?.[0] || null)}
-							/>
-						</label>
-						<Hint>Format gambar atau PDF, maksimal beberapa MB.</Hint>
-					</div>
+						</div>
+					)}
+
+					{donation.status === PAYMENT_STATUS.FAILED && (
+						<div className='rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700'>
+							Pembayaran donasi ini gagal. Silakan hubungi admin.
+						</div>
+					)}
+
+					{isPending && (
+						<Hint>
+							Setelah menekan tombol bayar, Anda akan diarahkan ke halaman
+							pembayaran DOKU. Status donasi akan diperbarui otomatis setelah
+							pembayaran berhasil.
+						</Hint>
+					)}
 
 					<div className='flex flex-wrap items-center gap-2'>
 						<Button
@@ -173,13 +213,35 @@ const PayDonation = ({ type }) => {
 							<ArrowLeft className='size-4 sm:mr-2' />
 							<span className='hidden sm:inline'>Kembali</span>
 						</Button>
-						<Button type='submit' disabled={submitting || !hasValidAmount}>
-							{submitting
-								? 'Mengirim...'
-								: 'Kirim Bukti & Konfirmasi via WhatsApp'}
-						</Button>
+
+						{isPending && (
+							<Button
+								type='button'
+								disabled={submitting || !hasValidAmount}
+								onClick={onPay}>
+								<CreditCard className='size-4 mr-2' />
+								{submitting ? 'Memproses...' : 'Bayar Sekarang'}
+							</Button>
+						)}
+
+						{isPending && donation.invoice_number && (
+							<Button
+								type='button'
+								variant='outline'
+								disabled={checking}
+								onClick={() => checkStatus()}>
+								<RefreshCw className='size-4 mr-2' />
+								{checking ? 'Mengecek...' : 'Cek Status Pembayaran'}
+							</Button>
+						)}
+
+						{!isPending && (
+							<Link to={listPath + '/' + donation.id}>
+								<Button type='button'>Lihat Detail Donasi</Button>
+							</Link>
+						)}
 					</div>
-				</form>
+				</div>
 			)}
 		</div>
 	);

@@ -229,6 +229,7 @@ import { Loading } from '@/components/loading';
 import { Error } from '@/components/error';
 import { Badge } from '@/components/ui/badge';
 import { Truck, MapPin, Clock, Package, AlertCircle } from 'lucide-react';
+import ShippingFeeNote from '@/components/book-donations/shipping-fee-note';
 
 const normalizeCollectionMethod = (method) => {
 	const normalized = String(method || '')
@@ -454,6 +455,8 @@ const StepCourier = () => {
 					);
 				})}
 			</div>
+
+			<ShippingFeeNote />
 
 			<div className='flex items-center gap-3 pt-2'>
 				<Button variant='outline' onClick={handleBack}>

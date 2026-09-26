@@ -81,7 +81,14 @@ if (isProduction) {
 	app.use(morgan('dev'));
 }
 
-app.use(express.json({ limit: '10mb' }));
+app.use(
+	express.json({
+		limit: '10mb',
+		verify: (req, res, buf) => {
+			if (req.originalUrl.startsWith('/api/webhooks/')) req.rawBody = buf;
+		},
+	})
+);
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
@@ -116,6 +123,7 @@ const merchantRoutes = require('../routes/merchant.routes');
 const paymentChannelRoutes = require('../routes/payment-channel.routes');
 const logRoutes = require('../routes/log.routes');
 const biteshipWebhookRoutes = require('../routes/biteship-webhook.routes');
+const dokuWebhookRoutes = require('../routes/doku-webhook.routes');
 
 app.get('/api/_healthcheck', (req, res) => {
 	res.status(200).json({
@@ -128,6 +136,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/teritories', teritoriesRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/webhooks/biteship', biteshipWebhookRoutes);
+app.use('/api/webhooks/doku', dokuWebhookRoutes);
 app.use('/uploads', require('express').static('uploads'));
 app.use(authenticate);
 app.use('/api/book-donations', bookDonationRoutes);

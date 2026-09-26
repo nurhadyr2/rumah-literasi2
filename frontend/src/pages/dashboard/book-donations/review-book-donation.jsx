@@ -293,6 +293,7 @@ import { Map } from '@/components/map';
 import { Loading } from '@/components/loading';
 import { Error } from '@/components/error';
 import { Badge } from '@/components/ui/badge';
+import ShippingFeeNote from '@/components/book-donations/shipping-fee-note';
 
 const displayWeight = (weight) => {
 	if (!weight && weight !== 0) return '—';
@@ -525,6 +526,7 @@ const ReviewBookDonation = () => {
 						<Input disabled defaultValue={courier?.duration} />
 					</div>
 				</div>
+				<ShippingFeeNote className='mt-4' />
 			</div>
 
 			<div className='flex flex-wrap items-center gap-3'>

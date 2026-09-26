@@ -95,6 +95,18 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: true,
 				type: DataTypes.INTEGER,
 			},
+			invoice_number: {
+				allowNull: true,
+				type: DataTypes.STRING(64),
+			},
+			payment_method: {
+				allowNull: true,
+				type: DataTypes.STRING,
+			},
+			payment_expired_at: {
+				allowNull: true,
+				type: DataTypes.DATE,
+			},
 		},
 		{
 			sequelize,
