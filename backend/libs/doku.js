@@ -9,6 +9,7 @@ const BASE_URL = (
 const CLIENT_ID = process.env.DOKU_CLIENT_ID;
 const SECRET_KEY = process.env.DOKU_SECRET_KEY;
 const PAYMENT_DUE_MINUTES = Number(process.env.DOKU_PAYMENT_DUE_MINUTES) || 60;
+const TIMEOUT_MS = Number(process.env.DOKU_TIMEOUT_MS) || 45000;
 
 const CHECKOUT_PATH = '/checkout/v1/payment';
 const STATUS_PATH = '/orders/v1/status/';
@@ -102,7 +103,7 @@ const createCheckout = async ({
 			...buildHeaders(CHECKOUT_PATH, body),
 			'Content-Type': 'application/json',
 		},
-		timeout: 20000,
+		timeout: TIMEOUT_MS,
 	});
 
 	return data.response;
@@ -114,7 +115,7 @@ const checkStatus = async (invoiceNumber) => {
 	const target = STATUS_PATH + encodeURIComponent(invoiceNumber);
 	const { data } = await axios.get(BASE_URL + target, {
 		headers: buildHeaders(target),
-		timeout: 20000,
+		timeout: TIMEOUT_MS,
 	});
 
 	return data;
