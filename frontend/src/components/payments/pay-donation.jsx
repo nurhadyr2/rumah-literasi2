@@ -2,11 +2,19 @@ import * as React from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { toast } from 'sonner';
 import { Link, useNavigate, useParams } from 'react-router';
-import { ArrowLeft, CheckCircle2, Clock, CreditCard, RefreshCw } from 'lucide-react';
+import {
+	ArrowLeft,
+	CheckCircle2,
+	Clock,
+	CreditCard,
+	MessageCircle,
+	RefreshCw,
+} from 'lucide-react';
 
 import axios from '@/libs/axios';
-import { currency, animate } from '@/libs/utils';
-import { PAYMENT_STATUS } from '@/libs/constant';
+import { currency, animate, whatsappUrl } from '@/libs/utils';
+import { PAYMENT_STATUS, WHATSAPP_ADMIN_NUMBER } from '@/libs/constant';
+import { useAuth } from '@/hooks/use-auth';
 
 import {
 	Heading,
@@ -46,7 +54,32 @@ const openCheckout = async (url) => {
 	window.location.assign(url);
 };
 
+const notifyStorage = (key) => ({
+	get: () => {
+		try {
+			return window.localStorage.getItem(key);
+		} catch {
+			return null;
+		}
+	},
+	set: () => {
+		try {
+			window.localStorage.setItem(key, '1');
+		} catch {
+			return;
+		}
+	},
+	remove: () => {
+		try {
+			window.localStorage.removeItem(key);
+		} catch {
+			return;
+		}
+	},
+});
+
 const PayDonation = ({ type }) => {
+	const { user } = useAuth();
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const { mutate } = useSWRConfig();
@@ -69,6 +102,46 @@ const PayDonation = ({ type }) => {
 	const amount = type === 'book' ? donation?.shipping_fee : donation?.amount;
 	const hasValidAmount = Number.isFinite(Number(amount)) && Number(amount) > 0;
 	const isPending = donation?.status === PAYMENT_STATUS.PENDING;
+	const isPaid = Boolean(donation?.paid_at) && !isPending;
+	const notify = React.useMemo(
+		() => notifyStorage(`doku-notify-${type}-${id}`),
+		[type, id]
+	);
+
+	const whatsappConfirmation = React.useMemo(() => {
+		if (!donation) return null;
+
+		const donorName = donation.user?.name || user?.name || 'Donatur';
+		const lines = [
+			'Halo Admin Mraen Mimpi, saya sudah melakukan pembayaran donasi berikut:',
+			'',
+			`Nama donatur: ${donorName}`,
+			`Jenis donasi: ${type === 'book' ? 'Donasi Buku' : 'Donasi Finansial'}`,
+			`ID donasi: ${donation.id}`,
+		];
+
+		if (type === 'book' && donation.book_donation_items?.length) {
+			const totalBooks = donation.book_donation_items.reduce(
+				(total, item) => total + Number(item.amount || 0),
+				0
+			);
+			lines.push(`Jumlah buku: ${totalBooks} buku`);
+		}
+		if (hasValidAmount) {
+			lines.push(
+				`${type === 'book' ? 'Ongkir' : 'Nominal'}: ${currency(Number(amount))}`
+			);
+		}
+		if (donation.payment_method) {
+			lines.push(`Metode pembayaran: ${donation.payment_method}`);
+		}
+		if (donation.invoice_number) {
+			lines.push(`No. invoice: ${donation.invoice_number}`);
+		}
+
+		lines.push('', 'Pembayaran sudah berhasil melalui DOKU. Terima kasih.');
+		return whatsappUrl(WHATSAPP_ADMIN_NUMBER, lines.join('\n'));
+	}, [donation, user, type, hasValidAmount, amount]);
 
 	const refresh = React.useCallback(() => {
 		mutate(listEndpoint);
@@ -114,6 +187,17 @@ const PayDonation = ({ type }) => {
 		}
 	}, [donation, isPending, checkStatus]);
 
+	React.useEffect(() => {
+		if (!isPaid || !whatsappConfirmation || !notify.get()) return;
+
+		notify.remove();
+		animate();
+		toast('Pembayaran berhasil', {
+			description: 'Anda akan diarahkan ke WhatsApp untuk mengabari admin.',
+		});
+		window.location.assign(whatsappConfirmation);
+	}, [isPaid, whatsappConfirmation, notify]);
+
 	const onPay = async () => {
 		if (!hasValidAmount) {
 			return toast.error(
@@ -129,6 +213,7 @@ const PayDonation = ({ type }) => {
 			const url = result.data?.data?.payment_url;
 			if (!url) throw new globalThis.Error('URL pembayaran tidak tersedia');
 
+			notify.set();
 			await openCheckout(url);
 		} catch (err) {
 			toast.error('Gagal membuat pembayaran', {
@@ -186,7 +271,7 @@ const PayDonation = ({ type }) => {
 							<span>
 								{donation.payment_proof
 									? 'Bukti pembayaran sedang diverifikasi admin.'
-									: 'Pembayaran diterima. Admin akan segera mengonfirmasi pengiriman.'}
+									: 'Pembayaran diterima. Pengiriman sedang dikonfirmasi admin.'}
 							</span>
 						</div>
 					)}
@@ -233,6 +318,15 @@ const PayDonation = ({ type }) => {
 								<RefreshCw className='size-4 mr-2' />
 								{checking ? 'Mengecek...' : 'Cek Status Pembayaran'}
 							</Button>
+						)}
+
+						{isPaid && whatsappConfirmation && (
+							<a href={whatsappConfirmation} target='_blank' rel='noreferrer'>
+								<Button type='button' variant='outline'>
+									<MessageCircle className='size-4 mr-2' />
+									Konfirmasi ke Admin via WhatsApp
+								</Button>
+							</a>
 						)}
 
 						{!isPending && (

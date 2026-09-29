@@ -2,7 +2,8 @@ const ApiError = require('./error');
 const LogService = require('./log-service');
 const Doku = require('./doku');
 const { PAYMENT_STATUS } = require('./constant');
-const { FinancialDonation, BookDonation } = require('../models');
+const DeliveryController = require('../controllers/delivery.controller');
+const { FinancialDonation, BookDonation, sequelize } = require('../models');
 
 const TYPES = {
 	financial: {
@@ -212,6 +213,11 @@ const DokuPayment = {
 				}
 			);
 
+			if (parsed.type === 'book') {
+				await DokuPayment.approveBookDonation(donation.id);
+				await donation.reload();
+			}
+
 			return { handled: true, donation };
 		}
 
@@ -226,6 +232,105 @@ const DokuPayment = {
 		}
 
 		return { handled: false, reason: 'ignored_status', donation };
+	},
+
+	async approveBookDonation(id) {
+		const t = await sequelize.transaction();
+		let donation;
+		try {
+			donation = await BookDonation.findOne({
+				where: { id },
+				lock: t.LOCK.UPDATE,
+				transaction: t,
+			});
+
+			if (
+				!donation ||
+				donation.status !== PAYMENT_STATUS.WAITING_VERIFICATION
+			) {
+				await t.rollback();
+				return { approved: false, reason: 'not_waiting_verification' };
+			}
+
+			let order;
+			if (donation.tracking_id) {
+				order = {
+					id: donation.order_id,
+					price: donation.shipping_fee,
+					courier: { tracking_id: donation.tracking_id },
+				};
+			} else {
+				const result = await DeliveryController.confirm(donation);
+				order = result.data;
+			}
+
+			const confirmedFee = Number(order.price);
+			const hasConfirmedFee =
+				order.price !== null &&
+				order.price !== undefined &&
+				Number.isFinite(confirmedFee) &&
+				confirmedFee > 0;
+			const feeMismatch =
+				hasConfirmedFee && confirmedFee !== Number(donation.shipping_fee);
+
+			await donation.update(
+				{
+					order_id: order.id,
+					tracking_id:
+						order.courier?.tracking_id || donation.tracking_id || null,
+					waybill_id: order.courier?.waybill_id || donation.waybill_id || null,
+					delivery_status: order.status || 'confirmed',
+					delivery_status_updated_at: new Date(),
+					shipping_fee: hasConfirmedFee ? confirmedFee : donation.shipping_fee,
+					status: PAYMENT_STATUS.SUCCESS,
+					verified_at: new Date(),
+				},
+				{ transaction: t }
+			);
+
+			await t.commit();
+
+			await LogService.createLog(
+				'book_donation_payment_auto_approved',
+				donation.user_id,
+				'book_donation',
+				donation.id,
+				`Donasi buku #${donation.id} disetujui otomatis setelah pembayaran DOKU berhasil`,
+				{
+					donation_id: donation.id,
+					order_id: order.id,
+					tracking_id: donation.tracking_id,
+					shipping_fee_charged: hasConfirmedFee ? confirmedFee : null,
+					shipping_fee_mismatch: feeMismatch,
+				}
+			);
+
+			return { approved: true, donation };
+		} catch (error) {
+			if (!t.finished) await t.rollback();
+
+			console.error(
+				'Auto approve book donation failed:',
+				id,
+				error.response?.data || error.message
+			);
+
+			if (donation) {
+				await LogService.createLog(
+					'book_donation_payment_auto_approve_failed',
+					donation.user_id,
+					'book_donation',
+					donation.id,
+					`Konfirmasi pengiriman otomatis donasi buku #${donation.id} gagal, menunggu persetujuan admin`,
+					{
+						donation_id: donation.id,
+						error: error.response?.data?.error || error.message,
+					}
+				);
+			}
+
+			return { approved: false, reason: 'confirm_failed' };
+		}
 	},
 
 	async syncStatus(donation) {
